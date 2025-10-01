@@ -1,0 +1,134 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Edit' : 'Add' }} Medical Condition</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()" fill="clear">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveHistory()" [disabled]="!historyData.condition.trim()">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Simple explanation -->
+  <div style="margin-bottom: 20px; padding: 16px; background-color: #f0f8ff; border-radius: 8px; border-left: 4px solid #0a3977;">
+    <h4 style="margin: 0 0 8px 0; color: #0a3977;">What is Medical History?</h4>
+    <p style="margin: 0; color: #555; font-size: 14px;">
+      Keep track of any health conditions you have or had in the past. This helps doctors understand your health better and is important for emergencies.
+    </p>
+  </div>
+
+  <!-- Quick Selection for Common Conditions -->
+  <div style="margin-bottom: 24px;">
+    <ion-label style="font-weight: 600; color: #333; margin-bottom: 12px; display: block;">
+      Choose a common condition or type your own:
+    </ion-label>
+    <div class="condition-chips">
+      <ion-chip 
+        *ngFor="let condition of commonConditions" 
+        (click)="selectCondition(condition)"
+        [outline]="historyData.condition !== condition"
+        [fill]="historyData.condition === condition ? 'solid' : 'outline'"
+        style="margin: 4px;">
+        {{ condition }}
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Simple condition input -->
+  <ion-item>
+    <ion-label position="stacked">Health Condition *</ion-label>
+    <ion-input 
+      [(ngModel)]="historyData.condition"
+      placeholder="e.g., Diabetes, High Blood Pressure, Asthma..."
+      required>
+    </ion-input>
+  </ion-item>
+
+  <!-- Diagnosis Date -->
+  <ion-item>
+    <ion-label position="stacked">When was this diagnosed? *</ion-label>
+    <ion-datetime
+      [(ngModel)]="historyData.diagnosisDate"
+      display-format="MMM DD, YYYY"
+      placeholder="Select date"
+      [max]="currentDate"
+      required>
+    </ion-datetime>
+  </ion-item>
+
+  <!-- Simple status question -->
+  <div style="margin: 24px 0;">
+    <ion-label style="font-weight: 600; color: #333; margin-bottom: 12px; display: block;">
+      Do you still have this condition?
+    </ion-label>
+    <ion-radio-group [(ngModel)]="historyData.status">
+      <ion-item>
+        <ion-radio value="active" slot="start"></ion-radio>
+        <ion-label>
+          <h3>Yes, I still have this</h3>
+          <p style="color: #666; margin: 0; font-size: 14px;">This condition is ongoing</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-radio value="resolved" slot="start"></ion-radio>
+        <ion-label>
+          <h3>No, it's gone/cured</h3>
+          <p style="color: #666; margin: 0; font-size: 14px;">This condition was treated and resolved</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-radio value="not-cured" slot="start"></ion-radio>
+        <ion-label>
+          <h3>Not cured/ongoing treatment</h3>
+          <p style="color: #666; margin: 0; font-size: 14px;">Condition persists despite treatment</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-radio value="chronic" slot="start"></ion-radio>
+        <ion-label>
+          <h3>It's a long-term condition</h3>
+          <p style="color: #666; margin: 0; font-size: 14px;">Needs ongoing management</p>
+        </ion-label>
+      </ion-item>
+    </ion-radio-group>
+  </div>
+
+  <!-- Optional notes -->
+  <ion-item>
+    <ion-label position="stacked">Extra Notes (Optional)</ion-label>
+    <ion-textarea 
+      [(ngModel)]="historyData.notes"
+      placeholder="Any extra details you want to remember..."
+      rows="2"
+      autoGrow="true">
+    </ion-textarea>
+  </ion-item>
+
+  <!-- Action Buttons -->
+  <div style="margin-top: 32px;">
+    <ion-button 
+      expand="block" 
+      (click)="saveHistory()" 
+      [disabled]="!historyData.condition.trim()">
+      <ion-icon name="save-outline" slot="start"></ion-icon>
+      {{ isEditMode ? 'Update' : 'Save' }} Medical Condition
+    </ion-button>
+
+    <ion-button 
+      *ngIf="isEditMode" 
+      expand="block" 
+      color="danger" 
+      fill="outline" 
+      (click)="deleteHistory()"
+      style="margin-top: 12px;">
+      <ion-icon name="trash-outline" slot="start"></ion-icon>
+      Remove This Condition
+    </ion-button>
+  </div>
+</ion-content>

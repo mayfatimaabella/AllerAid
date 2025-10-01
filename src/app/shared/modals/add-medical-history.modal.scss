@@ -1,0 +1,59 @@
+.condition-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  
+  ion-chip {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 16px;
+  
+  ion-label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--ion-color-primary);
+  }
+}
+
+ion-textarea {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  background-color: #fff;
+}
+
+.status-info {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  
+  p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    
+    li {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+  }
+}

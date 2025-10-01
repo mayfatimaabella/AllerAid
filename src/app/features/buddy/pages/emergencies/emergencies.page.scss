@@ -1,0 +1,61 @@
+ion-toolbar {
+  --background: #036a5d;
+  --color: white;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--ion-color-medium);
+}
+
+.empty-state ion-icon {
+  color: var(--ion-color-success);
+  margin-bottom: 1rem;
+}
+
+.emergency-card {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.emergency-card:last-child {
+  border-bottom: none;
+}
+
+.emergency-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.emergency-header h2 {
+  margin: 0;
+  color: white;
+  font-weight: 600;
+}
+
+.emergency-details {
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.emergency-details p {
+  margin: 0.5rem 0;
+}
+
+.emergency-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+ion-card[color="danger"] {
+  --background: var(--ion-color-danger);
+  --color: white;
+}
+
+ion-segment {
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,300 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Edit Doctor Visit' : 'Add Doctor Visit' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="saveVisit()">
+    <ion-list lines="full">
+      <!-- Doctor Selection Mode Toggle -->
+      <ion-item>
+        <ion-label position="stacked">Doctor Selection Method</ion-label>
+        <ion-segment [(ngModel)]="doctorInputMode" name="doctorInputMode">
+          <ion-segment-button value="dropdown">
+            <ion-label>Select from List</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="manual">
+            <ion-label>Manual Entry</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-item>
+
+      <!-- Dropdown Doctor Selection -->
+      <ion-item *ngIf="doctorInputMode === 'dropdown'">
+        <ion-label position="stacked">Select Doctor *</ion-label>
+        <ion-select 
+          [(ngModel)]="selectedDoctorEmail" 
+          name="selectedDoctorEmail"
+          placeholder="Choose from available doctors"
+          (ionChange)="onDoctorSelection()">
+          <ion-select-option *ngFor="let doctor of availableDoctors" [value]="doctor.email">
+            {{ doctor.name }} - {{ doctor.specialty }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Manual Doctor Input -->
+      <ion-item *ngIf="doctorInputMode === 'manual'">
+        <ion-label position="stacked">Doctor Name *</ion-label>
+        <ion-input 
+          [(ngModel)]="manualDoctorName" 
+          name="manualDoctorName" 
+          placeholder="e.g., Dr. Smith"
+          (ionInput)="onManualDoctorInput()"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <!-- Manual Doctor Email Input (Optional) -->
+      <ion-item *ngIf="doctorInputMode === 'manual'">
+        <ion-label position="stacked">Doctor Email (Optional)</ion-label>
+        <ion-input 
+          [(ngModel)]="manualDoctorEmail" 
+          name="manualDoctorEmail" 
+          type="email"
+          placeholder="e.g., doctor@hospital.com"
+          (ionInput)="onManualDoctorEmailInput()">
+        </ion-input>
+        <ion-note>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Providing email enables automatic access requests if doctor is registered in AllerAid
+        </ion-note>
+      </ion-item>
+
+      <!-- Show selected/entered doctor name -->
+      <ion-item *ngIf="visitData.doctorName">
+        <ion-label>
+          <h3>Selected Doctor: {{ visitData.doctorName }}</h3>
+          <p *ngIf="visitData.doctorEmail">Email: {{ visitData.doctorEmail }}</p>
+          <p *ngIf="visitData.specialty">Specialty: {{ visitData.specialty }}</p>
+          <ion-note *ngIf="visitData.doctorEmail" color="success">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            Registered in AllerAid - Will receive access request
+          </ion-note>
+          <ion-note *ngIf="!visitData.doctorEmail" color="warning">
+            <ion-icon name="information-circle"></ion-icon>
+            Manual entry - Doctor must be registered separately for dashboard access
+          </ion-note>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Specialty</ion-label>
+        <ion-select 
+          [(ngModel)]="visitData.specialty" 
+          name="specialty" 
+          placeholder="Select specialty">
+          <ion-select-option *ngFor="let specialty of specialties" [value]="specialty">
+            {{ specialty }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Visit Date *</ion-label>
+        <ion-datetime-button datetime="visitDate"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime 
+              id="visitDate" 
+              [(ngModel)]="visitData.visitDate" 
+              name="visitDate"
+              presentation="date">
+            </ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Visit Type</ion-label>
+        <ion-select 
+          [(ngModel)]="visitData.visitType" 
+          name="visitType">
+          <ion-select-option *ngFor="let type of visitTypes" [value]="type.value">
+            {{ type.label }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Chief Complaint *</ion-label>
+        <ion-textarea 
+          [(ngModel)]="visitData.chiefComplaint" 
+          name="chiefComplaint"
+          placeholder="Main reason for visit"
+          rows="2"
+          required>
+        </ion-textarea>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Diagnosis</ion-label>
+        <ion-textarea 
+          [(ngModel)]="visitData.diagnosis" 
+          name="diagnosis"
+          placeholder="Doctor's diagnosis"
+          rows="2">
+        </ion-textarea>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Treatment</ion-label>
+        <ion-textarea 
+          [(ngModel)]="visitData.treatment" 
+          name="treatment"
+          placeholder="Treatment provided"
+          rows="2">
+        </ion-textarea>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Recommendations</ion-label>
+        <ion-textarea 
+          [(ngModel)]="visitData.recommendations" 
+          name="recommendations"
+          placeholder="Doctor's recommendations"
+          rows="2">
+        </ion-textarea>
+      </ion-item>
+
+      <!-- Vital Signs Section -->
+      <ion-item-group>
+        <ion-item-divider>
+          <ion-label>Vital Signs</ion-label>
+        </ion-item-divider>
+
+        <ion-item>
+          <ion-label position="stacked">Blood Pressure</ion-label>
+          <ion-input 
+            [(ngModel)]="visitData.vitalSigns!.bloodPressure" 
+            name="bloodPressure"
+            placeholder="e.g., 120/80">
+          </ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Heart Rate (bpm)</ion-label>
+          <ion-input 
+            [(ngModel)]="visitData.vitalSigns!.heartRate" 
+            name="heartRate"
+            type="number"
+            placeholder="e.g., 72">
+          </ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Temperature (°F)</ion-label>
+          <ion-input 
+            [(ngModel)]="visitData.vitalSigns!.temperature" 
+            name="temperature"
+            type="number"
+            placeholder="e.g., 98.6">
+          </ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Weight (lbs)</ion-label>
+          <ion-input 
+            [(ngModel)]="visitData.vitalSigns!.weight" 
+            name="weight"
+            type="number"
+            placeholder="e.g., 150">
+          </ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Height (inches)</ion-label>
+          <ion-input 
+            [(ngModel)]="visitData.vitalSigns!.height" 
+            name="height"
+            type="number"
+            placeholder="e.g., 68">
+          </ion-input>
+        </ion-item>
+      </ion-item-group>
+
+      <!-- Prescriptions Section -->
+      <ion-item-group>
+        <ion-item-divider>
+          <ion-label>Prescriptions</ion-label>
+        </ion-item-divider>
+
+        <ion-item>
+          <ion-label position="stacked">Add Prescription</ion-label>
+          <ion-input 
+            [(ngModel)]="newPrescription" 
+            name="newPrescription"
+            placeholder="e.g., Ibuprofen 200mg">
+          </ion-input>
+          <ion-button 
+            slot="end" 
+            fill="clear" 
+            (click)="addPrescription()"
+            [disabled]="!newPrescription.trim()">
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+
+        <ion-item *ngFor="let prescription of visitData.prescriptions || []; let i = index">
+          <ion-label>{{ prescription }}</ion-label>
+          <ion-button 
+            slot="end" 
+            fill="clear" 
+            color="danger"
+            (click)="removePrescription(i)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-item-group>
+
+      <ion-item>
+        <ion-label position="stacked">Next Appointment</ion-label>
+        <ion-datetime-button datetime="nextAppointment"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime 
+              id="nextAppointment" 
+              [(ngModel)]="visitData.nextAppointment" 
+              name="nextAppointment"
+              presentation="date">
+            </ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Additional Notes</ion-label>
+        <ion-textarea 
+          [(ngModel)]="visitData.notes" 
+          name="notes"
+          placeholder="Any additional notes"
+          rows="3">
+        </ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <div style="margin-top: 20px;">
+      <ion-button 
+        expand="block" 
+        type="submit" 
+        [disabled]="!visitData.doctorName.trim() || !visitData.chiefComplaint.trim()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        {{ isEditMode ? 'Update Visit' : 'Save Visit' }}
+      </ion-button>
+      
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        (click)="dismiss()" 
+        style="margin-top: 8px;">
+        Cancel
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

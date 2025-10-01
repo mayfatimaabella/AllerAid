@@ -1,0 +1,415 @@
+ion-toolbar {
+  --background: #036a5d;
+  --color: white;
+}
+
+// Mobile-first responsive container
+.mobile-container {
+  padding: 8px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.emergency-section {
+  width: 100%;
+}
+
+// Emergency card improvements
+.emergency-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.emergency-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+// Emergency header responsive design
+.emergency-header {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 0;
+}
+
+.emergency-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+// Content spacing
+.emergency-content {
+  padding: 16px;
+  
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
+}
+
+// Patient info section
+.patient-info {
+  margin-bottom: 20px;
+}
+
+.patient-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  padding: 12px;
+  background: rgba(var(--ion-color-primary-rgb), 0.05);
+  border-radius: 12px;
+}
+
+.patient-avatar {
+  background: var(--ion-color-primary);
+  color: white;
+  width: 48px;
+  height: 48px;
+}
+
+.patient-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ion-color-dark);
+}
+
+.emergency-type {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+}
+
+.critical-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+// Info sections
+.info-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin-bottom: 12px;
+  
+  ion-icon {
+    color: var(--ion-color-primary);
+  }
+}
+
+// Map container responsive
+.map-container {
+  height: 180px;
+  border-radius: 12px;
+  background-image: url('https://maps.googleapis.com/maps/api/staticmap?center=14.5995,120.9842&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C14.5995,120.9842&key=YOUR_API_KEY');
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 12px;
+  border: 2px solid var(--ion-color-light);
+  
+  @media (min-width: 768px) {
+    height: 220px;
+  }
+}
+
+.location-content {
+  .location-text {
+    margin-top: 8px;
+  }
+}
+
+// Instruction box
+.instruction-box {
+  background: var(--ion-color-light);
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ion-color-dark);
+  border-left: 4px solid var(--ion-color-primary);
+}
+
+// Voice section
+.voice-section {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.voice-button {
+  font-size: 1rem;
+  --padding-start: 20px;
+  --padding-end: 20px;
+}
+
+// Actions section - Mobile first
+.actions-section {
+  margin-top: 24px;
+}
+
+.action-grid {
+  padding: 0;
+}
+
+.action-row {
+  margin: 0;
+}
+
+.action-col {
+  padding: 6px;
+}
+
+.action-button {
+  height: 56px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 0;
+  
+  // Better touch targets
+  --padding-start: 16px;
+  --padding-end: 16px;
+  
+  ion-icon {
+    font-size: 1.2rem;
+  }
+  
+  @media (min-width: 768px) {
+    font-size: 1rem;
+    height: 60px;
+  }
+}
+
+.primary-action {
+  --background: var(--ion-color-success);
+  --background-hover: var(--ion-color-success-shade);
+  box-shadow: 0 4px 12px rgba(var(--ion-color-success-rgb), 0.3);
+}
+
+.speak-alert {
+  --background: #a855f7;
+  --background-hover: #9333ea;
+  color: white;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+
+// Confirmation card
+.confirmation-card {
+  margin-top: 20px;
+  border-radius: 16px;
+  --background: #d1fae5;
+  color: #065f46;
+  overflow: hidden;
+}
+
+.confirmation-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.confirmation-icon {
+  margin-bottom: 12px;
+}
+
+.confirmation-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.confirmation-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+// No emergency state
+.no-emergency-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.no-emergency-header {
+  padding: 20px 20px 0 20px;
+}
+
+.no-emergency-content {
+  padding: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.empty-icon {
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.empty-state p {
+  margin: 0 0 24px 0;
+  color: var(--ion-color-medium);
+  line-height: 1.5;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  @media (min-width: 480px) {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.quick-action-btn {
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 500;
+  
+  @media (min-width: 480px) {
+    flex: 0 1 auto;
+    min-width: 160px;
+  }
+}
+
+// Updated button styles to match screenshot
+.voice-available {
+  margin: 12px 0;
+  text-align: center;
+  
+  ion-chip {
+    --background: rgba(66, 165, 245, 0.1);
+    --color: #42a5f5;
+    font-weight: 500;
+  }
+}
+
+.primary-actions {
+  margin: 20px 0 16px 0;
+  
+  .response-button {
+    height: 48px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    
+    &[color="success"] {
+      --background: #4caf50;
+      --background-hover: #43a047;
+    }
+    
+    &[color="medium"] {
+      --background: #757575;
+      --background-hover: #616161;
+    }
+  }
+}
+
+.secondary-actions {
+  margin: 16px 0;
+  
+  .action-button {
+    height: 44px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-radius: 8px;
+    
+    &[color="primary"] {
+      --background: #2196f3;
+      --background-hover: #1976d2;
+    }
+    
+    &[color="success"] {
+      --background: #4caf50;
+      --background-hover: #43a047;
+    }
+  }
+}
+
+.speak-section {
+  margin: 16px 0 20px 0;
+  
+  .speak-button {
+    height: 48px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    --background: #9c27b0;
+    --background-hover: #7b1fa2;
+    color: white;
+  }
+}
+
+// Enhanced instruction box
+.instruction-box {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  font-style: italic;
+  color: #424242;
+  line-height: 1.4;
+}
+
+// Responsive breakpoints
+@media (min-width: 768px) {
+  .mobile-container {
+    padding: 16px;
+    max-width: 800px;
+  }
+  
+  .action-grid {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-container {
+    padding: 24px;
+    max-width: 900px;
+  }
+}

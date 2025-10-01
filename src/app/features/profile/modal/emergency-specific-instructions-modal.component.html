@@ -1,0 +1,89 @@
+<ng-container *ngIf="!showInstructionDetailsModal">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Manage Emergency Instructions</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onClose()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <form (ngSubmit)="onSubmit()">
+      <ion-item>
+        <ion-label position="stacked">Allergy</ion-label>
+        <ion-select [(ngModel)]="selectedAllergyForInstruction" name="allergy" [disabled]="!!editingInstruction">
+          <ion-select-option *ngFor="let allergy of userAllergies" [value]="allergy">{{ allergy.label }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Instruction</ion-label>
+        <ion-textarea [(ngModel)]="newInstructionText" name="instruction" autoGrow="true"></ion-textarea>
+      </ion-item>
+      <ion-row class="ion-padding-top">
+        <ion-col>
+          <ion-button expand="block" type="submit" [disabled]="!selectedAllergyForInstruction || !newInstructionText">
+            {{ editingInstruction ? 'Update' : 'Add' }} Instruction
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="editingInstruction">
+          <ion-button expand="block" color="medium" (click)="onCancelEdit()">Cancel</ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+    <ion-list *ngIf="emergencyInstructions.length > 0">
+      <ion-list-header>Existing Instructions</ion-list-header>
+      <ion-item *ngFor="let instruction of emergencyInstructions">
+        <ion-label>
+          <h2>{{ instruction.allergyName }}</h2>
+          <p>{{ instruction.instruction }}</p>
+        </ion-label>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="primary" (click)="onEditInstruction(instruction)">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="danger" (click)="onRemoveInstruction(instruction.allergyId || instruction.allergyName)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="secondary" (click)="onShowDetails(instruction)">
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ng-container>
+<ng-container *ngIf="showInstructionDetailsModal && selectedInstructionDetails">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Instruction Details</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onClose()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ selectedInstructionDetails.allergyName }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ selectedInstructionDetails.instruction }}</p>
+      </ion-card-content>
+    </ion-card>
+    <ion-row class="ion-padding-top">
+      <ion-col>
+        <ion-button expand="block" color="primary" (click)="onEditInstruction(selectedInstructionDetails)">Edit</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" color="danger" (click)="onRemoveInstruction(selectedInstructionDetails.allergyId || selectedInstructionDetails.allergyName)">Delete</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" color="medium" (click)="onClose()">Close</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-content>
+</ng-container>

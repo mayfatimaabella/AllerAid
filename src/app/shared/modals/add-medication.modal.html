@@ -1,0 +1,143 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Edit' : 'Add' }} Medication</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="saveMedication()">
+    <ion-list lines="full">
+      <ion-item>
+        <ion-label position="stacked">Name of Medication *</ion-label>
+        <ion-input 
+          [(ngModel)]="med.name" 
+          name="name" 
+          placeholder="e.g., Ibuprofen, Cetirizine"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Dosage *</ion-label>
+        <ion-input 
+          [(ngModel)]="med.dosage" 
+          name="dosage"
+          placeholder="e.g., 200mg, 10mg"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Number of Pills *</ion-label>
+        <ion-input 
+          [(ngModel)]="med.quantity" 
+          name="quantity"
+          type="number"
+          placeholder="e.g., 30, 60"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Duration *</ion-label>
+        <ion-input 
+          [(ngModel)]="med.frequency" 
+          name="frequency"
+          placeholder="e.g., 10 days, 2 weeks"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Notes</ion-label>
+        <ion-textarea 
+          [(ngModel)]="med.notes" 
+          name="notes"
+          rows="3"
+          placeholder="Additional notes about the medication">
+        </ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <!-- Prescription Image Section -->
+    <div style="margin-top: 20px;">
+      <ion-label>
+        <h3>Prescription Image</h3>
+        <p style="color: #666; font-size: 14px;">Add a photo of your prescription for reference</p>
+      </ion-label>
+      
+      <div style="margin-top: 12px;">
+        <ion-button 
+          fill="outline" 
+          (click)="selectPrescriptionImage()"
+          style="margin-right: 8px;">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Add Prescription Photo
+        </ion-button>
+        
+        <div *ngIf="prescriptionImage" style="margin-top: 12px; position: relative;">
+          <img [src]="prescriptionImage" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;">
+          <ion-button 
+            fill="clear" 
+            color="danger" 
+            (click)="removePrescriptionImage()"
+            style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.9); border-radius: 50%;">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medication Image Section -->
+    <div style="margin-top: 20px;">
+      <ion-label>
+        <h3>Medication Image</h3>
+        <p style="color: #666; font-size: 14px;">Add a photo of the actual medication (pills, bottle, etc.)</p>
+      </ion-label>
+      
+      <div style="margin-top: 12px;">
+        <ion-button 
+          fill="outline" 
+          (click)="selectMedicationImage()"
+          style="margin-right: 8px;">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Add Medication Photo
+        </ion-button>
+        
+        <div *ngIf="medicationImage" style="margin-top: 12px; position: relative;">
+          <img [src]="medicationImage" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;">
+          <ion-button 
+            fill="clear" 
+            color="danger" 
+            (click)="removeMedicationImage()"
+            style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.9); border-radius: 50%;">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <ion-button 
+        expand="block" 
+        type="submit" 
+        [disabled]="!med.name.trim() || !med.dosage.trim() || !med.quantity || !med.frequency.trim()">
+        <ion-icon [name]="isEditMode ? 'save-outline' : 'add-outline'" slot="start"></ion-icon>
+        {{ isEditMode ? 'Update' : 'Save' }} Medication
+      </ion-button>
+      
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        (click)="dismiss()" 
+        style="margin-top: 8px;">
+        Cancel
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

@@ -1,0 +1,59 @@
+<ion-content [fullscreen]="true" class="ion-padding register-bg">
+
+  <div class="form-container">
+
+    <ion-card class="register-card">
+      <ion-card-header>
+        <ion-card-title>Join AllerAid</ion-card-title>
+        <ion-card-subtitle>Join us to stay protected from allergy triggers!</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item>
+            <ion-icon slot="start" name="person-outline"></ion-icon>
+            <ion-input placeholder="First Name" [(ngModel)]="firstName"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-icon slot="start" name="person-outline"></ion-icon>
+            <ion-input placeholder="Last Name" [(ngModel)]="lastName"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-icon slot="start" name="mail-outline"></ion-icon>
+            <ion-input type="email" placeholder="Email" [(ngModel)]="email"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-icon slot="start" name="people-outline"></ion-icon>
+            <ion-select placeholder="Select Role" [(ngModel)]="role" interface="popover">
+              <ion-select-option value="user">Patient</ion-select-option>
+              <ion-select-option value="buddy">Buddy</ion-select-option>
+              <ion-select-option value="doctor">Doctor</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+            <ion-input type="password" placeholder="Password" [(ngModel)]="password"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+            <ion-input type="password" placeholder="Confirm Password" [(ngModel)]="confirmPassword"></ion-input>
+          </ion-item>
+        </ion-list>
+
+        <ion-button expand="block" class="registerBtn" shape="round" (click)="register()">
+          Register
+        </ion-button>
+
+        <div class="text-center">
+          <p>Already have an account? <a routerLink="/login">Log in</a></p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

@@ -1,0 +1,163 @@
+<ion-toolbar class="dark-toolbar">
+  <ion-buttons slot="start">
+    <ion-menu-button></ion-menu-button>
+  </ion-buttons>
+
+  <ion-title>AllerAid</ion-title>
+
+  <ion-buttons slot="end">
+    <ion-button fill="clear" size="small" (click)="openNotifications()">
+      <img src="assets/icon/bell.png" alt="bell" style="width: 24px; height: 24px;" />
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+
+<ion-content class="ion-padding" [scrollY]="true">
+  <div class="wrapper scrollable-content">
+    <h2 class="page-title">Welcome, {{ userName }}!</h2>
+
+    <div class="emergency-wrapper">
+      <div class="circle-button" (click)="triggerEmergency()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <h2 class="emergency-title">EMERGENCY</h2>
+        <p class="instruction-text">Press the button or shake</p>
+      </div>
+      <p class="bottom-text">Press the button above in case of emergency</p>
+    </div>
+
+    <!-- Hardcoded Health Stats Section -->
+    <div class="health-stats-section">
+      <div class="smartwatch-card">
+        <div class="smartwatch-info">
+          <img src="assets/icon/smartwatch.png" alt="Smart Watch" style="width: 48px; height: 48px; margin-right: 16px;" />
+          <div>
+            <div class="smartwatch-title">Smart Watch</div>
+            <div class="smartwatch-link"><a href="#" style="font-weight: 500; text-decoration: underline;">Connect to Smartwatch</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="health-stats-grid">
+        <div class="health-stat-card">
+          <div class="stat-title">Heart Rate</div>
+          <div class="stat-value">0</div>
+          <div class="stat-unit">bpm</div>
+        </div>
+        <div class="health-stat-card">
+          <div class="stat-title">Steps</div>
+          <div class="stat-value">0</div>
+          <div class="stat-unit">steps</div>
+        </div>
+        <div class="health-stat-card">
+          <div class="stat-title">SPO₂</div>
+          <div class="stat-value">0%</div>
+          <div class="stat-unit">Blood Oxygen</div>
+        </div>
+        <div class="health-stat-card">
+          <div class="stat-title">Calories</div>
+          <div class="stat-value">0</div>
+          <div class="stat-unit">kcal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show the emergency response notification when a buddy responds -->
+    <app-emergency-response-notification 
+      *ngIf="respondingBuddy"
+      [responderName]="respondingBuddy.responderName"
+      [estimatedTime]="respondingBuddy.estimatedTime"
+      [distance]="respondingBuddy.distance"
+      [estimatedMinutes]="respondingBuddy.estimatedArrival"
+      (viewMap)="openResponderMap(respondingBuddy)"
+      (dismiss)="respondingBuddy = null">
+    </app-emergency-response-notification>
+
+    <!-- Emergency Status Card -->
+    <ion-card *ngIf="isEmergencyActive" class="emergency-status-card">
+      <ion-card-header>
+        <ion-card-title style="color: #d32f2f; display: flex; align-items: center; gap: 8px;">
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          EMERGENCY ACTIVE
+        </ion-card-title>
+        <ion-card-subtitle>
+          Started: {{ emergencyStartTime | date:'short' }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="emergency-info">
+          <p><strong>Location:</strong> 
+            <span *ngIf="emergencyLocation">
+              {{ emergencyLocation.latitude.toFixed(4) }}, {{ emergencyLocation.longitude.toFixed(4) }}
+            </span>
+            <span *ngIf="!emergencyLocation">Updating...</span>
+          </p>
+          
+          <div class="buddy-responses" *ngIf="hasBuddyResponses()">
+            <h4>Buddy Responses & Notifications:</h4>
+            <div class="response-list">
+              <div *ngFor="let buddyId of getObjectKeys(buddyResponses)" class="response-item">
+                <div class="buddy-info">
+                  <span class="buddy-name">{{ buddyResponses[buddyId].name }}</span>
+                  <div class="buddy-status">
+                    <ion-badge [color]="getBuddyResponseColor(buddyId)" class="status-badge">
+                      {{ getBuddyResponseStatus(buddyId) }}
+                    </ion-badge>
+                    <ion-badge [color]="getNotificationStatusColor(buddyId)" class="notification-badge">
+                      {{ getNotificationStatus(buddyId) }}
+                    </ion-badge>
+                  </div>
+                </div>
+                <div class="response-time">
+                  {{ buddyResponses[buddyId].timestamp | date:'short' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="emergency-actions">
+            <ion-button 
+              expand="block" 
+              color="success" 
+              (click)="resolveEmergency()"
+              style="margin-top: 16px;">
+              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+              Mark as Resolved
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Health Overview</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Allergens:</strong> 
+          <span *ngIf="userAllergies.length > 0">
+            {{ userAllergies.length }} recorded
+          </span>
+          <span *ngIf="userAllergies.length === 0">None recorded</span>
+        </p>
+        <p><strong>Buddies:</strong> {{ getBuddiesCount() }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Test Emergency Notifications (Development Mode) -->
+    <ion-card *ngIf="!isEmergencyActive">
+      <ion-card-header>
+        <ion-card-title>🧪 Emergency Notification Test</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Test the emergency notification system (SMS & Push notifications)</p>
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          color="warning" 
+          (click)="testEmergencyNotifications()">
+          <ion-icon name="flash" slot="start"></ion-icon>
+          Test Notifications
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

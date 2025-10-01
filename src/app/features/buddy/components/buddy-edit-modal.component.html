@@ -1,0 +1,39 @@
+<ng-container>
+  <div class="buddy-modal-backdrop" (click)="close()">
+    <div class="buddy-modal-content" (click)="$event.stopPropagation()">
+      <!-- No ion-header or ion-toolbar, just the modal content -->
+      <ion-content class="ion-padding" [style.background]="'#fff'">
+        <form>
+          <ion-item>
+            <ion-label position="stacked">First Name</ion-label>
+            <ion-input [(ngModel)]="editFirstName" name="editFirstName" required></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Last Name</ion-label>
+            <ion-input [(ngModel)]="editLastName" name="editLastName" required></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Email</ion-label>
+            <ion-input [(ngModel)]="editEmail" name="editEmail" type="email" required></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Relationship</ion-label>
+            <ion-select [(ngModel)]="editRelationship" name="editRelationship" required placeholder="Select Relationship">
+              <ion-select-option value="" disabled hidden>Select Relationship</ion-select-option>
+              <ion-select-option value="Family">Family</ion-select-option>
+              <ion-select-option value="Friend">Friend</ion-select-option>
+              <ion-select-option value="Partner">Partner</ion-select-option>
+              <ion-select-option value="Roommate">Roommate</ion-select-option>
+              <ion-select-option value="Coworker">Coworker</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Contact Number</ion-label>
+            <ion-input [(ngModel)]="editContact" name="editContact" type="tel" required></ion-input>
+          </ion-item>
+          <ion-button expand="block" class="saveBtn" (click)="saveEdit()" style="margin-top: 16px;">Save Changes</ion-button>
+        </form>
+      </ion-content>
+    </div>
+  </div>
+</ng-container>

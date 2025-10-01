@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      
+    <ion-title>Buddy</ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="openInvitationsModal()">
+        <ion-icon name="mail" slot="icon-only"></ion-icon>
+        <ion-badge *ngIf="invitationCount > 0" color="danger" style="position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; font-size: 10px;">
+          {{ invitationCount }}
+        </ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="openModal()">
+        <ion-icon name="person-add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <!-- Only show the modal when showModal is true -->
+    <app-buddy-modal *ngIf="showModal" (add)="onAddBuddy($event)" (close)="closeModal()"></app-buddy-modal>
+
+    <!-- Buddy Actions Modal -->
+    <app-buddy-actions-modal *ngIf="showActionsModal" [buddy]="selectedBuddy" (edit)="onEditBuddy($event)" (delete)="onDeleteBuddy($event)" (closeModal)="closeActionsModal()"></app-buddy-actions-modal>
+
+    <!-- Buddy Edit Modal -->
+    <app-buddy-edit-modal *ngIf="showEditModal" [buddy]="buddyToEdit" (save)="onSaveEditBuddy($event)" (closeEdit)="closeEditModal()"></app-buddy-edit-modal>
+
+    <!-- Buddy Delete Confirm Modal -->
+    <app-buddy-delete-confirm-modal *ngIf="showDeleteModal" [buddy]="buddyToEdit" (confirm)="onConfirmDeleteBuddy($event)" (cancelDelete)="closeDeleteModal()"></app-buddy-delete-confirm-modal>
+
+    <ion-item class="search-bar-item" lines="none">
+      <ion-input class="search-bar-input" placeholder="Search buddy..." [(ngModel)]="searchTerm" (ionInput)="searchBuddy()"></ion-input>
+      <ion-button class="search-bar-btn" (click)="searchBuddy()">
+        <ion-icon name="search"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    <!-- Hide recent buddies list when the modal is open -->
+    <ng-container *ngIf="!showModal">
+      <ion-card *ngIf="buddies.length > 0">
+        <ion-card-header style="display: flex; justify-content: space-between;">
+          <ion-card-title style="display: flex; align-items: center; gap: 8px;">
+            Recent Buddies
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let buddy of filteredBuddies">
+              <ion-label (click)="showBuddyDetails(buddy)" style="cursor:pointer; color:#AB7082; font-weight:500;">
+                <h2>{{ buddy.firstName }} {{ buddy.lastName }}</h2>
+                <p *ngIf="buddy.email">{{ buddy.email }}</p>
+              </ion-label>
+              <ion-button fill="clear" slot="end" (click)="openBuddyActions(buddy)">
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- Buddy Details Modal -->
+    <app-buddy-details-modal *ngIf="showDetailsModal" [buddy]="buddyToShowDetails" (closeDetails)="closeDetailsModal()"></app-buddy-details-modal>
+</ion-content>

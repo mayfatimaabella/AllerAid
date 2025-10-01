@@ -1,0 +1,245 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+// For the alert interface (used by ion-select on mobile)
+ion-alert .alert-wrapper,
+ion-alert .alert-radio-group,
+ion-alert .alert-checkbox-group {
+  --background: #faeaee !important;
+  background: #faeaee !important;
+}
+ion-alert .alert-radio-label,
+ion-alert .alert-checkbox-label {
+  color: #036a5d !important;
+}
+
+// Allergen Alert Styles
+.alert-success .alert-wrapper {
+  --background: #d4edda !important;
+  border-left: 4px solid #28a745 !important;
+}
+
+.alert-success .alert-head {
+  color: #155724 !important;
+}
+
+.alert-success .alert-message {
+  color: #155724 !important;
+}
+
+.alert-warning .alert-wrapper {
+  --background: #fff3cd !important;
+  border-left: 4px solid #ffc107 !important;
+}
+
+.alert-warning .alert-head {
+  color: #856404 !important;
+}
+
+.alert-warning .alert-message {
+  color: #856404 !important;
+}
+
+.alert-danger .alert-wrapper {
+  --background: #f8d7da !important;
+  border-left: 4px solid #dc3545 !important;
+}
+
+.alert-danger .alert-head {
+  color: #721c24 !important;
+  font-weight: bold !important;
+}
+
+.alert-danger .alert-message {
+  color: #721c24 !important;
+  font-weight: 500 !important;
+}
+
+
+// ion-alert .alert-button,
+// ion-alert .alert-button.sc-ion-alert-md,
+// ion-alert .alert-button.sc-ion-alert-ios {
+//   color: #036a5d !important;
+// }
+
+// // Custom radio button color for ion-alert (select options)
+// ion-alert .alert-radio-icon {
+//   border: 2px solid #036a5d !important;
+//   background: #faeaee !important;
+// }
+
+// ion-alert .alert-radio-checked .alert-radio-icon {
+//   border: 2px solid #036a5d !important;
+//   background: #036a5d !important;
+// }
+// ion-alert .alert-radio-checked .alert-radio-inner {
+//   background: #faeaee !important;
+//   border-radius: 50%;
+//   width: 10px;
+//   height: 10px;
+//   left: 3px;
+//   top: 3px;
+//   position: absolute;
+// }
+
+//Popover section
+
+// ion-select-popover {
+//   color-scheme: light !important;
+//   --ion-background-color: #fff !important;
+//   --background: #fff !important;
+// }
+// ion-select-popover,
+// ion-select-popover * {
+//   background: #fff !important;
+//   color: #036a5d !important;
+//   filter: none !important;
+//   box-shadow: none !important;
+// }
+// ion-select-popover .popover-viewport,
+// ion-select-popover .sc-ion-select-popover-md {
+//   background: #fff !important;
+// }
+// ion-select-popover .select-interface-option {
+//   background: #fff !important;
+//   color: #036a5d !important;
+//   border-radius: 12px;
+//   width: 100%;
+//   box-shadow: none !important;
+//   border: none !important;
+//   padding: 5px 9px;
+//   display: flex;
+//   align-items: center;
+// }
+// ion-select-popover .select-interface-option[aria-checked="true"] {
+//   background: #faeaee !important;
+//   color: #036a5d !important;
+// }
+// ion-select-popover .radio-label-wrapper,
+// ion-select-popover .label-text-wrapper {
+//   background: #faeaee !important;
+//   color: #036a5d !important;
+//   width: 100%;
+//   max-width: 100%;
+//   white-space: normal;
+//   word-break: break-word;
+//   display: block;
+// }
+
+// ion-select-popover .select-interface-option .item-native,
+// ion-select-popover .select-interface-option .item-inner,
+// ion-select-popover .select-interface-option .input-wrapper {
+//   background: #fff !important;
+//   border-radius: 12px !important;
+//   box-shadow: none !important;
+//   border: none !important;
+// }
+// ion-select-popover .select-interface-option .item-native {
+//   color: #036a5d !important;
+// }
+// ion-select-popover .select-interface-option .item-inner {
+//   color: #036a5d !important;
+// }
+// ion-select-popover .select-interface-option .input-wrapper {
+//   color: #036a5d !important;
+// }
+// ion-select-popover .select-interface-option .radio-icon,
+// ion-select-popover .select-interface-option .radio-inner {
+//   background: #fff !important;
+//   border: none !important;
+// }
+
+// ion-select-popover .item-native,
+// ion-select-popover .item-inner {
+//   background: #faeaee !important;
+//   border-radius: 12px !important;
+//   box-shadow: none !important;
+//   border: none !important;
+// }
+
+// ion-select-popover .radio-icon,
+// ion-select-popover .radio-inner {
+//   background: #036a5d !important;
+//   border-radius: 50%;
+//   width: 12px;
+//   height: 12px;
+// }
+
+/* Buddy Response Alert Modal Styles */
+.buddy-alert-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: auto;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.buddy-alert-modal .modal-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Route Map Modal Styles */
+.route-map-modal {
+  --width: 95%;
+  --max-width: 600px;
+  --height: 80%;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.route-map-modal .modal-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Accessibility enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .buddy-alert-modal,
+  .route-map-modal {
+    --animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .buddy-alert-modal,
+  .route-map-modal {
+    --box-shadow: 0 0 0 2px var(--ion-color-primary);
+  }
+}

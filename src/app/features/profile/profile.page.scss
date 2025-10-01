@@ -1,0 +1,1568 @@
+// Force green color for '+ ADD' and '+ ADD MEDICATION' text, even inside Ionic shadow DOM
+::ng-deep ion-button, ::ng-deep button {
+  color: #036a5d !important;
+  border-color: #036a5d !important;
+}
+
+// Target buttons with 'Add' text specifically
+::ng-deep ion-button span,
+::ng-deep button span {
+  color: #036a5d !important;
+  border-color: #036a5d !important;
+}
+
+// Target the add icon as well
+::ng-deep ion-icon[name="add-outline"] {
+  color: #036a5d !important;
+}
+
+/* Prefer app-specific green for add icons in this feature; use a slightly darker green than global */
+::ng-deep .profile-section ion-icon[name="add-outline"],
+::ng-deep ion-button[fill="clear"] ion-icon[name="add-outline"],
+::ng-deep ion-button ion-icon[slot="start"][name="add-outline"] {
+  color: #0b6242 !important;
+}
+
+.add-medication-btn {
+  background: #e6edec !important;
+  border: 1.5px solid #036a5d !important;
+}
+
+.add-link {
+  color: #036a5d !important;
+}
+
+// Override Ionic blue for selected segment label
+::ng-deep .medication-filters .segment-button-checked, ::ng-deep .medication-filters .segment-button-checked .label {
+  color: #fff !important;
+}
+// Force selected segment label color to white
+::ng-deep .medication-filters ion-segment-button[aria-checked="true"] ion-label {
+  color: #fff !important;
+}
+::ng-deep .medication-filters ion-segment-button[aria-checked="false"] ion-label {
+  color: #036a5d !important;
+}
+.medication-search ion-searchbar {
+  --background: #fff;
+  --color: #222;
+  --placeholder-color: #888;
+  --icon-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.medication-search ion-searchbar .searchbar-input {
+  background: #fff !important;
+  color: #222 !important;
+}
+
+.medication-search ion-searchbar .searchbar-search-icon {
+  color: #222 !important;
+}
+
+.medication-filters ion-segment {
+  --background: #065a4c;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 12px;
+}
+
+.medication-filters ion-segment-button {
+  --background: #e6edec;
+  --color: #036a5d;
+  --indicator-color: #036a5d;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.2s, color 0.2s;
+}
+
+ion-toolbar {
+  --background: #036a5d;
+  --color: white;
+}
+
+ion-content {
+  --background: #ffffff !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.profile-header {
+  position: static;
+  width: 100vw;
+  background: #7e8a88;
+  display: flex;
+  align-items: center;
+  height: 200px;
+  border-radius: 0 0 0 20px;
+  margin: none;
+  padding: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-top: none !important;
+}
+
+// Decluttered Emergency Instructions Section
+.instructions-section-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0a3977;
+  margin-bottom: 12px;
+  margin-top: 18px;
+  padding-left: 2px;
+}
+.instructions-list-scrollable {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+.instruction-card.decluttered {
+  background: #f8f9fa;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-left: 4px solid #e55e76;
+  padding: 16px 18px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  &.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: #f1f3f4;
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+  }
+}
+
+.instruction-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d32f2f;
+  
+  .clickable & {
+    justify-content: space-between;
+  }
+}
+.instruction-text {
+  font-size: 15px;
+  color: #333;
+  margin-left: 28px;
+  line-height: 1.5;
+}
+.no-instructions-card.decluttered {
+  background: #f8f9fa;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-left: 4px solid #036a5d;
+  padding: 16px 18px;
+  margin-bottom: 0;
+}
+@media (max-width: 480px) {
+  .instructions-list-scrollable {
+    max-height: 180px;
+    gap: 10px;
+  }
+  .instruction-card.decluttered, .no-instructions-card.decluttered {
+    padding: 10px 8px;
+    border-radius: 10px;
+  }
+  .instruction-header {
+    font-size: 14px;
+  }
+  .instruction-text {
+    font-size: 14px;
+    margin-left: 24px;
+  }
+}
+// Emergency Section Title
+.emergency-section-title {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 24px 0 8px;
+  display: flex;
+  align-items: center;
+  color: #222;
+  gap: 6px;
+}
+
+.instructions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-left: 4px solid #036a5d;
+  justify-content: space-between;
+}
+.instruction-content {
+  flex: 1;
+}
+.instruction-content strong {
+  color: #d32f2f;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+.instruction-content p {
+  margin: 0;
+  color: #333;
+  line-height: 1.5;
+}
+.no-instructions {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-top: 12px;
+}
+.emergency-info-card {
+  background: #e6eef6;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin: 16px 0;
+  border: none;
+}
+.emergency-info-card ion-card-header {
+  background: transparent;
+  border-bottom: 1px solid #dbe6f3;
+  padding-bottom: 8px;
+}
+.emergency-info-card ion-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0a3977;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.emergency-info-card ion-card-content {
+  padding: 12px 0 0 0;
+}
+.emergency-message-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.emergency-message-label {
+  font-weight: 700;
+  min-width: 100px;
+  color: #222;
+  font-size: 15px;
+}
+.emergency-message-value {
+  color: #444;
+  font-size: 15px;
+  word-break: break-word;
+}
+@media (max-width: 480px) {
+  .emergency-info-card {
+    border-radius: 12px;
+    margin: 10px 0;
+  }
+  .emergency-message-label, .emergency-message-value {
+    font-size: 14px;
+  }
+  .emergency-info-card ion-card-title {
+    font-size: 16px;
+  }
+  .instruction-item {
+    padding: 10px 8px;
+    border-radius: 8px;
+  }
+}
+// Optimized Profile Page Styles - Concise Version
+
+// Basic Layout
+.profile-header { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  margin-top: 5px;
+}
+
+.profile-avatar { 
+  display: flex; 
+  justify-content: center; 
+  margin-top: 40px; 
+}
+
+.profile-stats { 
+  display: flex; 
+  justify-content: space-between; 
+  background: #036a5d; 
+  border-radius: 16px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+  margin: 10px 12px 0; 
+  padding: 12px 0; 
+}
+
+.stat { 
+  flex: 1; 
+  text-align: center; 
+  &-label { 
+    color: #ffffff; 
+    font-size: 15px; 
+  } &-value { 
+    font-size: 20px; 
+    font-weight: 700; 
+    color: #d8efe7; 
+  } 
+}
+
+
+.profile-tabs {
+  display: flex;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  margin: 10px auto 0 auto;
+  padding: 8px 16px;
+  gap: 4px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.tab { 
+  flex: 1; 
+  background: #bfd8d5; 
+  border: none; 
+  border-radius: 8px; 
+  min-width: 11px;
+  font-size: 15px; 
+  font-weight: 700; 
+  color: #222; 
+  transition: all 0.2s; 
+  &.active { 
+    background: #036a5d; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
+    color: #e9eeed !important;
+  } 
+}
+
+.section-title { 
+  font-weight: 700; 
+  font-size: 18px; 
+  margin: 24px 0 8px; 
+  display: flex; 
+  align-items: center; 
+  color: #222; 
+  ion-icon { 
+    color: #0f4874; 
+    font-size: 18px; 
+    margin-left: 4px; 
+  } 
+}
+
+.profile-section { 
+  padding: 20px 18px 0; 
+}
+
+// Components
+.allergy-list-scrollable { 
+  display: flex; 
+  gap: 10px; 
+  overflow-x: auto; 
+  padding: 4px 0 8px; 
+}
+
+.allergy-chip { 
+  background: #a0decb; 
+  color: #222; 
+  border-radius: 16px; 
+  padding: 6px 18px; 
+  font-size: 16px; 
+  font-weight: 500; 
+  white-space: nowrap; 
+}
+
+// Emergency Info Card Styling
+.emergency-info-card {
+  background: #d7dede;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin: 16px 0;
+  border: none;
+}
+.emergency-info-card ion-card-header {
+  background: transparent;
+  border-bottom: 1px solid #7a958d;
+  padding-bottom: 8px;
+}
+.emergency-info-card ion-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #02332f;
+}
+.emergency-info-card ion-card-content {
+  padding: 12px 0 0 0;
+}
+.emergency-message-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.emergency-message-label {
+  font-weight: 700;
+  min-width: 100px;
+  color: #222;
+  font-size: 15px;
+}
+.emergency-message-value {
+  color: #444;
+  font-size: 15px;
+  word-break: break-word;
+}
+@media (max-width: 480px) {
+  .emergency-info-card {
+    border-radius: 12px;
+    margin: 10px 0;
+  }
+  .emergency-message-label, .emergency-message-value {
+    font-size: 14px;
+  }
+  .emergency-info-card ion-card-title {
+    font-size: 16px;
+  }
+}
+
+// Cards Base
+.medication-card, 
+.emergency-setting-card { 
+  border: 1.5px solid #bbb; 
+  border-radius: 12px; 
+  background: #fff; 
+  margin-bottom: 12px; 
+}
+
+.emergency-setting-card { 
+  padding: 12px 16px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+}
+
+// Medication Cards
+.medication-card { 
+  padding: 16px; 
+  margin-bottom: 18px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+  cursor: pointer; 
+  transition: all 0.3s ease;
+  &:hover { 
+    border-color: #086c4a; 
+    box-shadow: 0 4px 12px rgba(0,123,255,0.1); 
+    transform: translateY(-1px); 
+  } &.expanded { 
+    border-color: #086c4a; 
+    box-shadow: 0 4px 16px rgba(0,123,255,0.15); 
+  }
+}
+
+.medication-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start; 
+}
+
+.medication-title-section { 
+  flex: 1; 
+  .medication-title { 
+    font-size: 18px; 
+    font-weight: 700; 
+    color: #222; 
+    margin-bottom: 4px; 
+  } 
+}
+
+.medication-summary { 
+  font-size: 14px; 
+  color: #666; 
+  .dosage { 
+    font-weight: 600; 
+    color: #333; 
+  } 
+}
+
+.medication-actions { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.action-buttons { 
+  display: flex; 
+  gap: 4px; 
+}
+
+// Expandable Details
+.medication-details-expanded { 
+  margin-top: 16px; 
+  padding-top: 16px; 
+  border-top: 1px solid #e9ecef; 
+}
+
+/* Medication images removed from profile UI — related styles deleted */
+
+.medication-details-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 8px 16px; 
+  margin-bottom: 12px; 
+}
+
+.medication-detail { 
+  display: flex; 
+  align-items: center; 
+  font-size: 14px; 
+  color: #555; 
+  gap: 8px; 
+  &.full-width { 
+    grid-column: 1 / -1; 
+    margin-top: 8px; 
+  } ion-icon { 
+    font-size: 16px; 
+    color: #666; 
+  } b { 
+    color: #333; 
+  } 
+}
+
+.medication-flags { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 6px; 
+  margin-top: 12px; 
+  ion-chip { 
+    font-size: 11px; 
+    height: 24px; 
+    ion-icon { 
+      font-size: 14px; 
+    } 
+  } 
+}
+
+// Search & Filters
+.medications-list, 
+.medication-search, 
+.medication-filters { 
+  margin: 0 16px 16px; 
+}
+
+// Emergency Settings
+.emergency-setting-title { 
+  font-weight: 700; 
+  font-size: 16px; 
+  color: #222; 
+}
+
+.emergency-setting-desc { 
+  font-size: 14px; 
+  color: #444; 
+}
+
+.emergency-message-card { 
+  background: #e6eef6; 
+  border-radius: 12px; 
+  padding: 18px; 
+  margin-bottom: 10px; 
+}
+
+.emergency-message-row { 
+  display: flex; 
+  margin-bottom: 6px; 
+}
+
+.emergency-message-label { 
+  font-weight: 700; 
+  min-width: 100px; 
+  color: #222; 
+}
+
+.emergency-message-value { 
+  color: #444; 
+}
+
+// EHR Section
+.ehr-header { 
+  text-align: center; 
+  margin-bottom: 24px; 
+  h2 { 
+    font-size: 24px; 
+    font-weight: 700; 
+    color: #333; 
+    margin-bottom: 8px; 
+  } .ehr-subtitle { 
+    font-size: 16px; 
+    color: #666; 
+    margin: 0; 
+  } 
+}
+
+.ehr-section-card { 
+  background: #fff; 
+  border-radius: 16px; 
+  border: 1.5px solid #e0e0e0; 
+  margin-bottom: 20px; 
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05); 
+  .card-header {
+    background: #f8f9fa; 
+    padding: 16px 20px; 
+    border-bottom: 1px solid #e9ecef; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    .card-title { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; h3 { 
+        font-size: 18px; 
+        font-weight: 600; 
+        color: #333; margin: 0; 
+      } 
+    } 
+  } .card-content { 
+    padding: 20px; 
+  } 
+}
+
+// Visit Cards
+.visit-summary-card, 
+.history-summary-card { 
+  background: #fafbfc; 
+  border: 1px solid #e1e8ed; 
+  border-radius: 12px; 
+  padding: 16px; 
+  margin-bottom: 12px; 
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  &:hover { 
+    border-color: #007bff; 
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1); 
+    transform: translateY(-2px); 
+  } &:active { 
+    transform: scale(0.98); 
+  }
+}
+
+.visit-summary-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start; 
+  margin-bottom: 8px; 
+  gap: 12px; 
+  .visit-summary-info { 
+    flex: 1; 
+    h4 { 
+      font-size: 16px; 
+      font-weight: 600; 
+      color: #333; 
+      margin: 0 0 4px 0; 
+    } .visit-date { 
+      font-size: 14px; 
+      color: #666; 
+      margin: 0; 
+    } 
+  } .visit-header-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    .menu-toggle-btn { 
+      --color: #666; 
+      height: 40px; 
+      width: 40px; 
+      border-radius: 8px; 
+    } 
+  } 
+}
+
+.visit-summary-diagnosis { 
+  font-size: 14px; 
+  color: #555; 
+  margin: 8px 0; 
+}
+
+.visit-click-hint { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  margin-top: 8px; 
+  padding-top: 8px; 
+  border-top: 1px solid #e9ecef; 
+  font-size: 12px; 
+  color: #007bff; 
+  font-weight: 500; 
+  ion-icon { 
+    font-size: 14px; 
+  } 
+}
+
+// History Cards
+.history-summary-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start; 
+  margin-bottom: 8px; 
+  gap: 12px; 
+  
+  .history-summary-info { 
+    flex: 1; 
+    h4 { 
+      font-size: 16px; 
+      font-weight: 600; 
+      color: #333; 
+      margin: 0 0 4px 0; 
+    } 
+  }
+  
+  .history-header-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    
+    .menu-toggle-btn { 
+      --color: #666; 
+      height: 40px; 
+      width: 40px; 
+      border-radius: 8px; 
+    } 
+  } 
+}
+
+.history-date { 
+  font-size: 14px; 
+  color: #666; 
+  margin: 0 0 8px 0; 
+}
+
+.history-notes { 
+  font-size: 14px; 
+  color: #555; 
+  margin: 0; 
+}
+
+.history-click-hint { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  margin-top: 8px; 
+  padding-top: 8px; 
+  border-top: 1px solid #e9ecef; 
+  font-size: 12px; 
+  color: #007bff; 
+  font-weight: 500; 
+  ion-icon { 
+    font-size: 14px; 
+  } 
+}
+
+// View All & Empty States
+.view-all-link { 
+  text-align: center; 
+  margin-top: 16px; 
+  padding-top: 16px; 
+  border-top: 1px solid #e9ecef; 
+}
+
+.empty-state { 
+  text-align: center; 
+  padding: 32px 20px; 
+  background: transparent !important;
+  animation: none !important;
+  .empty-icon { 
+    font-size: 48px; 
+    color: #ccc; 
+    margin-bottom: 16px; 
+    animation: none !important;
+  } .empty-title { 
+    font-size: 16px; 
+    font-weight: 600; 
+    color: #333; 
+    margin: 0 0 8px 0; 
+    animation: none !important;
+    background: transparent !important;
+  } .empty-subtitle { 
+    font-size: 14px; 
+    color: #666; 
+    margin: 0 0 20px 0; 
+    animation: none !important;
+    background: transparent !important;
+  }
+
+  // Ensure no skeleton effects
+  * {
+    animation: none !important;
+    background: transparent !important;
+  } ion-button {
+    background: var(--ion-color-primary) !important;
+    color: white !important;
+  }
+}
+
+.loading-state {
+  padding: 20px;
+  ion-skeleton-text {
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+}
+
+// Provider Access
+.access-description { 
+  font-size: 14px; 
+  color: #666; 
+  margin: 0 0 20px 0; 
+}
+
+.provider-input { 
+  --background: #f8f9fa; 
+  --border-radius: 12px; 
+  margin-bottom: 16px; 
+}
+
+.current-access h4 { 
+  font-size: 16px; 
+  font-weight: 600; 
+  color: #333; 
+  margin: 0 0 12px 0; 
+}
+
+.access-list, 
+.access-item { 
+  background: #f8f9fa; 
+  border: 1px solid #e9ecef; 
+  border-radius: 8px; 
+  padding: 12px 16px; 
+  margin-bottom: 8px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  .provider-info { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; span { 
+      font-size: 14px; 
+      color: #333; 
+    } 
+  } 
+}
+
+.access-request-card { 
+  background: #f8f9fa; 
+  border: 1px solid #e9ecef; 
+  border-radius: 12px; 
+  padding: 16px; 
+  margin-bottom: 12px; 
+  border-left: 4px solid var(--ion-color-warning); 
+  .request-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 12px; 
+    .patient-info strong { 
+      color: var(--ion-color-primary); 
+      font-size: 16px; 
+    } .patient-email { 
+      font-size: 12px; 
+      color: #666; 
+      margin-top: 2px; 
+    } 
+  } .request-message { 
+    font-size: 14px; 
+    margin: 12px 0; 
+    padding: 12px; 
+    background: white; 
+    border-radius: 8px; 
+    border-left: 3px solid var(--ion-color-primary); 
+  } .request-actions { 
+    display: flex; 
+    gap: 8px; 
+    margin-top: 16px; 
+    flex-wrap: wrap; 
+  } 
+}
+
+// Mobile Optimizations
+@media (max-width: 768px) {
+  .profile-stats { margin: 20px 12px 0; }
+  .medications-list, .medication-search, .medication-filters { margin: 0 12px 12px; }
+  .medication-card { padding: 12px 14px; margin-bottom: 14px; }
+  .medication-details-grid { grid-template-columns: 1fr; gap: 6px; }
+  .visit-summary-card, .history-summary-card { padding: 14px; }
+}
+
+@media (max-width: 480px) {
+  .profile-stats { margin: 20px 8px 0; padding: 10px 0; }
+  .medications-list, .medication-search, .medication-filters { margin: 0 8px 10px; }
+  .medication-card { padding: 10px 12px; border-radius: 10px; }
+  .medication-header { flex-direction: column; align-items: stretch; gap: 8px; }
+  .medication-title { font-size: 16px !important; }
+  .medication-summary { font-size: 13px; }
+  .medication-actions { justify-content: space-between; }
+  .medication-details-expanded { margin-top: 12px; padding-top: 12px; }
+  /* Medication images removed from profile UI — mobile rules deleted */
+  .visit-click-hint, .history-click-hint { font-size: 13px; margin-top: 10px; padding-top: 10px; }
+}
+
+// Emergency Instruction Details Modal
+.instruction-details-container {
+  padding: 8px;
+}
+
+.detail-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+  border-bottom: 1px solid #e9ecef;
+  
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.detail-content {
+  padding: 20px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 12px;
+  align-items: flex-start;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 80px;
+  margin-right: 12px;
+}
+
+.detail-value {
+  color: #333;
+  flex: 1;
+}
+
+.instruction-full-text {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  border-left: 4px solid #e55e76;
+}
+
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tips-list {
+  margin: 0;
+  padding-left: 16px;
+  
+  li {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Help text styling
+.help-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  ion-icon {
+    font-size: 14px;
+    color: #AB7082;
+  }
+}
+
+/* DOCTOR PROFILE STYLES */
+.doctor-dashboard-card, .buddy-dashboard-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 16px;
+
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+  }
+
+  .dashboard-quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .quick-stat {
+      text-align: center;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 12px;
+
+      .stat-number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #3498db;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.professional-info-card, .credentials-card, .access-requests-card, 
+.current-patients-card, .notification-settings-card, .availability-card,
+.account-settings-card, .recent-activity-card, .emergency-settings-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  margin-bottom: 16px;
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    .patient-count {
+      font-size: 12px;
+      color: #666;
+      background: #f8f9fa;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+  }
+}
+
+.professional-details {
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: 500;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .value {
+      font-size: 14px;
+      color: #2c3e50;
+      text-align: right;
+      flex: 1;
+      margin-left: 12px;
+    }
+  }
+}
+
+.credentials-list, .activity-list {
+  .credential-item, .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    ion-icon {
+      font-size: 18px;
+      margin-top: 2px;
+    }
+
+    .credential-content, .activity-content {
+      flex: 1;
+
+      .credential-name, .activity-description {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 4px;
+      }
+
+      .credential-issuer, .activity-time {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .credential-date {
+        font-size: 11px;
+        color: #999;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+.no-credentials, .no-activity, .no-requests, .no-patients {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+
+  ion-icon {
+    font-size: 32px;
+    color: #ccc;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+  }
+}
+
+.access-request-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+
+  .request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+
+    .patient-info {
+      strong {
+        font-size: 15px;
+        color: #2c3e50;
+      }
+
+      .patient-email {
+        font-size: 13px;
+        color: #666;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  .request-details {
+    margin-bottom: 16px;
+
+    .request-message {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .request-specialty {
+      margin-bottom: 4px;
+    }
+
+    .expiry-info {
+      font-size: 11px;
+    }
+  }
+
+  .request-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.patients-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #555;
+
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .setting-info {
+    flex: 1;
+
+    .setting-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 2px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.3;
+    }
+  }
+}
+
+.availability-info {
+  .setting-item {
+    .setting-desc {
+      font-weight: 500;
+      color: #3498db;
+    }
+  }
+}
+
+.helper-text {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .dashboard-quick-stats {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+
+    .quick-stat {
+      padding: 8px !important;
+
+      .stat-number {
+        font-size: 18px !important;
+      }
+    }
+  }
+
+  .professional-details .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .value {
+      text-align: left;
+      margin-left: 0;
+      margin-top: 4px;
+    }
+  }
+
+  .request-actions {
+    flex-direction: column;
+
+    ion-button {
+      width: 100%;
+    }
+  }
+}
+
+
+
+// Voice Recording Settings
+.voice-settings-section {
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+  border: 1px solid var(--ion-color-light-shade);
+}
+
+.voice-recording-controls {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 8px 0;
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 16px 0;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+}
+
+.recording-zone {
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: white;
+  border: 2px dashed var(--ion-color-light-shade);
+  transition: all 0.3s ease;
+
+  &.recording {
+    background: linear-gradient(135deg, #ff6b6b, #ff5722);
+    color: white;
+    border-color: #ff5722;
+    animation: pulse 2s infinite;
+  }
+
+  .recording-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-weight: 500;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+.voice-recordings-list {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 16px 0;
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+
+  .recording-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid var(--ion-color-light-shade);
+
+    .recording-info {
+      flex: 1;
+
+      .recording-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        margin-bottom: 4px;
+
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+
+      .recording-details {
+        display: flex;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+    }
+
+    .recording-actions {
+      display: flex;
+      gap: 4px;
+    }
+  }
+}
+
+.voice-audio-settings {
+  h4 {
+    margin: 0 0 16px 0;
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+
+  .setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 16px;
+    }
+
+    .setting-info {
+      flex: 1;
+      margin-right: 16px;
+
+      label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: var(--ion-color-dark);
+      }
+
+      p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+    }
+
+    ion-toggle {
+      --track-background-checked: var(--ion-color-primary);
+    }
+
+    ion-select {
+      min-width: 100px;
+    }
+
+    ion-range {
+      min-width: 120px;
+    }
+  }
+}
+
+// Emergency setting adjustments
+.emergency-setting-card {
+  .emergency-setting-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .emergency-setting-status {
+    margin-top: 8px;
+    
+    .audio-source {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+
+      &.custom-voice {
+        background: var(--ion-color-success-tint);
+        color: var(--ion-color-success);
+      }
+
+      &.default-voice {
+        background: var(--ion-color-light);
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}

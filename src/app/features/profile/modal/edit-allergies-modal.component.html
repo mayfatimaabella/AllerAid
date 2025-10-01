@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Edit Allergies</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onClose()" fill="clear">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="onClose()" fill="clear">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <form>
+    <ion-list lines="none">
+      <ion-item *ngFor="let allergy of allergyOptions; let i = index">
+        <ion-checkbox slot="start" [(ngModel)]="allergy.checked" [name]="allergy.name"></ion-checkbox>
+        <ion-label>{{ allergy.label }}</ion-label>
+        <ion-input *ngIf="allergy.hasInput" placeholder="please specify" [(ngModel)]="allergy.value" [name]="allergy.name + 'Value'" style="margin-left: 8px;"></ion-input>
+      </ion-item>
+    </ion-list>
+    <ion-button expand="block" (click)="onSave()">Save</ion-button>
+  </form>
+</ion-content>
