@@ -288,7 +288,7 @@ export class HomePage implements OnInit, OnDestroy {
   listenForNotificationStatus() {
     const statusSubscription = this.emergencyNotificationService.notificationStatus$.subscribe(status => {
       this.notificationStatus = { ...status };
-      console.log('📱 Notification status updated:', this.notificationStatus);
+      console.log('Notification status updated:', this.notificationStatus);
     });
     
     this.subscriptions.push(statusSubscription);

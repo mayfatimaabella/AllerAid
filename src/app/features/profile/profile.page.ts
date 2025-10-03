@@ -40,16 +40,17 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   showManageInstructionsModal = false;
 
-  // Use a permissive type for selectedTab to avoid strict template type-check
-  // errors during AOT/template checking when tabs are referenced dynamically
-  // or via route params. Default to 'overview'.
-  selectedTab: any = 'overview';
+  // Relaxed typing to string to avoid AOT/template type-check false positives
+  selectedTab: string = 'overview';
   private userHasSelectedTab: boolean = false; // Track if user manually selected a tab
   
   showEditEmergencyMessageModal = false;
   showExamplesModal = false;
   // Emergency instructions modal state moved to modal component
   emergencyInstructions: any[] = [];
+  selectedInstruction: any = null;
+  showInstructionDetailsModal = false;
+  selectedInstructionDetails: any = null; // For new modal template binding
 
   // Emergency settings
   emergencySettings = {
@@ -223,8 +224,10 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     const { data } = await modal.onDidDismiss();
     if (data?.refresh) {
-      // The modal already emitted the updated options via its save event; call saveAllergies to persist
+      // The modal emitted updated options - save them and reload the display
       await this.saveAllergies();
+      // Force a fresh reload of allergies from the database
+      await this.refreshAllergiesDisplay();
     }
   }
 
@@ -424,6 +427,58 @@ export class ProfilePage implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error loading user data:', error);
       this.presentToast('Error loading profile data');
+    }
+  }
+
+  /**
+   * Refresh allergies display after updates
+   * Reloads allergy data from database to ensure UI is up-to-date
+   */
+  async refreshAllergiesDisplay() {
+    try {
+      const currentUser = await this.authService.waitForAuthInit();
+      if (!currentUser) {
+        if (!environment.production) {
+          console.log('No authenticated user found for allergy refresh');
+        }
+        return;
+      }
+
+      if (!environment.production) {
+        console.log('Refreshing allergies display for user:', currentUser.uid);
+      }
+
+      // Reload allergies from database
+      const userAllergyDocs = await this.allergyService.getUserAllergies(currentUser.uid);
+      
+      if (!environment.production) {
+        console.log('Refreshed allergy docs:', userAllergyDocs);
+      }
+
+      // Reset allergies array
+      this.userAllergies = [];
+      
+      // Flatten the allergies from documents and filter only checked ones
+      userAllergyDocs.forEach((allergyDoc: any) => {
+        if (allergyDoc.allergies && Array.isArray(allergyDoc.allergies)) {
+          // Only include allergies that are checked
+          const checkedAllergies = allergyDoc.allergies.filter((allergy: any) => allergy.checked);
+          this.userAllergies.push(...checkedAllergies);
+        }
+      });
+
+      // Update the count
+      this.allergiesCount = this.userAllergies.length;
+
+      // Update emergency message allergies display
+      this.emergencyMessage.allergies = this.getUserAllergiesDisplay();
+
+      if (!environment.production) {
+        console.log('Allergies display refreshed:', this.userAllergies);
+        console.log('Allergies count:', this.allergiesCount);
+      }
+    } catch (error) {
+      console.error('Error refreshing allergies display:', error);
     }
   }
 
@@ -706,7 +761,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  // Accept any string for tab selection to match the permissive selectedTab type
+  // Accept any string tab value; template compares literal strings which can cause
+  // strict type-check errors during AOT. Runtime values are still validated by
+  // the UI and route handling elsewhere.
   selectTab(tab: string) {
     this.selectedTab = tab;
     this.userHasSelectedTab = true; // Mark that user has manually selected a tab
@@ -770,6 +827,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   // Reload user data to refresh the display
   await this.loadUserData();
       
+  // Update emergency message allergies to reflect the new allergy list
+  this.emergencyMessage.allergies = this.getUserAllergiesDisplay();
+      
   this.presentToast('Allergies updated successfully');
     } catch (error) {
       console.error('Error saving allergies:', error);
@@ -806,6 +866,20 @@ export class ProfilePage implements OnInit, OnDestroy {
       console.error('Error saving emergency message:', error);
       this.presentToast('Error saving emergency message');
     }
+  }
+
+  openEditEmergencyMessageModal() {
+    // Ensure latest derived allergy/instruction values before opening
+    this.emergencyMessage.name = this.getEmergencyMessageName();
+    this.emergencyMessage.allergies = this.getEmergencyMessageAllergies();
+    if (!this.emergencyMessage.instructions) {
+      this.emergencyMessage.instructions = this.getEmergencyMessageInstructions();
+    }
+    this.showEditEmergencyMessageModal = true;
+  }
+
+  closeEditEmergencyMessageModal() {
+    this.showEditEmergencyMessageModal = false;
   }
 
   async saveEmergencySettings() {
@@ -931,19 +1005,72 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   getUserAllergiesDisplay(): string {
-    return this.userAllergies.map(allergy => allergy.label).join(', ') || 'None';
+    // Build a clean, deduplicated, user-facing allergy string.
+    // Use label || name (some entries may only have name), trim blanks, remove falsy, dedupe case-insensitive
+    const seen = new Set<string>();
+    const list = this.userAllergies
+      .map(a => (a.label || a.name || '').trim())
+      .filter(v => !!v)
+      .filter(v => {
+        const key = v.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    return list.length ? list.join(', ') : 'None';
   }
 
   getEmergencyInstructionDisplay(): string {
     // Use the per-allergy emergency instructions as the primary source
     if (this.emergencyInstructions && this.emergencyInstructions.length > 0) {
+      // For clean display without pipe separators
       return this.emergencyInstructions
         .map(instruction => `${instruction.allergyName}: ${instruction.instruction}`)
-        .join(' | ');
+        .join('. ');
     }
     
     // Return empty string if no specific instructions are set
     return '';
+  }
+
+  /**
+   * Combined display string that merges all allergy-specific instructions and the general instruction.
+   * Order: specific (joined) then general. Avoids duplicating the general text if already contained.
+   * Fallback: 'No instructions set'
+   */
+  getEmergencyInstructionsCombined(): string {
+    const specific = this.getEmergencyInstructionDisplay(); // may be ''
+    const general = (this.emergencyMessage?.instructions || this.userProfile?.emergencyInstruction || '').trim();
+
+    if (specific && general) {
+      // If the general instruction text is already part of the specific aggregate, don't duplicate.
+      if (specific.toLowerCase().includes(general.toLowerCase())) {
+        return specific;
+      }
+      return `${specific}. ${general}`;
+    }
+    if (specific) return specific;
+    if (general) return general;
+    return 'No instructions set';
+  }
+
+  /**
+   * Returns a safely truncated preview of the combined emergency instructions.
+   * Ensures we never access .length off an undefined by always working on a string.
+   */
+  getEmergencyInstructionsPreview(limit: number = 140): string {
+    const combined = this.getEmergencyInstructionsCombined() || '';
+    if (combined.length <= limit) return combined;
+    return combined.slice(0, limit);
+  }
+
+  /**
+   * Indicates if the combined emergency instructions exceed the preview limit.
+   * Used in template to conditionally show ellipsis and apply truncation class.
+   */
+  hasLongEmergencyInstructions(limit: number = 140): boolean {
+    const combined = this.getEmergencyInstructionsCombined() || '';
+    return combined.length > limit;
   }
 
   getEmergencyMessageName(): string {
@@ -951,7 +1078,15 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   getEmergencyMessageAllergies(): string {
-    return this.emergencyMessage.allergies || this.getUserAllergiesDisplay();
+    // Always re-derive if underlying userAllergies changed (avoid stale cached string)
+    // If emergencyMessage.allergies is explicitly set AND differs from derived list, prefer the derived runtime value.
+    const derived = this.getUserAllergiesDisplay();
+    if (!this.emergencyMessage?.allergies) return derived;
+    // If cached string is missing any current allergy (e.g., Fish), update it in-place for persistence later.
+    if (this.emergencyMessage.allergies !== derived) {
+      this.emergencyMessage.allergies = derived;
+    }
+    return this.emergencyMessage.allergies;
   }
 
   /**
@@ -970,6 +1105,42 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   getEmergencyMessageLocation(): string {
     return this.emergencyMessage.location || 'Google Maps';
+  }
+
+  // --- Emergency Info Detail Modal State & Helpers ---
+  showEmergencyInfoModal = false;
+
+  openEmergencyInfoModal() {
+    this.showEmergencyInfoModal = true;
+  }
+
+  closeEmergencyInfoModal() {
+    this.showEmergencyInfoModal = false;
+  }
+
+  /**
+   * Returns an array of combined instruction entries for detailed view.
+   * Each entry: { label: string, text: string }
+   */
+  getEmergencyInstructionEntries(): { label: string; text: string }[] {
+    const entries: { label: string; text: string }[] = [];
+    if (this.emergencyInstructions && this.emergencyInstructions.length) {
+      this.emergencyInstructions.forEach(instr => {
+        entries.push({ label: instr.allergyName, text: instr.instruction });
+      });
+    }
+    const general = (this.emergencyMessage?.instructions || this.userProfile?.emergencyInstruction || '').trim();
+    if (general) {
+      // Avoid duplicating if already captured in specific entries text (simple case-insensitive match)
+      const alreadyIncluded = entries.some(e => e.text.toLowerCase() === general.toLowerCase());
+      if (!alreadyIncluded) {
+        entries.push({ label: 'General', text: general });
+      }
+    }
+    if (!entries.length) {
+      entries.push({ label: 'None', text: 'No instructions set' });
+    }
+    return entries;
   }
 
   /**
@@ -1115,6 +1286,89 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   showEmergencyExamples() {
     this.showExamplesModal = true;
+  }
+
+  /**
+   * Show details for a specific allergy-specific emergency instruction.
+   * Currently logs and could be extended to open a modal or alert.
+   */
+  async showInstructionDetails(instruction: any) {
+    if (!instruction) { return; }
+    this.selectedInstruction = instruction;
+    this.selectedInstructionDetails = instruction; // sync for new template variable
+    this.showInstructionDetailsModal = true;
+  }
+
+  closeInstructionDetailsModal() {
+    this.showInstructionDetailsModal = false;
+    this.selectedInstruction = null;
+    this.selectedInstructionDetails = null;
+  }
+
+  async testInstructionAudio(instruction?: any) {
+    // Support call without parameter from details modal
+        if (!instruction) instruction = this.selectedInstructionDetails || this.selectedInstruction;
+    try {
+          if (!instruction) return; 
+      const text = instruction.instruction || 'No instruction content';
+      await this.voiceRecordingService.playEmergencyInstructions(text);
+      this.presentToast('Instruction audio test played');
+    } catch (e) {
+      console.error('Error playing instruction audio', e);
+      this.presentToast('Audio test failed');
+    }
+  }
+
+  editInstruction(instruction: any) {
+    // Placeholder: future integration with edit flow / modal
+    this.presentToast('Edit instruction not implemented yet');
+  }
+
+  // Wrapper for editing from details modal or sliding list; accepts optional instruction
+  editInstructionFromDetails(instruction?: any) {
+    if (instruction) {
+      this.selectedInstructionDetails = instruction;
+      this.editInstruction(instruction);
+      return;
+    }
+    if (this.selectedInstructionDetails) {
+      this.editInstruction(this.selectedInstructionDetails);
+    }
+  }
+
+  shareInstruction(instruction?: any) {
+    // Placeholder share logic (could integrate with Share API / Clipboard)
+        if (!instruction) instruction = this.selectedInstructionDetails || this.selectedInstruction;
+    if (!instruction) return;
+    console.log('Share instruction', instruction);
+    this.presentToast('Share feature coming soon');
+  }
+
+  shareInstructionFromDetails() {
+    if (this.selectedInstructionDetails) {
+      this.shareInstruction(this.selectedInstructionDetails);
+    }
+  }
+
+  deleteInstruction(instruction: any) {
+    // Placeholder; would confirm then call service to delete & refresh
+    this.presentToast('Delete feature coming soon');
+  }
+
+  async confirmDeleteInstruction(instruction?: any) {
+    if (instruction) {
+      this.selectedInstructionDetails = instruction;
+    }
+    if (!this.selectedInstructionDetails) return;
+    const alert = await this.alertController.create({
+      header: 'Delete Instruction',
+      message: 'Are you sure you want to delete this emergency instruction?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Delete', role: 'destructive', handler: () => this.deleteInstruction(this.selectedInstructionDetails) }
+      ]
+    });
+    await alert.present();
   }
 
   // Emergency instructions modal logic is now handled in EmergencyInstructionsModalComponent
@@ -1645,6 +1899,68 @@ export class ProfilePage implements OnInit, OnDestroy {
       console.error('Error revoking EHR access:', error);
       this.presentToast('Error revoking EHR access');
     }
+  }
+
+  /**
+   * Send access request to a healthcare provider
+   */
+  async sendAccessRequest() {
+    try {
+      // Validate required fields
+      if (!this.newProviderEmail || !this.newProviderName) {
+        this.presentToast('Please fill in provider email and name');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.newProviderEmail)) {
+        this.presentToast('Please enter a valid email address');
+        return;
+      }
+
+      // TODO: Implement sendAccessRequest in EHRService
+      // For now, show a success message
+      this.presentToast('Access request feature coming soon!');
+
+      // Clear the form
+      this.newProviderEmail = '';
+      this.newProviderName = '';
+      this.newProviderRole = 'doctor';
+      this.newProviderLicense = '';
+      this.newProviderSpecialty = '';
+      this.newProviderHospital = '';
+
+    } catch (error: any) {
+      console.error('Error sending access request:', error);
+      this.presentToast(error.message || 'Error sending access request');
+    }
+  }
+
+  /**
+   * View details of a medical history condition
+   */
+  async viewMedicalHistoryDetails(condition: MedicalHistory) {
+    const alert = await this.alertController.create({
+      header: condition.condition,
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Diagnosed:</strong> ${new Date(condition.diagnosisDate).toLocaleDateString()}</p>
+          ${condition.status ? `<p><strong>Status:</strong> ${condition.status}</p>` : ''}
+          ${condition.notes ? `<p><strong>Notes:</strong> ${condition.notes}</p>` : ''}
+        </div>
+      `,
+      buttons: ['Close']
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Toggle expanded view for medical history
+   */
+  toggleMedicalHistoryExpanded() {
+    this.isMedicalHistoryExpanded = !this.isMedicalHistoryExpanded;
   }
 
   /**

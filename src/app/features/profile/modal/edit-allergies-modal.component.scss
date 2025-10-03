@@ -1,2 +1,111 @@
-/* Minimal styles for EditAllergiesModalComponent */
-:host { display: block; }
+/* Edit Allergies Modal - Force White Background */
+:host { 
+  display: block; 
+  background: #ffffff !important;
+}
+
+/* Force white background on modal content */
+ion-content {
+  --background: #ffffff !important;
+}
+
+ion-header {
+  ion-toolbar {
+    --background: #036a5d;
+    --color: white;
+  }
+  
+  /* Make close and back buttons visible */
+  ion-buttons {
+    ion-button {
+      --color: white !important;
+      color: white !important;
+      
+      ion-icon {
+        color: white !important;
+        font-size: 24px;
+      }
+    }
+  }
+  
+  ion-title {
+    color: white !important;
+  }
+}
+
+/* Ensure all cards and items are white */
+ion-item {
+  --background: #ffffff !important;
+  --color: #000000 !important;
+}
+
+ion-card {
+  background: #fff !important;
+  --background: #ffffff !important;
+}
+
+ion-list {
+  background: #ffffff !important;
+}
+
+/* Checkbox styling for better visibility on white */
+ion-checkbox {
+  --background: #ffffff !important;
+  --background-checked: #036a5d !important;
+  --border-color: #036a5d !important;
+  --border-color-checked: #036a5d !important;
+  --checkmark-color: #ffffff !important;
+  --size: 24px;
+  
+  /* Force the checkbox container to be white */
+  &::part(container) {
+    background: #ffffff !important;
+    border-color: #036a5d !important;
+  }
+  
+  /* When checked, make it teal with white checkmark */
+  &.checkbox-checked::part(container) {
+    background: #036a5d !important;
+    border-color: #036a5d !important;
+  }
+}
+
+/* Button styling */
+ion-button {
+  --background: #036a5d;
+  --color: white !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 16px;
+  
+  &[fill="outline"] {
+    --border-color: #036a5d;
+    --color: #036a5d !important;
+    color: #036a5d !important;
+  }
+  
+  &[expand="block"] {
+    margin-top: 20px;
+    height: 48px;
+    font-weight: 700;
+    font-size: 17px;
+  }
+}
+
+/* Shared brand save button (ensure consistency across modals) */
+.brand-save-btn {
+  --background: #036a5d !important;
+  --background-hover: #025d52 !important;
+  --background-focused: #025d52 !important;
+  --background-activated: #014d44 !important;
+  --color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: .5px;
+  border-radius: 14px;
+  height: 48px;
+  font-size: 16px;
+  box-shadow: 0 4px 10px -2px rgba(0,0,0,0.18);
+  transition: background-color .18s ease, transform .18s ease;
+}
+.brand-save-btn:active { transform: translateY(1px); }
+.brand-save-btn[disabled] { --background: #7fbfb6 !important; --color:#f2f2f2 !important; }

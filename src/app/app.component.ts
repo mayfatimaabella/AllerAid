@@ -67,11 +67,11 @@ export class AppComponent implements OnInit {
       if (user) {
         // Start listening for buddy responses when user is authenticated
         await this.patientNotificationService.startListeningForBuddyResponses();
-        console.log('🔔 Patient notification service initialized');
+        console.log('Patient notification service initialized');
       } else {
         // Stop listening when user logs out
         this.patientNotificationService.stopListeningForBuddyResponses();
-        console.log('🔕 Patient notification service stopped');
+        console.log('Patient notification service stopped');
       }
     });
   }

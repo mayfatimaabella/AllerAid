@@ -42,7 +42,7 @@ export class PatientNotificationService {
       this.responseSubscription = this.emergencyService.emergencyResponse$.subscribe(
         async (response: any) => {
           if (response) {
-            console.log('🚨 Buddy response received:', response);
+            console.log('Buddy response received:', response);
             await this.showBuddyResponseNotification(response);
           }
         }
@@ -60,7 +60,7 @@ export class PatientNotificationService {
     if (this.responseSubscription) {
       this.responseSubscription.unsubscribe();
       this.responseSubscription = null;
-      console.log('🔇 Stopped listening for buddy responses');
+      console.log('Stopped listening for buddy responses');
     }
   }
 
@@ -159,7 +159,7 @@ export class PatientNotificationService {
         patientName: 'You'
       };
 
-      console.log('📍 PatientNotificationService: Route data:', routeData);
+      console.log('PatientNotificationService: Route data:', routeData);
 
       const modal = await this.modalController.create({
         component: RouteMapComponent,
@@ -179,7 +179,7 @@ export class PatientNotificationService {
    * Force show a test notification (for development/testing)
    */
   async showTestNotification(): Promise<void> {
-    console.log('🧪 Showing test buddy response notification');
+    console.log('Showing test buddy response notification');
     
     const testResponse = {
       responderId: 'test-buddy-123',
