@@ -36,7 +36,7 @@ export class PatientNotificationService {
         return;
       }
 
-      console.log('🎧 Starting to listen for buddy responses...');
+      console.log('Starting to listen for buddy responses...');
 
       // Subscribe to emergency responses
       this.responseSubscription = this.emergencyService.emergencyResponse$.subscribe(

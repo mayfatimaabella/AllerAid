@@ -1,7 +1,264 @@
-/* Styles for EmergencySpecificInstructionsModalComponent
-   Minimal placeholder to satisfy Angular's resource import.
-   Add custom styles here as needed. */
+/* Styles for EmergencySpecificInstructionsModalComponent */
 
 :host {
   display: block;
+}
+
+ion-content {
+  --background: #ffffff;
+}
+
+// Form Section
+.form-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f4a42;
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+
+.instruction-field {
+  background: #ffffff;
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  --background: #ffffff;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 70px;
+  box-shadow: 0 1px 3px rgba(3, 106, 93, 0.08);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #036a5d;
+    box-shadow: 0 2px 6px rgba(3, 106, 93, 0.12);
+  }
+
+  ion-label {
+    font-weight: 600;
+    color: #1f4a42;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  ion-select,
+  ion-textarea {
+    font-size: 15px;
+    color: #1f2d29;
+    margin-top: 4px;
+  }
+
+  ion-textarea {
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.3px;
+  }
+}
+
+// Instructions List Section
+.instructions-list-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid #e8f2f0;
+}
+
+.instructions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instruction-item {
+  background: #ffffff;
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(3, 106, 93, 0.06);
+
+  &:hover {
+    border-color: #036a5d;
+    box-shadow: 0 2px 8px rgba(3, 106, 93, 0.12);
+    transform: translateY(-1px);
+  }
+}
+
+.instruction-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.instruction-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  .allergy-icon {
+    color: #e55e76;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1f4a42;
+  }
+}
+
+.instruction-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5a6c69;
+  word-wrap: break-word;
+}
+
+.instruction-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  margin-top: 32px;
+
+  .empty-icon {
+    font-size: 64px;
+    color: #b8d4cf;
+    margin-bottom: 16px;
+  }
+
+  .empty-message {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5a6c69;
+    margin: 0 0 8px 0;
+  }
+
+  .empty-hint {
+    font-size: 14px;
+    color: #8ba19c;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Details View
+.details-card {
+  background: #ffffff;
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(3, 106, 93, 0.08);
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8f2f0;
+
+  .details-icon {
+    color: #e55e76;
+    font-size: 32px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1f4a42;
+  }
+}
+
+.details-content {
+  .detail-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #036a5d;
+    margin-bottom: 12px;
+  }
+
+  .detail-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #1f2d29;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
+
+.details-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+    text-transform: none;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .instruction-item {
+    flex-direction: column;
+  }
+
+  .instruction-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }

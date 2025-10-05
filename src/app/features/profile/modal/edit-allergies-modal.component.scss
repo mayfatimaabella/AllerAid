@@ -1,7 +1,7 @@
-/* Edit Allergies Modal - Force White Background */
+/* Edit Allergies Modal - Force White Background on content only */
 :host { 
-  display: block; 
-  background: #ffffff !important;
+  display: block;
+  /* Removed background: #ffffff to allow toolbar teal color to show */
 }
 
 /* Force white background on modal content */
@@ -9,27 +9,23 @@ ion-content {
   --background: #ffffff !important;
 }
 
-ion-header {
-  ion-toolbar {
-    --background: #036a5d;
-    --color: white;
-  }
-  
-  /* Make close and back buttons visible */
-  ion-buttons {
-    ion-button {
-      --color: white !important;
-      color: white !important;
-      
-      ion-icon {
-        color: white !important;
-        font-size: 24px;
-      }
-    }
-  }
+/* Force toolbar to match Emergency Details teal exactly */
+ion-header ion-toolbar {
+  --background: #036a5d !important;
+  background: #036a5d !important;
+  --color: #ffffff !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #004d42;
   
   ion-title {
-    color: white !important;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
+  
+  ion-button,
+  ion-icon {
+    --color: #ffffff !important;
+    color: #ffffff !important;
   }
 }
 
@@ -46,6 +42,11 @@ ion-card {
 
 ion-list {
   background: #ffffff !important;
+}
+
+/* Keep a bit of spacing when the optional input appears */
+ion-item ion-input {
+  margin-left: 8px;
 }
 
 /* Checkbox styling for better visibility on white */

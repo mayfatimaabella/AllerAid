@@ -104,7 +104,7 @@
               <div class="emergency-value">{{ getEmergencyMessageName() }}</div>
             </div>
             
-            <div class="emergency-section">
+            <div class="emergency-section allergies-section">
               <div class="emergency-label">ALLERGIES</div>
               <div class="allergy-chips">
                 <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
@@ -117,7 +117,7 @@
               <div class="emergency-value instructions">{{ getEmergencyInstructionsCombined() }}</div>
             </div>
             
-            <div class="emergency-section">
+            <div class="emergency-section location-section">
               <div class="emergency-label">LOCATION</div>
               <div class="emergency-value">{{ getEmergencyMessageLocation() || 'Google Maps' }}</div>
             </div>
@@ -900,7 +900,7 @@
             <ion-content class="ion-padding">
               <div class="examples-container">
                 <div class="example-section">
-                  <h3>✅ Simple Examples:</h3>
+                  <h3>Simple Examples:</h3>
                   <div class="example-card">
                     <p>"I have a severe peanut allergy. Use my EpiPen and call 911 immediately."</p>
                     <ion-icon name="information-circle-outline" color="primary"></ion-icon>
@@ -918,7 +918,7 @@
                 </div>
 
                 <div class="example-section">
-                  <h3>✅ Detailed Instructions:</h3>
+                  <h3>Detailed Instructions:</h3>
                   <div class="example-card">
                     <p>"This person is allergic to peanuts. If they are having trouble breathing, give them an EpiPen (in left pocket) immediately. Call emergency services (911). Stay with them until help arrives."</p>
                     <ion-icon name="information-circle-outline" color="primary"></ion-icon>
@@ -926,7 +926,7 @@
                 </div>
 
                 <div class="example-section">
-                  <h3>✅ With Medication Details:</h3>
+                  <h3>With Medication Details:</h3>
                   <div class="example-card">
                     <p>"I'm allergic to bee stings. If I collapse or stop responding, inject my EpiPen in the thigh and call emergency services. I also carry Benadryl in my pouch."</p>
                     <ion-icon name="information-circle-outline" color="primary"></ion-icon>
@@ -934,7 +934,7 @@
                 </div>
 
                 <div class="example-section">
-                  <h3>✅ For Children/Elderly:</h3>
+                  <h3>For Children/Elderly:</h3>
                   <div class="example-card">
                     <p>"Child has a dairy allergy. If symptoms like vomiting or hives appear, administer antihistamine syrup. If breathing difficulty occurs, use EpiPen and call emergency help."</p>
                     <ion-icon name="information-circle-outline" color="primary"></ion-icon>
@@ -942,7 +942,7 @@
                 </div>
 
                 <div class="tips-section">
-                  <h3>💡 Tips for Writing Instructions:</h3>
+                  <h3>Tips for Writing Instructions:</h3>
                   <ul>
                     <li>Be specific about your allergies</li>
                     <li>Include medication names and locations</li>
@@ -1236,10 +1236,10 @@
   <!-- End profile-card -->
 </ion-content>
 <!-- Global Emergency Message Edit Modal (moved outside tab-specific *ngIf to allow single-click open from any tab) -->
-<ion-modal [isOpen]="showEditEmergencyMessageModal" (didDismiss)="closeEditEmergencyMessageModal()">
+<ion-modal [isOpen]="showEditEmergencyMessageModal" (didDismiss)="closeEditEmergencyMessageModal()" cssClass="force-white-modal">
   <ng-template>
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar class="teal-modal-toolbar">
         <ion-title>Edit Emergency Message</ion-title>
         <ion-buttons slot="start">
           <ion-button (click)="closeEditEmergencyMessageModal()" fill="clear">
@@ -1253,85 +1253,40 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
-      <ion-item>
+    <ion-content class="ion-padding force-white-content">
+      <ion-item class="eem-field" lines="none">
         <ion-label position="stacked">Name</ion-label>
         <ion-input placeholder="Enter name" [(ngModel)]="emergencyMessage.name"></ion-input>
       </ion-item>
-      <ion-item>
+      <ion-item class="eem-field" lines="none">
         <ion-label position="stacked">Allergies</ion-label>
-        <ion-input placeholder="Enter allergies" [(ngModel)]="emergencyMessage.allergies"></ion-input>
+        <ion-input readonly="true" [value]="emergencyMessage.allergies" placeholder="No allergies set"></ion-input>
       </ion-item>
-      <ion-item>
+      <ion-item class="eem-field" lines="none">
         <ion-label position="stacked">Instructions</ion-label>
         <ion-textarea autoGrow="true" placeholder="Enter instructions" [(ngModel)]="emergencyMessage.instructions"></ion-textarea>
       </ion-item>
-      <ion-item>
+      <ion-item class="eem-field" lines="none">
         <ion-label position="stacked">Location</ion-label>
         <ion-input placeholder="Enter location" [(ngModel)]="emergencyMessage.location"></ion-input>
       </ion-item>
-      <ion-button expand="block" (click)="saveEmergencyMessage()" style="color: white;">Save</ion-button>
+      <ion-button expand="block" (click)="saveEmergencyMessage()">Save</ion-button>
     </ion-content>
   </ng-template>
 </ion-modal>
+
 <!-- Detailed Emergency Info Modal -->
 <ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()">
   <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Emergency Details</ion-title>
-        <ion-buttons slot="start">
-          <ion-button fill="clear" (click)="closeEmergencyInfoModal()">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button fill="clear" (click)="closeEmergencyInfoModal()">
-            <ion-icon name="close"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding emergency-info-modal">
-      <h2 style="margin-top:0;">{{ getEmergencyMessageName() }}</h2>
-      <ion-item lines="none">
-        <ion-label>
-          <h3>Allergies</h3>
-          <p>{{ getEmergencyMessageAllergies() }}</p>
-        </ion-label>
-      </ion-item>
-      <div class="instructions-detail-list">
-        <h2 class="instructions-modal-title">Instructions</h2>
-        <div *ngFor="let entry of getEmergencyInstructionEntries()" class="instruction-entry">
-          <div class="instruction-entry-header">
-            <ion-icon name="alert-circle-outline" *ngIf="entry.label !== 'General' && entry.label !== 'None'" class="instruction-icon"></ion-icon>
-            <ion-icon name="information-circle-outline" *ngIf="entry.label === 'General'" class="instruction-icon"></ion-icon>
-            <ion-icon name="remove-circle-outline" *ngIf="entry.label === 'None'" class="instruction-icon"></ion-icon>
-            <strong>{{ entry.label }}</strong>
-          </div>
-          <div class="instruction-entry-text">{{ entry.text }}</div>
-        </div>
-      </div>
-      <ion-item lines="none" style="margin-top:24px;">
-        <ion-label>
-          <h3>Location</h3>
-          <p>{{ getEmergencyMessageLocation() }}</p>
-        </ion-label>
-      </ion-item>
-      <div class="modal-actions" style="margin-top:32px; display:grid; gap:12px;">
-        <ion-button expand="block" fill="outline" color="primary" (click)="openEditEmergencyMessageModal(); closeEmergencyInfoModal()">
-          <ion-icon name="create-outline" slot="start"></ion-icon>
-          Edit Message
-        </ion-button>
-        <ion-button expand="block" fill="outline" color="secondary" (click)="testAudioInstructions()">
-          <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-          Test Audio
-        </ion-button>
-        <ion-button expand="block" fill="outline" color="tertiary" (click)="showEmergencyExamples(); closeEmergencyInfoModal()">
-          <ion-icon name="book-outline" slot="start"></ion-icon>
-          View Examples
-        </ion-button>
-      </div>
-    </ion-content>
+    <app-emergency-details-modal
+      [emergencyMessageName]="getEmergencyMessageName()"
+      [userAllergies]="userAllergies"
+      [instructionEntries]="getEmergencyInstructionEntries()"
+      [emergencyLocation]="getEmergencyMessageLocation()"
+      (close)="closeEmergencyInfoModal()"
+      (editInstruction)="editInstructionEntry($event.label, $event.text)"
+      (testAudio)="testAudioInstructions()"
+      (viewExamples)="showEmergencyExamples(); closeEmergencyInfoModal()">
+    </app-emergency-details-modal>
   </ng-template>
 </ion-modal>

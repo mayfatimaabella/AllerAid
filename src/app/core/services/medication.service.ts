@@ -24,6 +24,8 @@ export interface Medication {
   id?: string;
   name: string;
   dosage: string;
+  dosageAmount?: number; // Structured dosage amount (e.g., 50)
+  dosageUnit?: string; // Structured dosage unit (e.g., "mg")
   frequency: string; // We'll use this for duration (e.g., "10 days")
   startDate: string;
   endDate?: string;

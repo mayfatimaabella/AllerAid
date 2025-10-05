@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="teal-modal-toolbar">
     <ion-title>Edit Allergies</ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onClose()" fill="clear">
@@ -19,7 +19,7 @@
       <ion-item *ngFor="let allergy of allergyOptions; let i = index">
         <ion-checkbox slot="start" [(ngModel)]="allergy.checked" [name]="allergy.name"></ion-checkbox>
         <ion-label>{{ allergy.label }}</ion-label>
-        <ion-input *ngIf="allergy.hasInput" placeholder="please specify" [(ngModel)]="allergy.value" [name]="allergy.name + 'Value'" style="margin-left: 8px;"></ion-input>
+        <ion-input *ngIf="allergy.hasInput" placeholder="please specify" [(ngModel)]="allergy.value" [name]="allergy.name + 'Value'"></ion-input>
       </ion-item>
     </ion-list>
   <ion-button expand="block" (click)="onSave()" class="brand-save-btn" aria-label="Save allergies">Save</ion-button>

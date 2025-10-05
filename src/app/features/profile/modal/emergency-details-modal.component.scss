@@ -1,0 +1,179 @@
+/* Styles for EmergencyDetailsModalComponent */
+
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: #ffffff;
+}
+
+.emergency-info-modal {
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f4a42;
+    margin-bottom: 20px;
+  }
+}
+
+// Modal info cards
+.modal-info-card {
+  background: #ffffff;
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(3, 106, 93, 0.08);
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #036a5d;
+    margin: 0 0 12px 0;
+  }
+
+  .value {
+    font-size: 15px;
+    color: #1f2d29;
+    margin: 0;
+    line-height: 1.6;
+
+    &.no-data {
+      color: #8ba19c;
+      font-style: italic;
+    }
+  }
+}
+
+// Allergies card
+.allergies-card {
+  .chips-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .allergy-chip {
+    display: inline-block;
+    background: #036a5d;
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+// Instructions detail list
+.instructions-detail-list {
+  margin-bottom: 20px;
+
+  .instructions-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f4a42;
+    margin-bottom: 16px;
+  }
+}
+
+.instruction-entry {
+  background: #ffffff;
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(3, 106, 93, 0.06);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #036a5d;
+    box-shadow: 0 2px 8px rgba(3, 106, 93, 0.12);
+  }
+}
+
+.instruction-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  .instruction-icon {
+    font-size: 20px;
+    color: #036a5d;
+    flex-shrink: 0;
+
+    &[name="alert-circle-outline"] {
+      color: #e55e76;
+    }
+
+    &[name="information-circle-outline"] {
+      color: #4a90e2;
+    }
+
+    &[name="remove-circle-outline"] {
+      color: #8ba19c;
+    }
+  }
+
+  strong {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f4a42;
+    flex: 1;
+  }
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+.instruction-entry-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5a6c69;
+  margin-left: 30px;
+  word-wrap: break-word;
+}
+
+// Location card
+.location-card {
+  .value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    ion-icon {
+      color: #036a5d;
+      font-size: 20px;
+    }
+  }
+}
+
+// Modal actions
+.modal-actions {
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.3px;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .instruction-entry-text {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}

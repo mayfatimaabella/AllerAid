@@ -243,3 +243,149 @@ ion-alert .alert-checkbox-label {
     --box-shadow: 0 0 0 2px var(--ion-color-primary);
   }
 }
+
+/* =====================================================================
+   UNIVERSAL PURE WHITE MODAL OVERRIDE
+   Apply cssClass="force-white-modal" (and optionally force-white-content) to
+   any <ion-modal> to guarantee a white background regardless of theme/dark mode
+   or component-level variable leakage. This operates at global level so it
+   penetrates Ionic shadow DOM boundaries via ::part + high specificity.
+   ===================================================================== */
+ion-modal.force-white-modal,
+ion-modal.force-white-modal::part(content),
+ion-modal.force-white-modal .modal-wrapper,
+ion-modal.force-white-modal .ion-page,
+ion-modal.force-white-modal ion-content,
+ion-modal.force-white-modal ion-content::part(scroll),
+ion-modal.force-white-modal .inner-scroll {
+  --background: #ffffff !important;
+  --ion-background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #1f2d29 !important;
+}
+
+/* Toolbar is NOT forced to white - it should use teal-modal-toolbar class */
+/* Teal toolbar styling for modals (works with or without force-white-modal) */
+ion-modal ion-toolbar.teal-modal-toolbar,
+ion-modal .teal-modal-toolbar,
+.teal-modal-toolbar {
+  --background: #036a5d !important;
+  background: #036a5d !important;
+  --color: #ffffff !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #004d42;
+}
+
+ion-modal ion-toolbar.teal-modal-toolbar ion-title,
+ion-modal .teal-modal-toolbar ion-title,
+.teal-modal-toolbar ion-title {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+ion-modal ion-toolbar.teal-modal-toolbar ion-button,
+ion-modal .teal-modal-toolbar ion-button,
+.teal-modal-toolbar ion-button,
+ion-modal ion-toolbar.teal-modal-toolbar ion-icon,
+ion-modal .teal-modal-toolbar ion-icon,
+.teal-modal-toolbar ion-icon {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+ion-modal.force-white-modal ion-item,
+ion-modal.force-white-modal ion-item::part(native),
+ion-modal.force-white-modal ion-item::part(container) {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  --color: #1f2d29 !important;
+  color: #1f2d29 !important;
+}
+
+ion-modal.force-white-modal ion-label[position="stacked"] {
+  color: #045146 !important;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+
+ion-modal.force-white-modal ion-input,
+ion-modal.force-white-modal ion-textarea,
+ion-modal.force-white-modal ion-textarea::part(native) {
+  --color: #1f2d29 !important;
+  color: #1f2d29 !important;
+  background: #ffffff !important;
+}
+
+ion-modal.force-white-modal ion-button {
+  --background: #036a5d !important;
+  background: #036a5d !important;
+  --color: #ffffff !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 14px;
+}
+
+/* Enhanced styling for Edit Emergency Message fields */
+ion-modal.force-white-modal ion-item.eem-field {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #e8f2f0;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  --inner-padding-start: 16px;
+  --inner-padding-end: 16px;
+  --inner-padding-top: 14px;
+  --inner-padding-bottom: 14px;
+  min-height: 70px;
+}
+
+ion-modal.force-white-modal ion-item.eem-field ion-label[position="stacked"] {
+  color: #036a5d !important;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+ion-modal.force-white-modal ion-item.eem-field ion-input,
+ion-modal.force-white-modal ion-item.eem-field ion-textarea {
+  --color: #1f4a42 !important;
+  color: #1f4a42 !important;
+  background: #ffffff !important;
+  font-size: 15px;
+  font-weight: 400;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+}
+
+ion-modal.force-white-modal ion-item.eem-field ion-textarea::part(native) {
+  --color: #1f4a42 !important;
+  color: #1f4a42 !important;
+  background: #ffffff !important;
+  min-height: 60px;
+}
+
+/* Read-only field styling */
+ion-modal.force-white-modal ion-item.eem-field ion-input[readonly] {
+  opacity: 0.8;
+  font-style: italic;
+  color: #666 !important;
+}
+
+/* Remove unintended dark overlays from backdrop-derived variables */
+ion-modal.force-white-modal::part(backdrop) {
+  --backdrop-opacity: 0.32;
+}
+
+/* Reusable teal toolbar for white modals */
+.teal-modal-toolbar, ion-toolbar.teal-modal-toolbar {
+  --background: #036a5d !important;
+  background: #036a5d !important;
+  --color: #ffffff !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #004d42;
+}
+.teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
+.teal-modal-toolbar ion-button, .teal-modal-toolbar ion-icon { --color:#ffffff !important; color:#ffffff !important; }

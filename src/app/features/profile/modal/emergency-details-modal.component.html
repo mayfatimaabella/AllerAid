@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar class="teal-modal-toolbar">
+    <ion-title>Emergency Details</ion-title>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="onClose()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="onClose()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding emergency-info-modal">
+  <h2 style="margin-top:0;">{{ emergencyMessageName }}</h2>
+  
+  <!-- Allergies summary card -->
+  <div class="modal-info-card allergies-card">
+    <h3>Allergies</h3>
+    <div class="chips-wrapper" *ngIf="userAllergies.length > 0; else noAllergies">
+      <span *ngFor="let allergy of userAllergies" class="allergy-chip">
+        {{ allergy.label || allergy.name }}
+      </span>
+    </div>
+    <ng-template #noAllergies>
+      <p class="value no-data">None</p>
+    </ng-template>
+  </div>
+  
+  <!-- Instructions detail list -->
+  <div class="instructions-detail-list">
+    <h2 class="instructions-modal-title">Instructions</h2>
+    <div *ngFor="let entry of instructionEntries" class="instruction-entry">
+      <div class="instruction-entry-header">
+        <ion-icon 
+          name="alert-circle-outline" 
+          *ngIf="entry.label !== 'General' && entry.label !== 'None'" 
+          class="instruction-icon">
+        </ion-icon>
+        <ion-icon 
+          name="information-circle-outline" 
+          *ngIf="entry.label === 'General'" 
+          class="instruction-icon">
+        </ion-icon>
+        <ion-icon 
+          name="remove-circle-outline" 
+          *ngIf="entry.label === 'None'" 
+          class="instruction-icon">
+        </ion-icon>
+        <strong>{{ entry.label }}</strong>
+        <ion-button 
+          *ngIf="entry.label !== 'None'" 
+          fill="clear" 
+          size="small" 
+          (click)="onEditInstruction(entry.label, entry.text); $event.stopPropagation()"
+          style="margin-left: auto;">
+          <ion-icon name="create-outline" slot="icon-only" style="color: #036a5d;"></ion-icon>
+        </ion-button>
+      </div>
+      <div class="instruction-entry-text">{{ entry.text }}</div>
+    </div>
+  </div>
+  
+  <!-- Location summary card -->
+  <div class="modal-info-card location-card">
+    <h3>Location</h3>
+    <p class="value">{{ emergencyLocation || 'Not set' }}</p>
+  </div>
+  
+  <!-- Modal actions -->
+  <div class="modal-actions" style="margin-top:32px; display:grid; gap:12px;">
+    <ion-button expand="block" fill="outline" color="secondary" (click)="onTestAudio()">
+      <ion-icon name="volume-high-outline" slot="start"></ion-icon>
+      Test Audio
+    </ion-button>
+    <ion-button expand="block" fill="outline" color="tertiary" (click)="onViewExamples()">
+      <ion-icon name="book-outline" slot="start"></ion-icon>
+      View Examples
+    </ion-button>
+  </div>
+</ion-content>

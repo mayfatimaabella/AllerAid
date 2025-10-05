@@ -37,6 +37,10 @@ export class AddMedicationModal implements OnInit {
     // If in edit mode, populate the form with existing medication data
     if (this.isEditMode && this.medication) {
       this.med = { ...this.medication };
+      // Parse dosage string into amount and unit if it exists
+      if (this.med.dosage && !this.med.dosageAmount && !this.med.dosageUnit) {
+        this.parseDosage(this.med.dosage);
+      }
       // Load existing images if they exist
       if (this.medication.prescriptionImageUrl) {
         this.prescriptionImage = this.medication.prescriptionImageUrl;
@@ -49,6 +53,23 @@ export class AddMedicationModal implements OnInit {
 
   dismiss() {
     this.modalCtrl.dismiss();
+  }
+
+  // Parse dosage string (e.g., "50mg") into amount and unit
+  parseDosage(dosageString: string) {
+    const match = dosageString.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
+    if (match) {
+      this.med.dosageAmount = parseFloat(match[1]);
+      this.med.dosageUnit = match[2].trim();
+    }
+  }
+
+  // Combine dosage amount and unit into a single string (e.g., "50mg")
+  combineDosage(): string {
+    if (this.med.dosageAmount && this.med.dosageUnit) {
+      return `${this.med.dosageAmount}${this.med.dosageUnit}`;
+    }
+    return '';
   }
 
   async selectPrescriptionImage() {
@@ -247,10 +268,14 @@ export class AddMedicationModal implements OnInit {
       return;
     }
 
-    if (!this.med.dosage.trim()) {
-      this.presentToast('Please enter dosage');
+    // Validate dosage - check for either structured fields or combined string
+    if (!this.med.dosageAmount || !this.med.dosageUnit) {
+      this.presentToast('Please enter dosage amount and unit');
       return;
     }
+
+    // Combine dosage amount and unit into the dosage string
+    this.med.dosage = this.combineDosage();
 
     if (!this.med.quantity || this.med.quantity <= 0) {
       this.presentToast('Please enter number of pills');

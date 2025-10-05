@@ -195,7 +195,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         emergencyInstructions: this.emergencyInstructions,
         userAllergies: this.userAllergies
       },
-      cssClass: 'emergency-instructions-modal'
+      cssClass: 'force-white-modal emergency-instructions-modal'
     });
 
     await modal.present();
@@ -217,7 +217,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       componentProps: {
         allergyOptions: this.allergyOptions
       },
-      cssClass: 'edit-allergies-modal'
+      cssClass: 'force-white-modal edit-allergies-modal'
     });
 
     await modal.present();
@@ -830,7 +830,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   // Update emergency message allergies to reflect the new allergy list
   this.emergencyMessage.allergies = this.getUserAllergiesDisplay();
       
-  this.presentToast('Allergies updated successfully');
+  // Toast is already shown by the Edit Allergies modal component, no need to duplicate
+  // this.presentToast('Allergies updated successfully');
     } catch (error) {
       console.error('Error saving allergies:', error);
       this.presentToast('Error saving allergies');
@@ -1141,6 +1142,30 @@ export class ProfilePage implements OnInit, OnDestroy {
       entries.push({ label: 'None', text: 'No instructions set' });
     }
     return entries;
+  }
+
+  /**
+   * Edit a specific instruction entry (allergy-specific or general)
+   */
+  editInstructionEntry(label: string, text: string) {
+    if (label === 'General') {
+      // For general instructions, open the Edit Emergency Message modal
+      this.closeEmergencyInfoModal();
+      this.openEditEmergencyMessageModal();
+    } else {
+      // For allergy-specific instructions, open the Manage Instructions modal
+      // Find the matching instruction
+      const instruction = this.emergencyInstructions.find(i => i.allergyName === label);
+      if (instruction) {
+        // Pre-populate the modal with this instruction for editing
+        this.closeEmergencyInfoModal();
+        this.openManageInstructionsModal();
+        // The modal component will need to handle pre-selection
+        // We can pass this via componentProps when we refactor to use ModalController
+      } else {
+        this.presentToast('Instruction not found');
+      }
+    }
   }
 
   /**
