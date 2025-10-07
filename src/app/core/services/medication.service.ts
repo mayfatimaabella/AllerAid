@@ -61,9 +61,10 @@ export interface Medication {
   prescriptionImageName?: string;
   medicationImageUrl?: string;
   medicationImageName?: string;
-  emergencyMedication?: boolean;
-  requiresRefrigeration?: boolean;
-  withFood?: boolean;
+  // Note: legacy boolean flags (emergencyMedication, requiresRefrigeration, withFood)
+  // were removed from the TypeScript model in favor of using `category` and
+  // other descriptive fields. Runtime data may still contain these keys; code
+  // that needs to detect them should access them dynamically if required.
   foodRestrictions?: string;
 }
 
@@ -377,8 +378,10 @@ export class MedicationService {
   async getEmergencyOnlyMedications(): Promise<Medication[]> {
     const allMedications = await this.getUserMedications();
     return allMedications.filter(med => 
-      med.emergencyMedication === true || 
-      med.allergicReaction === true
+      (med as any).emergencyMedication === true || 
+      med.allergicReaction === true || 
+      med.category === 'emergency' ||
+      med.category === 'allergy'
     );
   }
 
@@ -396,7 +399,7 @@ export class MedicationService {
   async getSpecialStorageMedications(): Promise<Medication[]> {
     const allMedications = await this.getUserMedications();
     return allMedications.filter(med => 
-      med.requiresRefrigeration === true
+      (med as any).requiresRefrigeration === true || med.category === 'daily' // fallback: daily meds may require refrigeration
     );
   }
 

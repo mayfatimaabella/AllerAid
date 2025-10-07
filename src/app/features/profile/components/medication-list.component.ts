@@ -154,7 +154,7 @@ export class MedicationListComponent {
 
   getEmergencyMedicationsCount(): number {
     return this.medications.filter(med => 
-      med.emergencyMedication === true || 
+      (med as any).emergencyMedication === true || 
       med.category === 'emergency' || 
       med.category === 'allergy'
     ).length;

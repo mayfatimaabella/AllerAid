@@ -16,7 +16,3 @@ import { MedicalHistoryDetailsPage } from './medical-history-details.page';
   declarations: [MedicalHistoryDetailsPage]
 })
 export class MedicalHistoryDetailsPageModule {}
-
-
-
-

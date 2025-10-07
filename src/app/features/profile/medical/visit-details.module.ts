@@ -16,7 +16,3 @@ import { VisitDetailsPage } from './visit-details.page';
   declarations: [VisitDetailsPage]
 })
 export class VisitDetailsPageModule {}
-
-
-
-

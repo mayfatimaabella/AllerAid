@@ -189,11 +189,10 @@
 
         <!-- Medications List -->
         <div class="medications-list">
-          <div *ngFor="let medication of filteredMedications" 
-               class="medication-card" 
-               [class.emergency-medication]="medication.emergencyMedication"
-               [class.expanded]="isMedicationDetailsExpanded(medication.id)"
-               (click)="toggleMedicationDetails(medication.id)">
+    <div *ngFor="let medication of filteredMedications" 
+      class="medication-card" 
+      [ngClass]="{ 'emergency-medication': isEmergencyMedication(medication), 'expanded': isMedicationDetailsExpanded(medication.id) }"
+      (click)="toggleMedicationDetails(medication.id)">
             
             <div class="medication-header">
               <div class="medication-title-section">
@@ -253,8 +252,6 @@
             
             <!-- Expanded Details Section -->
             <div *ngIf="isMedicationDetailsExpanded(medication.id)" class="medication-details-expanded">
-              
-              <!-- Medication images removed per request -->
 
               <!-- Additional Details -->
               <div class="medication-details-grid">
@@ -290,21 +287,6 @@
                 <b>Notes:</b> {{ medication.notes }}
               </div>
 
-              <!-- Special Flags -->
-              <div class="medication-flags" *ngIf="medication.emergencyMedication || medication.requiresRefrigeration || medication.withFood">
-                <ion-chip color="danger" size="small" *ngIf="medication.emergencyMedication">
-                  <ion-icon name="warning-outline"></ion-icon>
-                  Emergency
-                </ion-chip>
-                <ion-chip color="primary" size="small" *ngIf="medication.requiresRefrigeration">
-                  <ion-icon name="snow-outline"></ion-icon>
-                  Refrigerate
-                </ion-chip>
-                <ion-chip color="secondary" size="small" *ngIf="medication.withFood">
-                  <ion-icon name="restaurant-outline"></ion-icon>
-                  With Food
-                </ion-chip>
-              </div>
             </div>
           </div>
 

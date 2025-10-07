@@ -876,19 +876,7 @@ ion-modal.instruction-details-modal {
   } 
 }
 
-.medication-flags { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 6px; 
-  margin-top: 12px; 
-  ion-chip { 
-    font-size: 11px; 
-    height: 24px; 
-    ion-icon { 
-      font-size: 14px; 
-    } 
-  } 
-}
+/* .medication-flags styles removed because flag chips were removed from the UI */
 
 // Search & Filters
 .medications-list, 

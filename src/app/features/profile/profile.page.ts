@@ -12,9 +12,9 @@ import { MedicationService, Medication } from '../../core/services/medication.se
 import { EHRService, DoctorVisit, MedicalHistory, HealthcareProvider, AccessRequest } from '../../core/services/ehr.service';
 import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
 import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
-import { AddMedicationModal } from '../../shared/modals/add-medication.modal';
-import { AddDoctorVisitModal } from '../../shared/modals/add-doctor-visit.modal';
-import { AddMedicalHistoryModal } from '../../shared/modals/add-medical-history.modal';
+import { AddMedicationModal } from './modal/add-medication.modal';
+import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
+import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
 import { IonList, IonItem, IonIcon, IonLabel } from '@ionic/angular/standalone';
 import { environment } from '../../../environments/environment';
 
@@ -545,7 +545,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         filtered = filtered.filter(med => 
           med.category === 'emergency' || 
           med.category === 'allergy' ||
-          med.emergencyMedication === true
+          (med as any).emergencyMedication === true
         );
         break;
       case 'daily':
@@ -622,7 +622,7 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   getEmergencyMedicationsCount(): number {
     return this.userMedications.filter(med => 
-      med.emergencyMedication === true || 
+      (med as any).emergencyMedication === true || 
       med.category === 'emergency' || 
       med.category === 'allergy'
     ).length;
@@ -635,6 +635,16 @@ export class ProfilePage implements OnInit, OnDestroy {
     return this.userMedications.filter(med => 
       this.isExpiringSoon(med.expiryDate)
     ).length;
+  }
+
+  /**
+   * Determine if a medication should be treated as emergency-highlighted.
+   * Supports legacy persisted flag while primarily relying on category.
+   */
+  isEmergencyMedication(med: Medication): boolean {
+    return med.category === 'emergency' ||
+           med.category === 'allergy' ||
+           (med as any).emergencyMedication === true;
   }
 
   /**

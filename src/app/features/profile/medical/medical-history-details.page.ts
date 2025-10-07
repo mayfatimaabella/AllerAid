@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { MedicalHistory, EHRService } from '../../core/services/ehr.service';
+import { MedicalHistory, EHRService } from '../../../core/services/ehr.service';
 
 @Component({
   selector: 'app-medical-history-details',
@@ -291,9 +291,3 @@ export class MedicalHistoryDetailsPage implements OnInit {
   }
 
 }
-
-
-
-
-
-

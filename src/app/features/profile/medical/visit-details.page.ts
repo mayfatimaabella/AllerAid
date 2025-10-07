@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { DoctorVisit, EHRService } from '../../core/services/ehr.service';
+import { DoctorVisit, EHRService } from '../../../core/services/ehr.service';
 
 @Component({
   selector: 'app-visit-details',
@@ -225,9 +225,3 @@ export class VisitDetailsPage implements OnInit {
   }
 
 }
-
-
-
-
-
-
