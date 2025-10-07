@@ -51,6 +51,14 @@ form {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
+
+    .optional-label {
+      font-size: 10px;
+      color: #8ba19c;
+      text-transform: none;
+      font-weight: 400;
+      margin-left: 4px;
+    }
   }
 
   ion-input,
@@ -72,6 +80,25 @@ form {
 
   ion-textarea {
     min-height: 80px;
+  }
+
+  // Date field specific styling
+  &.date-field {
+    ion-datetime-button {
+      width: 100%;
+      --padding-start: 0;
+      --padding-end: 0;
+      margin-top: 4px;
+      
+      &::part(native) {
+        background: transparent;
+        padding: 8px 0;
+        font-size: 15px;
+        color: #1f4a42;
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
   }
 }
 
@@ -136,30 +163,52 @@ form {
   padding: 20px;
   margin-bottom: 24px;
 
-    .section-header {
+  .section-header {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: flex-start;
+    gap: 12px;
     margin-bottom: 16px;
-    color: #1f4a42;
-    font-weight: 600;
-    font-size: 15px;
 
-    ion-icon {
-      font-size: 22px;
+    .section-icon {
+      font-size: 24px;
       color: #036a5d;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .section-info {
+      flex: 1;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f4a42;
+        margin: 0 0 4px 0;
+      }
+
+      p {
+        font-size: 13px;
+        color: #5a6c69;
+        margin: 0;
+        line-height: 1.4;
+      }
     }
   }
 
   .image-upload-btn {
     --border-radius: 10px;
-    --border-width: 2px;
+    --border-width: 1.5px;
     --border-style: dashed;
-    --border-color: #036a5d;
+    --border-color: #4a90e2;
+    --color: #4a90e2;
+    --background: transparent;
+    --background-hover: rgba(74, 144, 226, 0.05);
+    --background-activated: rgba(74, 144, 226, 0.1);
     height: 44px;
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0.3px;
+    margin: 0;
   }
 
   .image-preview {
@@ -216,6 +265,22 @@ form {
       --background: #036a5d;
       --background-hover: #025449;
       --background-activated: #014a3e;
+      --color: #ffffff;
+
+      &:disabled {
+        --background: #b3d4ce;
+        --color: #7a9f98;
+        opacity: 0.6;
+      }
+    }
+
+    &[fill="outline"] {
+      --border-width: 1.5px;
+      --border-color: #8ba19c;
+      --color: #5a6c69;
+      --background: transparent;
+      --background-hover: rgba(139, 161, 156, 0.05);
+      --background-activated: rgba(139, 161, 156, 0.1);
     }
   }
 }

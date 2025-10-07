@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 
@@ -14,7 +14,7 @@ export interface EmergencyInstructionEntry {
   standalone: true,
   imports: [CommonModule, IonicModule]
 })
-export class EmergencyDetailsModalComponent {
+export class EmergencyDetailsModalComponent implements OnInit {
   @Input() emergencyMessageName: string = '';
   @Input() userAllergies: any[] = [];
   @Input() instructionEntries: EmergencyInstructionEntry[] = [];
@@ -23,7 +23,10 @@ export class EmergencyDetailsModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() editInstruction = new EventEmitter<{ label: string; text: string }>();
   @Output() testAudio = new EventEmitter<void>();
-  @Output() viewExamples = new EventEmitter<void>();
+
+  ngOnInit() {
+    // Modal initialized successfully
+  }
 
   onClose() {
     this.close.emit();
@@ -35,9 +38,5 @@ export class EmergencyDetailsModalComponent {
 
   onTestAudio() {
     this.testAudio.emit();
-  }
-
-  onViewExamples() {
-    this.viewExamples.emit();
   }
 }

@@ -121,7 +121,7 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
       const lat = this.currentEmergency.location.latitude;
       const lng = this.currentEmergency.location.longitude;
       
-      // Open Google Maps with directions to the emergency location
+      // Open navigation with live location coordinates
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
       window.open(mapsUrl, '_blank');
     } else {

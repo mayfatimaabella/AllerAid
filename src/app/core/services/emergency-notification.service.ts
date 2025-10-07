@@ -12,7 +12,7 @@ export interface EmergencyNotificationData {
   location: {
     latitude: number;
     longitude: number;
-    googleMapsLink: string;
+    locationLink: string;
   };
   emergencyId: string;
   timestamp: string;
@@ -81,7 +81,7 @@ export class EmergencyNotificationService {
     emergencyAlert: EmergencyAlert,
     userProfile: any
   ): EmergencyNotificationData {
-    const googleMapsLink = this.generateGoogleMapsLink(
+    const locationLink = this.generateLocationLink(
       emergencyAlert.location.latitude,
       emergencyAlert.location.longitude
     );
@@ -93,7 +93,7 @@ export class EmergencyNotificationService {
       location: {
         latitude: emergencyAlert.location.latitude,
         longitude: emergencyAlert.location.longitude,
-        googleMapsLink
+        locationLink
       },
       emergencyId: emergencyAlert.id!,
       timestamp: new Date().toISOString()
@@ -239,7 +239,7 @@ ${allergiesText}
 
 Instructions: ${notificationData.emergencyInstructions}
 
-📍 Location: ${notificationData.location.googleMapsLink}
+📍 Location: ${notificationData.location.locationLink}
 
 ⏰ Time: ${new Date(notificationData.timestamp).toLocaleString()}
 
@@ -247,9 +247,9 @@ Respond immediately through the AllerAid app or call emergency services if neede
   }
 
   /**
-   * Generate Google Maps link with live location
+   * Generate live location link for navigation
    */
-  private generateGoogleMapsLink(latitude: number, longitude: number): string {
+  private generateLocationLink(latitude: number, longitude: number): string {
     return `https://www.google.com/maps?q=${latitude},${longitude}&ll=${latitude},${longitude}&z=16`;
   }
 
@@ -290,7 +290,7 @@ Respond immediately through the AllerAid app or call emergency services if neede
       location: {
         latitude: 37.7749,
         longitude: -122.4194,
-        googleMapsLink: 'https://www.google.com/maps?q=37.7749,-122.4194'
+        locationLink: 'https://www.google.com/maps?q=37.7749,-122.4194'
       },
       emergencyId: 'test-emergency-' + Date.now(),
       timestamp: new Date().toISOString()

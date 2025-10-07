@@ -25,6 +25,7 @@ export class AddMedicationModal implements OnInit {
 
   prescriptionImage: string | null = null;
   medicationImage: string | null = null;
+  todayISO: string = new Date().toISOString();
 
   constructor(
     private modalCtrl: ModalController,
@@ -41,6 +42,13 @@ export class AddMedicationModal implements OnInit {
       if (this.med.dosage && !this.med.dosageAmount && !this.med.dosageUnit) {
         this.parseDosage(this.med.dosage);
       }
+      // Convert date strings to ISO format if they exist
+      if (this.med.startDate && typeof this.med.startDate === 'string') {
+        this.med.startDate = new Date(this.med.startDate).toISOString();
+      }
+      if (this.med.expiryDate && typeof this.med.expiryDate === 'string') {
+        this.med.expiryDate = new Date(this.med.expiryDate).toISOString();
+      }
       // Load existing images if they exist
       if (this.medication.prescriptionImageUrl) {
         this.prescriptionImage = this.medication.prescriptionImageUrl;
@@ -48,6 +56,9 @@ export class AddMedicationModal implements OnInit {
       if (this.medication.medicationImageUrl) {
         this.medicationImage = this.medication.medicationImageUrl;
       }
+    } else {
+      // Default start date to today for new medications
+      this.med.startDate = this.todayISO;
     }
   }
 

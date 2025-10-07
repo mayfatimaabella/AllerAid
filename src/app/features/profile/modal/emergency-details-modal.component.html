@@ -51,14 +51,6 @@
           class="instruction-icon">
         </ion-icon>
         <strong>{{ entry.label }}</strong>
-        <ion-button 
-          *ngIf="entry.label !== 'None'" 
-          fill="clear" 
-          size="small" 
-          (click)="onEditInstruction(entry.label, entry.text); $event.stopPropagation()"
-          style="margin-left: auto;">
-          <ion-icon name="create-outline" slot="icon-only" style="color: #036a5d;"></ion-icon>
-        </ion-button>
       </div>
       <div class="instruction-entry-text">{{ entry.text }}</div>
     </div>
@@ -71,14 +63,10 @@
   </div>
   
   <!-- Modal actions -->
-  <div class="modal-actions" style="margin-top:32px; display:grid; gap:12px;">
-    <ion-button expand="block" fill="outline" color="secondary" (click)="onTestAudio()">
+  <div class="modal-actions" style="margin-top:32px;">
+    <ion-button expand="block" fill="outline" class="test-audio-btn" (click)="onTestAudio()">
       <ion-icon name="volume-high-outline" slot="start"></ion-icon>
       Test Audio
-    </ion-button>
-    <ion-button expand="block" fill="outline" color="tertiary" (click)="onViewExamples()">
-      <ion-icon name="book-outline" slot="start"></ion-icon>
-      View Examples
     </ion-button>
   </div>
 </ion-content>

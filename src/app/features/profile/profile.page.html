@@ -15,6 +15,7 @@
     <div class="profile-name">{{ getEmergencyMessageName() }}</div>
 
   </div>
+
   <div class="profile-card">
     <!-- Patient Profile Stats -->
     <div class="profile-stats" *ngIf="userProfile?.role === 'user'">
@@ -119,7 +120,7 @@
             
             <div class="emergency-section location-section">
               <div class="emergency-label">LOCATION</div>
-              <div class="emergency-value">{{ getEmergencyMessageLocation() || 'Google Maps' }}</div>
+              <div class="emergency-value">{{ getEmergencyMessageLocation() || 'Map Location' }}</div>
             </div>
             
             <div class="tap-details">
@@ -1276,7 +1277,7 @@
 </ion-modal>
 
 <!-- Detailed Emergency Info Modal -->
-<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()">
+<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()" cssClass="force-white-modal">
   <ng-template>
     <app-emergency-details-modal
       [emergencyMessageName]="getEmergencyMessageName()"
@@ -1285,8 +1286,7 @@
       [emergencyLocation]="getEmergencyMessageLocation()"
       (close)="closeEmergencyInfoModal()"
       (editInstruction)="editInstructionEntry($event.label, $event.text)"
-      (testAudio)="testAudioInstructions()"
-      (viewExamples)="showEmergencyExamples(); closeEmergencyInfoModal()">
+      (testAudio)="testAudioInstructions()">
     </app-emergency-details-modal>
   </ng-template>
 </ion-modal>

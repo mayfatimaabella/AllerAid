@@ -93,6 +93,46 @@
         </ion-input>
       </ion-item>
 
+      <!-- Start Date Field (Optional, defaults to today) -->
+      <ion-item class="medication-field date-field" lines="none">
+        <ion-label position="stacked">Start Date <span class="optional-label">(Optional)</span></ion-label>
+        <ion-datetime-button datetime="startDate"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime 
+              id="startDate"
+              [(ngModel)]="med.startDate"
+              name="startDate"
+              presentation="date"
+              [max]="todayISO"
+              [showDefaultButtons]="true"
+              doneText="Done"
+              cancelText="Cancel">
+            </ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </ion-item>
+
+      <!-- Expiry Date Field (Optional) -->
+      <ion-item class="medication-field date-field" lines="none">
+        <ion-label position="stacked">Expiry Date <span class="optional-label">(Optional)</span></ion-label>
+        <ion-datetime-button datetime="expiryDate"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime 
+              id="expiryDate"
+              [(ngModel)]="med.expiryDate"
+              name="expiryDate"
+              presentation="date"
+              [min]="todayISO"
+              [showDefaultButtons]="true"
+              doneText="Done"
+              cancelText="Cancel">
+            </ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </ion-item>
+
       <ion-item class="medication-field notes-field" lines="none">
         <ion-label position="stacked">Notes</ion-label>
         <ion-textarea 

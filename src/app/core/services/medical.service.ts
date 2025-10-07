@@ -8,7 +8,8 @@ import {
   addDoc, 
   query, 
   where, 
-  getDocs 
+  getDocs,
+  writeBatch
 } from 'firebase/firestore';
 import { FirebaseService } from './firebase.service';
 import { AuthService } from './auth.service';
@@ -390,6 +391,120 @@ export class MedicalService {
     alertMessage += `\nRespond immediately! This is an automated emergency alert.`;
     
     return alertMessage;
+  }
+
+  /**
+   * Migration function to update existing emergency messages from "Google Maps" to "Map Location"
+   * This should be called once to update all existing documents
+   */
+  async migrateEmergencyMessageLocations(): Promise<number> {
+    try {
+      console.log('Starting emergency message location migration...');
+      
+      // Query all user profiles that have emergency message with "Google Maps"
+      const userProfilesQuery = query(
+        collection(this.db, 'users'),
+        where('emergencyMessage.location', '==', 'Google Maps')
+      );
+      
+      const snapshot = await getDocs(userProfilesQuery);
+      
+      if (snapshot.empty) {
+        console.log('No user profiles found with "Google Maps" emergency location');
+        return 0;
+      }
+      
+      // Batch update for better performance
+      const batch = writeBatch(this.db);
+      let updateCount = 0;
+      
+      snapshot.docs.forEach((docSnapshot) => {
+        const docRef = docSnapshot.ref;
+        batch.update(docRef, {
+          'emergencyMessage.location': 'Map Location',
+          updatedAt: new Date()
+        });
+        updateCount++;
+      });
+      
+      // Commit the batch update
+      await batch.commit();
+      
+      console.log(`Successfully migrated ${updateCount} user profiles from "Google Maps" to "Map Location"`);
+      return updateCount;
+      
+    } catch (error) {
+      console.error('Error during emergency message migration:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Migration function for medical profiles that have "Google Maps" in emergency settings
+   */
+  async migrateMedicalProfileLocations(): Promise<number> {
+    try {
+      console.log('Starting medical profile location migration...');
+      
+      // Query all medical profiles that have emergency message with "Google Maps"
+      const medicalProfilesQuery = query(
+        collection(this.db, 'medicalProfiles'),
+        where('emergencyMessage.location', '==', 'Google Maps')
+      );
+      
+      const snapshot = await getDocs(medicalProfilesQuery);
+      
+      if (snapshot.empty) {
+        console.log('No medical profiles found with "Google Maps" emergency location');
+        return 0;
+      }
+      
+      // Batch update for better performance
+      const batch = writeBatch(this.db);
+      let updateCount = 0;
+      
+      snapshot.docs.forEach((docSnapshot) => {
+        const docRef = docSnapshot.ref;
+        batch.update(docRef, {
+          'emergencyMessage.location': 'Map Location',
+          updatedAt: new Date()
+        });
+        updateCount++;
+      });
+      
+      // Commit the batch update
+      await batch.commit();
+      
+      console.log(`Successfully migrated ${updateCount} medical profiles from "Google Maps" to "Map Location"`);
+      return updateCount;
+      
+    } catch (error) {
+      console.error('Error during medical profile migration:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Run complete migration for both user profiles and medical profiles
+   */
+  async runLocationMigration(): Promise<{ userProfiles: number; medicalProfiles: number }> {
+    try {
+      console.log('🔄 Starting complete location migration...');
+      
+      const userProfilesUpdated = await this.migrateEmergencyMessageLocations();
+      const medicalProfilesUpdated = await this.migrateMedicalProfileLocations();
+      
+      const totalUpdated = userProfilesUpdated + medicalProfilesUpdated;
+      console.log(`✅ Migration completed! Updated ${totalUpdated} documents total`);
+      
+      return {
+        userProfiles: userProfilesUpdated,
+        medicalProfiles: medicalProfilesUpdated
+      };
+    } catch (error) {
+      console.error('❌ Migration failed:', error);
+      throw error;
+    }
   }
 }
 

@@ -420,7 +420,7 @@ export class ProfilePage implements OnInit, OnDestroy {
             name: this.userProfile.fullName || '',
             allergies: this.getUserAllergiesDisplay(),
             instructions: 'Use EpiPen immediately',
-            location: 'Google Maps'
+            location: 'Map Location'
           };
         }
       }
@@ -1105,7 +1105,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   getEmergencyMessageLocation(): string {
-    return this.emergencyMessage.location || 'Google Maps';
+    return this.emergencyMessage.location || 'Map Location';
   }
 
   // --- Emergency Info Detail Modal State & Helpers ---
@@ -1272,17 +1272,71 @@ export class ProfilePage implements OnInit, OnDestroy {
       if (!this.emergencySettings.audioInstructions) {
         const alert = await this.alertController.create({
           header: 'Audio Instructions Disabled',
-          message: 'Please enable "Audio Instructions" setting first to test audio playback.',
+          message: 'Please enable "Audio Instructions" setting first to test audio playbook.',
           buttons: ['OK']
         });
         await alert.present();
         return;
       }
 
+      // Build the actual emergency message to be read
+      const name = this.getEmergencyMessageName();
+      const allergies = this.getEmergencyMessageAllergies();
+      
+      // Get actual current location
+      let locationText = 'Location not available';
+      try {
+        // Import Capacitor Geolocation
+        const { Geolocation } = await import('@capacitor/geolocation');
+        
+        // Request permissions first
+        await Geolocation.requestPermissions();
+        
+        // Get current position
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes cache is acceptable for test
+        });
+        
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Format location as coordinates with precision
+        locationText = `Latitude ${lat.toFixed(6)}, Longitude ${lng.toFixed(6)}`;
+        
+        console.log('Test audio using current location:', locationText);
+      } catch (locationError) {
+        console.log('Could not get current location for test, using fallback:', locationError);
+        // Use the stored emergency location or fallback
+        locationText = this.getEmergencyMessageLocation();
+      }
+      
+      // Get ALL emergency instructions (not just the first one)
+      let instructions = '';
+      if (this.emergencyInstructions && this.emergencyInstructions.length > 0) {
+        // Collect all allergy-specific instructions
+        const allInstructions = this.emergencyInstructions.map(instr => 
+          `${instr.allergyName}: ${instr.instruction}`
+        );
+        instructions = allInstructions.join('. ');
+        
+        // Add general instruction if it exists and isn't already included
+        const generalInstruction = this.emergencyMessage.instructions || '';
+        if (generalInstruction && !instructions.toLowerCase().includes(generalInstruction.toLowerCase())) {
+          instructions = instructions ? `${instructions}. General: ${generalInstruction}` : `General: ${generalInstruction}`;
+        }
+      } else {
+        // No specific instructions, use general instruction
+        instructions = this.emergencyMessage.instructions || 'Use EpiPen immediately and call 911';
+      }
+
+      // Construct the full emergency message with actual location
+      const fullMessage = `Emergency alert for ${name}. Allergies: ${allergies}. Instructions: ${instructions}. Location: ${locationText}.`;
+      
       // Test with voice recording service
-      const testMessage = "This is a test of your emergency audio instructions. Your current settings have been applied.";
-      await this.voiceRecordingService.playEmergencyInstructions(testMessage);
-      this.presentToast('Audio instructions test played');
+      await this.voiceRecordingService.playEmergencyInstructions(fullMessage);
+      this.presentToast('Emergency audio message played with current location');
     } catch (error) {
       console.error('Error testing audio instructions:', error);
       this.presentToast('Error testing audio instructions');
