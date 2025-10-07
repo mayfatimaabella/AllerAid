@@ -26,6 +26,7 @@ export class AddMedicationModal implements OnInit {
   prescriptionImage: string | null = null;
   medicationImage: string | null = null;
   todayISO: string = new Date().toISOString();
+  isDurationManual: boolean = false; // Track if user manually edited duration
 
   constructor(
     private modalCtrl: ModalController,
@@ -81,6 +82,93 @@ export class AddMedicationModal implements OnInit {
       return `${this.med.dosageAmount}${this.med.dosageUnit}`;
     }
     return '';
+  }
+
+  // Calculate duration in days between start and expiry dates
+  calculateDuration() {
+    // Only auto-calculate if user hasn't manually set duration
+    if (this.isDurationManual) {
+      return;
+    }
+
+    if (this.med.startDate && this.med.expiryDate) {
+      const startDate = new Date(this.med.startDate);
+      const expiryDate = new Date(this.med.expiryDate);
+      
+      // Calculate the difference in time (milliseconds)
+      const timeDifference = expiryDate.getTime() - startDate.getTime();
+      
+      // Convert to days
+      const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+      
+      // Update the frequency field with calculated days
+      if (daysDifference > 0) {
+        this.med.frequency = `${daysDifference} day${daysDifference === 1 ? '' : 's'}`;
+      } else if (daysDifference === 0) {
+        this.med.frequency = '1 day';
+      } else {
+        // If expiry date is before start date, clear the duration
+        this.med.frequency = '';
+      }
+    }
+  }
+
+  // Handle manual duration input
+  onDurationChange() {
+    this.isDurationManual = true;
+  }
+
+  // Toggle between manual and auto-calculated duration
+  toggleDurationMode() {
+    this.isDurationManual = !this.isDurationManual;
+    if (!this.isDurationManual) {
+      // If switching back to auto mode, recalculate
+      this.calculateDuration();
+    }
+  }
+
+  // Handle start date change
+  onStartDateChange() {
+    this.calculateDuration();
+  }
+
+  // Handle expiry date change
+  onExpiryDateChange() {
+    this.calculateDuration();
+  }
+
+  // Validate quantity input
+  validateQuantity(): boolean {
+    const quantity = Number(this.med.quantity);
+    return !isNaN(quantity) && quantity >= 1 && quantity <= 999 && Number.isInteger(quantity);
+  }
+
+  // Handle quantity input change
+  onQuantityChange() {
+    // Ensure quantity is a valid number
+    if (this.med.quantity) {
+      const numQuantity = Number(this.med.quantity);
+      if (numQuantity < 1) {
+        this.med.quantity = 1;
+      } else if (numQuantity > 999) {
+        this.med.quantity = 999;
+      } else {
+        this.med.quantity = Math.floor(numQuantity); // Ensure integer
+      }
+    }
+  }
+
+  // Check if the form is valid for submission
+  get isFormValid(): boolean {
+    const hasBasicFields = !!(this.med.name.trim() && 
+                             this.med.dosageAmount && 
+                             this.med.dosageUnit && 
+                             this.validateQuantity());
+    
+    const hasDuration = !!(this.med.frequency.trim() || 
+                          (this.med.startDate && this.med.expiryDate));
+    
+    return hasBasicFields && hasDuration;
   }
 
   async selectPrescriptionImage() {
@@ -288,14 +376,26 @@ export class AddMedicationModal implements OnInit {
     // Combine dosage amount and unit into the dosage string
     this.med.dosage = this.combineDosage();
 
-    if (!this.med.quantity || this.med.quantity <= 0) {
-      this.presentToast('Please enter number of pills');
+    // Validate quantity specifically
+    if (!this.validateQuantity()) {
+      this.presentToast('Please enter a valid number of pills (1-999)');
       return;
     }
 
+    // Convert quantity to number to ensure proper data type
+    this.med.quantity = Number(this.med.quantity);
+
     if (!this.med.frequency.trim()) {
-      this.presentToast('Please enter duration');
-      return;
+      // If no duration is set, check if we can calculate it from dates
+      if (this.med.startDate && this.med.expiryDate) {
+        this.calculateDuration();
+      }
+      
+      // If still no duration after calculation, show error
+      if (!this.med.frequency.trim()) {
+        this.presentToast('Please enter duration or select start and expiry dates');
+        return;
+      }
     }
 
     try {

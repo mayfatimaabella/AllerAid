@@ -71,6 +71,23 @@ form {
     font-size: 15px;
     color: #1f4a42;
     margin-top: 4px;
+
+    // Numeric input specific styling
+    &[type="number"] {
+      font-weight: 600;
+      font-size: 16px;
+      
+      // Hide spinner arrows on webkit browsers
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      // Hide spinner arrows on Firefox
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
   }
 
   ion-select {
@@ -124,6 +141,33 @@ form {
     ion-select {
       font-weight: 500;
     }
+  }
+}
+
+// Quantity field specific styling
+.quantity-field {
+  ion-input[type="number"] {
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+    
+    &::placeholder {
+      text-align: center;
+      font-weight: 400;
+      font-size: 15px;
+      color: #8ba19c;
+    }
+
+    // Invalid state styling
+    &.ng-invalid.ng-touched {
+      --color: #d63031;
+      background-color: rgba(214, 48, 49, 0.05);
+    }
+  }
+
+  // Visual indicator for valid quantity
+  &.ng-valid ion-input[type="number"] {
+    background-color: rgba(3, 106, 93, 0.03);
   }
 }
 
@@ -238,6 +282,37 @@ form {
 
       ion-icon {
         font-size: 24px;
+      }
+    }
+  }
+}
+
+// Duration field with toggle button
+.duration-field {
+  .duration-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    ion-input {
+      flex: 1;
+    }
+
+    ion-button {
+      --color: #036a5d;
+      --background: transparent;
+      --border-radius: 8px;
+      margin: 0;
+      min-width: 40px;
+      height: 40px;
+
+      &:hover {
+        --background: rgba(3, 106, 93, 0.1);
+      }
+
+      ion-icon {
+        font-size: 18px;
       }
     }
   }

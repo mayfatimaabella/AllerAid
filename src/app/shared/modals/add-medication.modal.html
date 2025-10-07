@@ -72,25 +72,45 @@
         Example: 50 mg, 2 tablets, 5 mL
       </ion-note>
 
-      <ion-item class="medication-field" lines="none">
+      <ion-item class="medication-field quantity-field" lines="none">
         <ion-label position="stacked">Number of Pills *</ion-label>
         <ion-input 
           [(ngModel)]="med.quantity" 
           name="quantity"
           type="number"
-          placeholder="e.g., 30, 60"
+          min="1"
+          max="999"
+          step="1"
+          placeholder="e.g., 30"
+          inputmode="numeric"
+          (ionBlur)="onQuantityChange()"
           required>
         </ion-input>
       </ion-item>
 
-      <ion-item class="medication-field" lines="none">
-        <ion-label position="stacked">Duration *</ion-label>
-        <ion-input 
-          [(ngModel)]="med.frequency" 
-          name="frequency"
-          placeholder="e.g., 10 days, 2 weeks"
-          required>
-        </ion-input>
+      <ion-item class="medication-field duration-field" lines="none">
+        <ion-label position="stacked">
+          Duration 
+          <span class="optional-label">
+            {{ isDurationManual ? '(Manual)' : '(Auto-calculated from dates)' }}
+          </span>
+        </ion-label>
+        <div class="duration-input-container">
+          <ion-input 
+            [(ngModel)]="med.frequency" 
+            name="frequency"
+            [placeholder]="isDurationManual ? 'e.g., 10 days, 2 weeks' : 'Select start and expiry dates to auto-calculate'"
+            [readonly]="!isDurationManual"
+            (ionInput)="onDurationChange()">
+          </ion-input>
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="toggleDurationMode()"
+            [title]="isDurationManual ? 'Switch to auto-calculate' : 'Switch to manual input'">
+            <ion-icon [name]="isDurationManual ? 'calculator-outline' : 'create-outline'"></ion-icon>
+          </ion-button>
+        </div>
       </ion-item>
 
       <!-- Start Date Field (Optional, defaults to today) -->
@@ -107,7 +127,8 @@
               [max]="todayISO"
               [showDefaultButtons]="true"
               doneText="Done"
-              cancelText="Cancel">
+              cancelText="Cancel"
+              (ionChange)="onStartDateChange()">
             </ion-datetime>
           </ng-template>
         </ion-modal>
@@ -127,7 +148,8 @@
               [min]="todayISO"
               [showDefaultButtons]="true"
               doneText="Done"
-              cancelText="Cancel">
+              cancelText="Cancel"
+              (ionChange)="onExpiryDateChange()">
             </ion-datetime>
           </ng-template>
         </ion-modal>
@@ -180,7 +202,7 @@
         expand="block" 
         type="submit" 
         color="primary"
-        [disabled]="!med.name.trim() || !med.dosageAmount || !med.dosageUnit || !med.quantity || !med.frequency.trim()">
+        [disabled]="!isFormValid">
         <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
         {{ isEditMode ? 'Update Medication' : 'Save Medication' }}
       </ion-button>
