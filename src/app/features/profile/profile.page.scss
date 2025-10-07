@@ -1,27 +1,27 @@
-// Force green color for '+ ADD' and '+ ADD MEDICATION' text, even inside Ionic shadow DOM
-::ng-deep ion-button, ::ng-deep button {
-  color: #036a5d !important;
-  border-color: #036a5d !important;
-}
+// // Force green color for '+ ADD' and '+ ADD MEDICATION' text, even inside Ionic shadow DOM
+// ::ng-deep ion-button, ::ng-deep button {
+//   color: #036a5d !important;
+//   border-color: #036a5d !important;
+// }
 
-// Target buttons with 'Add' text specifically
-::ng-deep ion-button span,
-::ng-deep button span {
-  color: #036a5d !important;
-  border-color: #036a5d !important;
-}
+// // Target buttons with 'Add' text specifically
+// ::ng-deep ion-button span,
+// ::ng-deep button span {
+//   color: #036a5d !important;
+//   border-color: #036a5d !important;
+// }
 
-// Target the add icon as well
-::ng-deep ion-icon[name="add-outline"] {
-  color: #036a5d !important;
-}
+// // Target the add icon as well
+// ::ng-deep ion-icon[name="add-outline"] {
+//   color: #036a5d !important;
+// }
 
-/* Prefer app-specific green for add icons in this feature; use a slightly darker green than global */
-::ng-deep .profile-section ion-icon[name="add-outline"],
-::ng-deep ion-button[fill="clear"] ion-icon[name="add-outline"],
-::ng-deep ion-button ion-icon[slot="start"][name="add-outline"] {
-  color: #0b6242 !important;
-}
+// /* Prefer app-specific green for add icons in this feature; use a slightly darker green than global */
+// ::ng-deep .profile-section ion-icon[name="add-outline"],
+// ::ng-deep ion-button[fill="clear"] ion-icon[name="add-outline"],
+// ::ng-deep ion-button ion-icon[slot="start"][name="add-outline"] {
+//   color: #0b6242 !important;
+// }
 
 .add-medication-btn {
   background: #e6edec !important;
@@ -128,7 +128,7 @@ ion-content {
   background: #f8f9fa;
   border-radius: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  border-left: 4px solid #e55e76;
+  border-left: 4px solid #036a5d;
   padding: 16px 18px;
   margin-bottom: 0;
   display: flex;
@@ -1319,7 +1319,7 @@ ion-modal.instruction-details-modal {
   font-size: 15px;
   line-height: 1.6;
   color: #333;
-  border-left: 4px solid #e55e76;
+  border-left: 4px solid #036a5d;
 }
 
 .action-buttons-grid {
@@ -1359,7 +1359,7 @@ ion-modal.instruction-details-modal {
   
   ion-icon {
     font-size: 14px;
-    color: #AB7082;
+    color: #036a5d;
   }
 }
 
@@ -1733,7 +1733,7 @@ ion-modal.instruction-details-modal {
   transition: all 0.3s ease;
 
   &.recording {
-    background: linear-gradient(135deg, #ff6b6b, #ff5722);
+  background: linear-gradient(135deg, #0aa38e, #036a5d);
     color: white;
     border-color: #ff5722;
     animation: pulse 2s infinite;

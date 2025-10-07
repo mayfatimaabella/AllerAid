@@ -142,6 +142,28 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- Pollen Map Section -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Pollen Map</ion-card-title>
+        <ion-card-subtitle>Local pollen levels and hotspots</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="pollen-map-preview" style="display:flex; flex-direction:column; gap:12px;">
+          <img src="assets/icon/pollen-map-placeholder.png" alt="Pollen Map" style="width:100%; height:auto; border-radius:8px;" />
+          <p style="margin:0; color:var(--ion-color-medium);">This is a placeholder pollen map. Tap "Open Map" to view an interactive map (coming soon).</p>
+          <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
+            <ion-icon name="map" slot="start"></ion-icon>
+            Open Map
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    
+
+    
+
     <!-- Test Emergency Notifications (Development Mode) -->
     <ion-card *ngIf="!isEmergencyActive">
       <ion-card-header>

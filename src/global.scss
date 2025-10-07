@@ -40,8 +40,8 @@
 ion-alert .alert-wrapper,
 ion-alert .alert-radio-group,
 ion-alert .alert-checkbox-group {
-  --background: #faeaee !important;
-  background: #faeaee !important;
+  --background: #e8f2f0 !important;
+  background: #e8f2f0 !important;
 }
 ion-alert .alert-radio-label,
 ion-alert .alert-checkbox-label {
@@ -76,7 +76,7 @@ ion-alert .alert-checkbox-label {
 }
 
 .alert-danger .alert-wrapper {
-  --background: #f8d7da !important;
+  --background: #f5f5f5 !important;
   border-left: 4px solid #dc3545 !important;
 }
 
@@ -147,12 +147,12 @@ ion-alert .alert-checkbox-label {
 //   align-items: center;
 // }
 // ion-select-popover .select-interface-option[aria-checked="true"] {
-//   background: #faeaee !important;
+//   background: #e8f2f0 !important;
 //   color: #036a5d !important;
 // }
 // ion-select-popover .radio-label-wrapper,
 // ion-select-popover .label-text-wrapper {
-//   background: #faeaee !important;
+//   background: #e8f2f0 !important;
 //   color: #036a5d !important;
 //   width: 100%;
 //   max-width: 100%;
@@ -186,7 +186,7 @@ ion-alert .alert-checkbox-label {
 
 // ion-select-popover .item-native,
 // ion-select-popover .item-inner {
-//   background: #faeaee !important;
+//   background: #e8f2f0 !important;
 //   border-radius: 12px !important;
 //   box-shadow: none !important;
 //   border: none !important;

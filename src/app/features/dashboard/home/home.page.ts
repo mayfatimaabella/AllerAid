@@ -426,6 +426,23 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
   
+  /**
+   * Open the pollen map (placeholder)
+   */
+  async openPollenMap() {
+    const alert = await this.alertController.create({
+      header: 'Pollen Map',
+      message: 'Interactive pollen map is coming soon. This is a placeholder preview.',
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel'
+        }
+      ]
+    });
+    await alert.present();
+  }
+  
   async presentToast(message: string) {
     const toast = await this.toastController.create({
       message,

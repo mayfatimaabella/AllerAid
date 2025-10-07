@@ -86,9 +86,9 @@ ion-card-content p {
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   margin-bottom: 10px;
-  border: 5px solid #fff6f7;
+  border: 5px solid rgba(232,242,240,0.9);
 }
 
 .circle-button ion-icon {
@@ -106,7 +106,7 @@ ion-card-content p {
 
 .instruction-text {
   font-size: 13px;
-  color: #fbe9eb;
+  color: #fcfcfc;
   margin-top: 0;
 }
 
@@ -131,7 +131,7 @@ ion-card-content p {
 .health-stat-card {
   background: #f6f6fa;
   border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(229,94,118,0.10);
+  box-shadow: 0 4px 16px rgba(3,106,93,0.06);
   padding: 18px 24px;
   min-width: 140px;
   text-align: center;
@@ -161,7 +161,7 @@ ion-card-content p {
 .smartwatch-card {
   background: #f5fafa;
   border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(229,94,118,0.10);
+  box-shadow: 0 4px 16px rgba(3,106,93,0.06);
   padding: 18px 24px;
   margin-bottom: 15px;
   display: flex;

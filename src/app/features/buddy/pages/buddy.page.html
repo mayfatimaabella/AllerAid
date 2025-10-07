@@ -54,7 +54,7 @@
         <ion-card-content>
           <ion-list>
             <ion-item *ngFor="let buddy of filteredBuddies">
-              <ion-label (click)="showBuddyDetails(buddy)" style="cursor:pointer; color:#AB7082; font-weight:500;">
+              <ion-label (click)="showBuddyDetails(buddy)" style="cursor:pointer; color:#036a5d; font-weight:500;">
                 <h2>{{ buddy.firstName }} {{ buddy.lastName }}</h2>
                 <p *ngIf="buddy.email">{{ buddy.email }}</p>
               </ion-label>

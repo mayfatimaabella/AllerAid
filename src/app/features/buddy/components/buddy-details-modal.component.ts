@@ -93,8 +93,8 @@ import { IonicModule } from '@ionic/angular';
     }
 
     ion-header ion-toolbar {
-      --background: #AB7082 !important;
-      --ion-color-base: #AB7082 !important;
+      --background: #036a5d !important;
+      --ion-color-base: #036a5d !important;
       color: #fff !important;
     }
 
@@ -112,7 +112,7 @@ import { IonicModule } from '@ionic/angular';
     }
 
     .buddy-modal-content {
-      background: #faeaee;
+      background: #e8f2f0;
       border-radius: 32px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
       width: 90vw;
@@ -127,7 +127,7 @@ import { IonicModule } from '@ionic/angular';
     }
 
     ion-content {
-      --background: #faeaee !important;
+      --background: #e8f2f0 !important;
       color: #000 !important;
       flex: 1;
       height: auto;
@@ -151,7 +151,7 @@ import { IonicModule } from '@ionic/angular';
       width: 70px;
       height: 70px;
       margin: 0 auto;
-      background: #edd8de;
+      background: #cfeee6;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -159,7 +159,7 @@ import { IonicModule } from '@ionic/angular';
     }
     
     ion-avatar ion-icon {
-      color: #AB7082;
+      color: #036a5d;
       font-size: 32px;
     }
     
@@ -167,14 +167,14 @@ import { IonicModule } from '@ionic/angular';
       margin: 0;
       font-size: 1.4rem;
       font-weight: 600;
-      color: #9e6777;
+      color: #036a5d;
     }
     
     .details-card {
       background: #fff !important;
       border-radius: 20px;
-      box-shadow: 0 4px 16px rgba(229, 94, 118, 0.10);
-      border: 1px solid #f5aab7;
+      box-shadow: 0 4px 16px rgba(3, 106, 93, 0.06);
+      border: 1px solid rgba(3,106,93,0.08);
       margin: 16px 0;
     }
 
@@ -183,12 +183,12 @@ import { IonicModule } from '@ionic/angular';
       align-items: center;
       gap: 8px;
       font-size: 1.1rem;
-      color: #9e6777 !important;
+      color: #036a5d !important;
       font-weight: bold !important;
     }
 
     .details-card ion-card-title ion-icon {
-      color: #AB7082;
+      color: #036a5d;
     }
 
     .details-card ion-list {
@@ -198,23 +198,23 @@ import { IonicModule } from '@ionic/angular';
     
     .detail-item {
       --background: #fff !important;
-      color: #9e6777 !important;
+      color: #036a5d !important;
       border-radius: 12px;
       margin-bottom: 8px;
     }
 
     .detail-item ion-icon {
-      color: #E55E76 !important;
+      color: #036a5d !important;
     }
     
     .detail-item ion-label h3 {
       font-weight: 600;
       margin-bottom: 4px;
-      color: #9e6777 !important;
+      color: #036a5d !important;
     }
     
     .detail-item ion-label p {
-      color: #AB7082 !important;
+      color: #036a5d !important;
       font-size: 0.95rem;
     }
     
@@ -227,15 +227,15 @@ import { IonicModule } from '@ionic/angular';
     }
     
     .call-btn {
-      --background: #E55E76 !important;
+      --background: #036a5d !important;
       --color: #fff !important;
       height: 44px;
       font-weight: 500;
     }
 
     .message-btn {
-      --color: #AB7082 !important;
-      --border-color: #AB7082 !important;
+      --color: #036a5d !important;
+      --border-color: #036a5d !important;
       height: 44px;
       font-weight: 500;
     }
@@ -243,7 +243,7 @@ import { IonicModule } from '@ionic/angular';
     .no-buddy {
       text-align: center;
       padding: 40px 20px;
-      color: #9e6777;
+      color: #036a5d;
     }
   `]
 })
