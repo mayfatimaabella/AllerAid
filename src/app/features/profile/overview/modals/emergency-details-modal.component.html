@@ -1,0 +1,62 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="teal-modal-toolbar">
+    <ion-title>Emergency Details</ion-title>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="onClose()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="onClose()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="emergency-modal-content" scrollY="true">
+  <div class="content-wrapper">
+  <h1 class="name-value">{{ emergencyMessageName || 'Not set' }}</h1>
+
+  <div class="modal-info-card allergies-card">
+    <div class="section-header">
+      <h3>ALLERGIES</h3>
+    </div>
+    <div class="chips-wrapper" *ngIf="userAllergies.length > 0; else noAllergies">
+      <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
+    </div>
+    <ng-template #noAllergies><p class="value no-data">None</p></ng-template>
+  </div>
+
+  <h2 class="section-title">Instructions</h2>
+
+  <ng-container *ngIf="hasInstructionEntries; else noInstructions">
+    <div *ngFor="let entry of instructionEntries" class="instruction-entry modal-info-card">
+      <div class="instruction-entry-header">
+        <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
+        <strong>{{ entry.label }}</strong>
+      </div>
+      <div class="instruction-entry-text">{{ entry.text }}</div>
+    </div>
+  </ng-container>
+  <ng-template #noInstructions>
+    <div class="modal-info-card">
+      <p class="value no-data">No instructions set</p>
+    </div>
+  </ng-template>
+
+  <div class="modal-info-card location-card">
+    <div class="section-header">
+      <h3>LOCATION</h3>
+    </div>
+    <p class="value">{{ emergencyLocation || 'Map Location' }}</p>
+  </div>
+
+  <div class="modal-actions">
+    <ion-button expand="block" fill="outline" class="test-audio-btn" (click)="onTestAudio()">
+      <ion-icon name="volume-high-outline" slot="start"></ion-icon>
+      Test Audio
+    </ion-button>
+  </div>
+  </div> <!-- end of content-wrapper -->
+</ion-content>

@@ -1,0 +1,98 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="teal-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="close.emit()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Medication Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="close.emit()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding white-content" [fullscreen]="true">
+  <div *ngIf="medication">
+    <div class="header">
+      <h2 class="title">{{ medication.name }}</h2>
+      <div class="chips">
+        <ion-chip [color]="medication.isActive ? 'success' : 'medium'" outline>
+          <ion-icon [name]="medication.isActive ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+          <ion-label>{{ medication.isActive ? 'Active' : 'Inactive' }}</ion-label>
+        </ion-chip>
+        <ion-chip color="danger" outline *ngIf="isEmergency()">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <ion-label>Emergency</ion-label>
+        </ion-chip>
+        <ion-chip color="warning" outline *ngIf="isExpiringSoon()">
+          <ion-icon name="hourglass-outline"></ion-icon>
+          <ion-label>Expiring Soon</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="section">
+        <div class="row" *ngIf="medication.dosage">
+          <ion-icon name="flash-outline"></ion-icon>
+          <b>Dosage:</b> <span>{{ medication.dosage }}</span>
+        </div>
+        <div class="row" *ngIf="medication.quantity !== undefined">
+          <ion-icon name="cube-outline"></ion-icon>
+          <b>Pills:</b> <span>{{ medication.quantity }}</span>
+        </div>
+        <div class="row" *ngIf="medication.frequency">
+          <ion-icon name="time-outline"></ion-icon>
+          <b>Frequency/Duration:</b> <span>{{ medication.frequency }}</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="row" *ngIf="medication.startDate">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <b>Start:</b> <span>{{ medication.startDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="row" *ngIf="medication.expiryDate">
+          <ion-icon name="warning-outline"></ion-icon>
+          <b>Expiry:</b> <span>{{ medication.expiryDate | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="row" *ngIf="medication.medicationType">
+          <ion-icon name="medical-outline"></ion-icon>
+          <b>Type:</b> <span>{{ getTypeLabel(medication.medicationType) }}</span>
+        </div>
+        <div class="row" *ngIf="medication.route">
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+          <b>Route:</b> <span>{{ getRouteLabel(medication.route) }}</span>
+        </div>
+        <div class="row" *ngIf="medication.prescribedBy">
+          <ion-icon name="person-outline"></ion-icon>
+          <b>Prescribed by:</b> <span>{{ medication.prescribedBy }}</span>
+        </div>
+      </div>
+
+      <div class="section" *ngIf="medication.notes">
+        <div class="row">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <b>Notes:</b> <span>{{ medication.notes }}</span>
+        </div>
+      </div>
+
+      <div class="section" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
+        <div class="row image-row">
+          <ion-icon name="images-outline"></ion-icon>
+          <b>Images:</b>
+          <div class="image-links">
+            <a *ngIf="medication.prescriptionImageUrl" [href]="medication.prescriptionImageUrl" target="_blank">Prescription</a>
+            <a *ngIf="medication.medicationImageUrl" [href]="medication.medicationImageUrl" target="_blank">Photo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

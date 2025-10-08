@@ -1,0 +1,68 @@
+<div class="section-title">
+  Allergies <ion-icon name="settings-outline" (click)="openEditAllergies.emit()"></ion-icon>
+</div>
+
+<div class="allergy-list-container">
+  <div class="allergy-list-scrollable">
+    <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
+    <span *ngIf="userAllergies.length === 0" class="no-data">No allergies recorded</span>
+  </div>
+  
+  <div class="section-title">Emergency Instructions & Message</div>
+
+  <ion-card class="emergency-info-card" (click)="openEmergencyInfo.emit()">
+    <ion-card-header>
+      <div class="emergency-header">
+        <ion-icon name="information-circle-outline" class="emergency-icon"></ion-icon>
+        <div class="emergency-title">Emergency Information</div>
+      </div>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="emergency-section">
+        <div class="emergency-label">NAME</div>
+        <div class="emergency-value">{{ emergencyMessageName }}</div>
+      </div>
+      <div class="emergency-section allergies-section">
+        <div class="emergency-label">ALLERGIES</div>
+        <div class="allergy-chips">
+          <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
+          <span *ngIf="userAllergies?.length === 0" class="no-data">None</span>
+        </div>
+      </div>
+      <div class="emergency-section">
+        <div class="emergency-label">INSTRUCTIONS</div>
+        <div class="emergency-value instructions">{{ emergencyInstructionsCombined }}</div>
+      </div>
+      <div class="emergency-section location-section">
+        <div class="emergency-label">LOCATION</div>
+        <div class="emergency-value">{{ emergencyLocation || 'Map Location' }}</div>
+      </div>
+      <div class="tap-details">
+        <ion-icon name="finger-print-outline"></ion-icon>
+        TAP FOR FULL DETAILS
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>
+
+<!-- Manage Emergency Instructions Modal-->
+<ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="closeManageInstructions.emit()">
+  <ng-template>
+    <app-emergency-specific-instructions-modal
+      [emergencyInstructions]="emergencyInstructions"
+      [userAllergies]="userAllergies"
+      [selectedAllergyForInstruction]="selectedAllergyForInstruction"
+      [newInstructionText]="newInstructionText"
+      [editingInstruction]="editingInstruction"
+      [selectedInstructionDetails]="selectedInstructionDetails"
+      [showInstructionDetailsModal]="showInstructionDetailsModal"
+      (addInstruction)="addInstruction.emit()"
+      (updateInstruction)="updateInstruction.emit()"
+      (removeInstruction)="removeInstruction.emit($event)"
+      (editInstruction)="editInstruction.emit($event)"
+      (cancelEdit)="cancelEdit.emit()"
+      (showDetails)="showDetails.emit($event)"
+      (close)="closeManageInstructions.emit()">
+    </app-emergency-specific-instructions-modal>
+  </ng-template>
+</ion-modal>

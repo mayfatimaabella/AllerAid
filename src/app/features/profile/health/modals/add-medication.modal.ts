@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, ToastController, ActionSheetController } from '@ionic/angular';
-import { MedicationService, Medication } from '../../../core/services/medication.service';
+import { MedicationService, Medication } from '../../../../core/services/medication.service';
 
 @Component({
   selector: 'app-add-medication',

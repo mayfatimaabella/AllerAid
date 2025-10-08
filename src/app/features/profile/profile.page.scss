@@ -18,30 +18,6 @@
     opacity: 1;
   }
 }
-// // Force green color for '+ ADD' and '+ ADD MEDICATION' text, even inside Ionic shadow DOM
-// ::ng-deep ion-button, ::ng-deep button {
-//   color: #036a5d !important;
-//   border-color: #036a5d !important;
-// }
-
-// // Target buttons with 'Add' text specifically
-// ::ng-deep ion-button span,
-// ::ng-deep button span {
-//   color: #036a5d !important;
-//   border-color: #036a5d !important;
-// }
-
-// // Target the add icon as well
-// ::ng-deep ion-icon[name="add-outline"] {
-//   color: #036a5d !important;
-// }
-
-// /* Prefer app-specific green for add icons in this feature; use a slightly darker green than global */
-// ::ng-deep .profile-section ion-icon[name="add-outline"],
-// ::ng-deep ion-button[fill="clear"] ion-icon[name="add-outline"],
-// ::ng-deep ion-button ion-icon[slot="start"][name="add-outline"] {
-//   color: #0b6242 !important;
-// }
 
 .add-medication-btn {
   background: #e6edec !important;
@@ -1171,10 +1147,27 @@ ion-modal.instruction-details-modal {
 }
 
 .provider-input { 
-  --background: #f8f9fa; 
+  --background: #ffffff !important; 
   --border-radius: 12px; 
   margin-bottom: 16px; 
+  background: #ffffff !important;
 }
+
+/* Ensure all controls in Provider Access section use white background */
+.ehr-section-card .card-content .provider-input,
+.ehr-section-card .card-content .provider-input ion-input,
+.ehr-section-card .card-content .provider-input ion-select,
+.ehr-section-card .card-content .provider-input ion-textarea {
+  --background: #ffffff !important;
+}
+
+/* Also target the inner item container to prevent dark host backgrounds */
+.ehr-section-card .card-content .provider-input::part(native),
+.ehr-section-card .card-content .provider-input::part(container) {
+  background: #ffffff !important;
+}
+
+/* (reverted custom popover styles) */
 
 .current-access h4 { 
   font-size: 16px; 

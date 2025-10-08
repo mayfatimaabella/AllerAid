@@ -4,11 +4,16 @@ ion-toolbar {
 }
 
 // Added styles for the notification page
+.notification-bg {
+  --background: #ffffff; /* force white content background */
+  background: #ffffff;
+}
+
 .notification-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  min-height: 100vh; /* fill full viewport height */
   padding: 16px;
 }
 

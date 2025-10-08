@@ -12,7 +12,7 @@ import { MedicationService, Medication } from '../../core/services/medication.se
 import { EHRService, DoctorVisit, MedicalHistory, HealthcareProvider, AccessRequest } from '../../core/services/ehr.service';
 import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
 import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
-import { AddMedicationModal } from './modal/add-medication.modal';
+import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
 import { IonList, IonItem, IonIcon, IonLabel } from '@ionic/angular/standalone';
@@ -67,6 +67,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   recordingTime = 0;
   recordings: any[] = [];
   showVoiceSettings = false;
+
 
   // Professional settings for doctors
   professionalSettings = {
@@ -162,6 +163,27 @@ export class ProfilePage implements OnInit, OnDestroy {
   // Subscriptions for cleanup
   private subscriptions: Subscription[] = [];
 
+  // Bound wrappers to safely pass functions into child components (preserve `this`)
+  isEmergencyMedicationBind = (m: Medication) => this.isEmergencyMedication(m);
+  isMedicationDetailsExpandedBind = (id: string | undefined) => this.isMedicationDetailsExpanded(id);
+  isExpiringSoonBind = (date?: string) => this.isExpiringSoon(date);
+  getMedicationTypeLabelBind = (t: string) => this.getMedicationTypeLabel(t);
+  getRouteLabelBind = (r: string) => this.getRouteLabel(r);
+
+  // Medication details modal state
+  selectedMedication: any | null = null;
+  showMedicationDetailsModal = false;
+
+  openMedicationDetails(med: any) {
+    this.selectedMedication = med;
+    this.showMedicationDetailsModal = true;
+  }
+
+  closeMedicationDetails() {
+    this.showMedicationDetailsModal = false;
+    this.selectedMedication = null;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -198,21 +220,8 @@ export class ProfilePage implements OnInit, OnDestroy {
    * modal returns a `{ refresh: true }` payload.
    */
   async openManageInstructionsModal() {
-    const modal = await this.modalController.create({
-      component: (await import('./modal/emergency-specific-instructions-modal.component')).EmergencySpecificInstructionsModalComponent,
-      componentProps: {
-        emergencyInstructions: this.emergencyInstructions,
-        userAllergies: this.userAllergies
-      },
-      cssClass: 'force-white-modal emergency-instructions-modal'
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onDidDismiss();
-    if (data?.refresh) {
-      await this.loadEmergencyInstructions();
-    }
+    // Use inline Overview modal binding rather than programmatic controller
+    this.showManageInstructionsModal = true;
   }
 
   /**
@@ -222,7 +231,7 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   async openEditAllergiesModal() {
     const modal = await this.modalController.create({
-      component: (await import('./modal/edit-allergies-modal.component')).EditAllergiesModalComponent,
+      component: (await import('./overview/modals/edit-allergies-modal.component')).EditAllergiesModalComponent,
       componentProps: {
         allergyOptions: this.allergyOptions
       },
@@ -240,7 +249,12 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
+  presentingElement: HTMLElement | null = null;
+
   async ngOnInit() {
+    const page = document.querySelector('ion-app');
+    this.presentingElement = page;
+    
     // Only show debug logs in development
     if (!environment.production) {
       console.log('Profile page ngOnInit - Initial loading states:', {

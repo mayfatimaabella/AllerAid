@@ -90,116 +90,6 @@ ion-alert .alert-checkbox-label {
   font-weight: 500 !important;
 }
 
-
-// ion-alert .alert-button,
-// ion-alert .alert-button.sc-ion-alert-md,
-// ion-alert .alert-button.sc-ion-alert-ios {
-//   color: #036a5d !important;
-// }
-
-// // Custom radio button color for ion-alert (select options)
-// ion-alert .alert-radio-icon {
-//   border: 2px solid #036a5d !important;
-//   background: #faeaee !important;
-// }
-
-// ion-alert .alert-radio-checked .alert-radio-icon {
-//   border: 2px solid #036a5d !important;
-//   background: #036a5d !important;
-// }
-// ion-alert .alert-radio-checked .alert-radio-inner {
-//   background: #faeaee !important;
-//   border-radius: 50%;
-//   width: 10px;
-//   height: 10px;
-//   left: 3px;
-//   top: 3px;
-//   position: absolute;
-// }
-
-//Popover section
-
-// ion-select-popover {
-//   color-scheme: light !important;
-//   --ion-background-color: #fff !important;
-//   --background: #fff !important;
-// }
-// ion-select-popover,
-// ion-select-popover * {
-//   background: #fff !important;
-//   color: #036a5d !important;
-//   filter: none !important;
-//   box-shadow: none !important;
-// }
-// ion-select-popover .popover-viewport,
-// ion-select-popover .sc-ion-select-popover-md {
-//   background: #fff !important;
-// }
-// ion-select-popover .select-interface-option {
-//   background: #fff !important;
-//   color: #036a5d !important;
-//   border-radius: 12px;
-//   width: 100%;
-//   box-shadow: none !important;
-//   border: none !important;
-//   padding: 5px 9px;
-//   display: flex;
-//   align-items: center;
-// }
-// ion-select-popover .select-interface-option[aria-checked="true"] {
-//   background: #e8f2f0 !important;
-//   color: #036a5d !important;
-// }
-// ion-select-popover .radio-label-wrapper,
-// ion-select-popover .label-text-wrapper {
-//   background: #e8f2f0 !important;
-//   color: #036a5d !important;
-//   width: 100%;
-//   max-width: 100%;
-//   white-space: normal;
-//   word-break: break-word;
-//   display: block;
-// }
-
-// ion-select-popover .select-interface-option .item-native,
-// ion-select-popover .select-interface-option .item-inner,
-// ion-select-popover .select-interface-option .input-wrapper {
-//   background: #fff !important;
-//   border-radius: 12px !important;
-//   box-shadow: none !important;
-//   border: none !important;
-// }
-// ion-select-popover .select-interface-option .item-native {
-//   color: #036a5d !important;
-// }
-// ion-select-popover .select-interface-option .item-inner {
-//   color: #036a5d !important;
-// }
-// ion-select-popover .select-interface-option .input-wrapper {
-//   color: #036a5d !important;
-// }
-// ion-select-popover .select-interface-option .radio-icon,
-// ion-select-popover .select-interface-option .radio-inner {
-//   background: #fff !important;
-//   border: none !important;
-// }
-
-// ion-select-popover .item-native,
-// ion-select-popover .item-inner {
-//   background: #e8f2f0 !important;
-//   border-radius: 12px !important;
-//   box-shadow: none !important;
-//   border: none !important;
-// }
-
-// ion-select-popover .radio-icon,
-// ion-select-popover .radio-inner {
-//   background: #036a5d !important;
-//   border-radius: 50%;
-//   width: 12px;
-//   height: 12px;
-// }
-
 /* Buddy Response Alert Modal Styles */
 .buddy-alert-modal {
   --width: 90%;
@@ -243,6 +133,8 @@ ion-alert .alert-checkbox-label {
     --box-shadow: 0 0 0 2px var(--ion-color-primary);
   }
 }
+
+/* (reverted custom popover styles) */
 
 /* =====================================================================
    UNIVERSAL PURE WHITE MODAL OVERRIDE
@@ -386,6 +278,20 @@ ion-modal.force-white-modal::part(backdrop) {
   --color: #ffffff !important;
   color: #ffffff !important;
   border-bottom: 1px solid #004d42;
+  width: 100%;
 }
 .teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
 .teal-modal-toolbar ion-button, .teal-modal-toolbar ion-icon { --color:#ffffff !important; color:#ffffff !important; }
+
+/* Modal styling for better display */
+ion-modal {
+  --height: 100%;
+  --width: 100%;
+  --border-radius: 0;
+  
+  &.force-white-modal {
+    --background: #ffffff;
+    --width: 100%;
+    --height: 100%;
+  }
+}

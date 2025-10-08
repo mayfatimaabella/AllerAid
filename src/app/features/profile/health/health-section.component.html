@@ -1,0 +1,214 @@
+<div class="section-title">
+  Medications 
+  <ion-button size="small" fill="clear" (click)="add.emit()">
+    <ion-icon name="add-outline" slot="start"></ion-icon>
+    Add
+  </ion-button>
+</div>
+
+<!-- Medication Search -->
+<div class="medication-search">
+  <ion-searchbar 
+    [value]="medicationSearchTerm"
+    (ionInput)="search.emit($event)"
+    (ionClear)="clearSearch.emit()"
+    placeholder="Search medications..."
+    showClearButton="focus"
+    debounce="300">
+  </ion-searchbar>
+  <div *ngIf="medicationSearchTerm && medicationSearchTerm.trim()" class="search-results-info">
+    <small style="color: #666;">
+      {{ filteredMedications.length }} of {{ userMedications.length }} medications found
+    </small>
+  </div>
+  
+</div>
+
+<!-- Medication Filter -->
+<div class="medication-filters">
+  <ion-segment [ngModel]="medicationFilter" (ionChange)="onFilterChange($event)">
+    <ion-segment-button value="all">
+      <ion-label>All</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="active">
+      <ion-label>Active Only</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+  
+</div>
+
+<!-- Medications List -->
+<div class="medications-list">
+  <!-- Loading state -->
+  <div *ngIf="isLoading && (!userMedications || userMedications.length === 0)" class="loading-state">
+    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
+  </div>
+
+  <!-- Actual content when not loading -->
+  <ng-container *ngIf="!isLoading">
+  <div *ngFor="let medication of filteredMedications; trackBy: trackByMedication" 
+    class="medication-card" 
+    [ngClass]="{ 'emergency-medication': isEmergencyMedication(medication), 'expanded': isMedicationDetailsExpanded(medication.id) }"
+    (click)="toggleDetails.emit(medication.id)">
+          
+    <div class="medication-header">
+      <div class="medication-title-section">
+        <span class="medication-title">{{ medication.name }}</span>
+        <div class="medication-summary">
+          <span class="dosage">{{ medication.dosage }}</span>
+          <span class="frequency" *ngIf="medication.frequency"> • {{ medication.frequency }}</span>
+        </div>
+      </div>
+      <div class="medication-actions" (click)="$event.stopPropagation()">
+        <ion-chip 
+          [color]="medication.isActive ? 'success' : 'medium'" 
+          size="small">
+          {{ medication.isActive ? 'Active' : 'Inactive' }}
+        </ion-chip>
+        <div class="action-buttons">
+          <ion-button 
+            fill="clear" 
+            color="medium" 
+            size="small"
+            *ngIf="medication.id"
+            (click)="$event.stopPropagation(); toggleDetails.emit(medication.id)"
+            [attr.aria-label]="isMedicationDetailsExpanded(medication.id) ? 'Hide medication details' : 'Show medication details'"
+            title="Click to show/hide detailed information">
+            <ion-icon [name]="isMedicationDetailsExpanded(medication.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </ion-button>
+          <ion-button 
+            fill="clear" 
+            color="primary" 
+            size="small"
+            *ngIf="medication.id"
+            (click)="toggleStatus.emit(medication.id)"
+            title="Toggle Active Status">
+            <ion-icon [name]="medication.isActive ? 'pause-outline' : 'play-outline'"></ion-icon>
+          </ion-button>
+          <ion-button 
+            fill="clear" 
+            color="secondary" 
+            size="small"
+            *ngIf="medication.id"
+            (click)="edit.emit(medication)"
+            title="Edit Medication">    
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button 
+            fill="clear" 
+            color="tertiary" 
+            size="small"
+            *ngIf="medication.id"
+            (click)="$event.stopPropagation(); viewDetails.emit(medication)"
+            title="View full details">
+            <ion-icon name="open-outline"></ion-icon>
+          </ion-button>
+          <ion-button 
+            fill="clear" 
+            color="danger" 
+            size="small"
+            *ngIf="medication.id"
+            (click)="delete.emit(medication.id)"
+            title="Delete Medication">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Expanded Details Section -->
+  <div *ngIf="isMedicationDetailsExpanded(medication.id)" class="medication-details-expanded">
+
+      <!-- Additional Details -->
+      <div class="medication-details-grid">
+        <div class="medication-detail" *ngIf="medication.quantity">
+          <ion-icon name="cube-outline"></ion-icon>
+          <b>Pills:</b> {{ medication.quantity }}
+        </div>
+        <div class="medication-detail" *ngIf="medication.startDate">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <b>Started:</b> {{ medication.startDate | date:'mediumDate' }}
+        </div>
+        <div class="medication-detail" *ngIf="medication.expiryDate">
+          <ion-icon name="warning-outline" [color]="isExpiringSoon(medication.expiryDate) ? 'warning' : 'medium'"></ion-icon>
+          <b>Expires:</b> {{ medication.expiryDate | date:'mediumDate' }}
+        </div>
+        <div class="medication-detail" *ngIf="medication.prescribedBy">
+          <ion-icon name="person-outline"></ion-icon>
+          <b>Prescribed by:</b> {{ medication.prescribedBy }}
+        </div>
+        <div class="medication-detail" *ngIf="medication.medicationType">
+          <ion-icon name="medical-outline"></ion-icon>
+          <b>Type:</b> {{ getMedicationTypeLabel(medication.medicationType) }}
+        </div>
+        <div class="medication-detail" *ngIf="medication.route">
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+          <b>Route:</b> {{ getRouteLabel(medication.route) }}
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="medication-detail full-width" *ngIf="medication.notes">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+        <b>Notes:</b> {{ medication.notes }}
+      </div>
+
+      <!-- Images -->
+      <div class="medication-detail full-width" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
+        <ion-icon name="images-outline"></ion-icon>
+        <b>Images:</b>
+        <div style="display:flex; gap:8px; flex-wrap: wrap; margin-top: 6px;">
+          <ion-button
+            *ngIf="medication.prescriptionImageUrl"
+            fill="outline"
+            size="small"
+            (click)="$event.stopPropagation(); viewImage.emit({ url: medication.prescriptionImageUrl, title: 'Prescription Image' })">
+            <ion-icon name="document-attach" slot="start"></ion-icon>
+            Prescription
+          </ion-button>
+          <ion-button
+            *ngIf="medication.medicationImageUrl"
+            fill="outline"
+            size="small"
+            (click)="$event.stopPropagation(); viewImage.emit({ url: medication.medicationImageUrl, title: 'Medication Photo' })">
+            <ion-icon name="camera" slot="start"></ion-icon>
+            Photo
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && filteredMedications.length === 0" class="no-medications">
+    <div style="text-align: center; padding: 20px;">
+      <ion-icon name="medical-outline" style="font-size: 48px; color: #ccc; margin-bottom: 12px;"></ion-icon>
+      <p style="color: #666; font-style: italic;">
+        <ng-container *ngIf="medicationSearchTerm && medicationSearchTerm.trim(); else noMedicationsAtAll">
+          No medications found matching "{{ medicationSearchTerm }}"
+        </ng-container>
+        <ng-template #noMedicationsAtAll>
+          No medications recorded
+        </ng-template>
+      </p>
+      <ion-button 
+        *ngIf="!medicationSearchTerm || !medicationSearchTerm.trim()"
+        fill="outline" 
+        size="small" 
+        (click)="add.emit()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add Medication
+      </ion-button>
+      <ion-button 
+        *ngIf="medicationSearchTerm && medicationSearchTerm.trim()"
+        fill="outline" 
+        size="small" 
+        (click)="clearSearch.emit()">
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+        Clear Search
+      </ion-button>
+    </div>
+  </div>
+  </ng-container>
+</div>

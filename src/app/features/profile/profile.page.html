@@ -73,277 +73,51 @@
       <!-- PATIENT PROFILE CONTENT -->
       <div *ngIf="userProfile?.role === 'user'">
         <ng-container *ngIf="selectedTab === 'overview'">
-          <div class="section-title">
-              Allergies <ion-icon name="settings-outline" (click)="openEditAllergiesModal()"></ion-icon>
-            </div>
-
-          <!-- Edit Allergies modal moved to a standalone component (opened programmatically via openEditAllergiesModal) -->
-
-          <!-- List all allergies -->
-        <div class="allergy-list-container">
-          <div class="allergy-list-scrollable">
-            <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
-            <span *ngIf="userAllergies.length === 0" class="no-data">No allergies recorded</span>
-          </div>
-        </div>
-        
-        <!-- Emergency Instructions Modal Trigger & Component -->
-        <div class="section-title">
-          Emergency Instructions & Message
-        </div>
-
-        <ion-card class="emergency-info-card" (click)="openEmergencyInfoModal()">
-          <ion-card-header>
-            <div class="emergency-header">
-              <ion-icon name="information-circle-outline" class="emergency-icon"></ion-icon>
-              <div class="emergency-title">Emergency Information</div>
-            </div>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="emergency-section">
-              <div class="emergency-label">NAME</div>
-              <div class="emergency-value">{{ getEmergencyMessageName() }}</div>
-            </div>
-            
-            <div class="emergency-section allergies-section">
-              <div class="emergency-label">ALLERGIES</div>
-              <div class="allergy-chips">
-                <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
-                <span *ngIf="userAllergies?.length === 0" class="no-data">None</span>
-              </div>
-            </div>
-            
-            <div class="emergency-section">
-              <div class="emergency-label">INSTRUCTIONS</div>
-              <div class="emergency-value instructions">{{ getEmergencyInstructionsCombined() }}</div>
-            </div>
-            
-            <div class="emergency-section location-section">
-              <div class="emergency-label">LOCATION</div>
-              <div class="emergency-value">{{ getEmergencyMessageLocation() || 'Map Location' }}</div>
-            </div>
-            
-            <div class="tap-details">
-              <ion-icon name="finger-print-outline"></ion-icon>
-              TAP FOR FULL DETAILS
-            </div>
-          </ion-card-content>
-        </ion-card>
+          <app-profile-overview-section
+            [userAllergies]="userAllergies"
+            [emergencyMessageName]="getEmergencyMessageName()"
+            [emergencyInstructionsCombined]="getEmergencyInstructionsCombined()"
+            [emergencyLocation]="getEmergencyMessageLocation()"
+            [showManageInstructionsModal]="showManageInstructionsModal"
+            [emergencyInstructions]="emergencyInstructions"
+            [selectedInstructionDetails]="selectedInstructionDetails"
+            [showInstructionDetailsModal]="showInstructionDetailsModal"
+            (openEditAllergies)="openEditAllergiesModal()"
+            (openEmergencyInfo)="openEmergencyInfoModal()"
+            (closeManageInstructions)="showManageInstructionsModal = false"
+            (addInstruction)="loadEmergencyInstructions()"
+            (updateInstruction)="loadEmergencyInstructions()"
+            (removeInstruction)="loadEmergencyInstructions()"
+            (editInstruction)="loadEmergencyInstructions()"
+            (cancelEdit)="showManageInstructionsModal = false"
+            (showDetails)="showInstructionDetails($event)">
+          </app-profile-overview-section>
         </ng-container>
-
-        <!-- Programmatic modal: opened via openManageInstructionsModal() -->
-        <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="showManageInstructionsModal = false">
-          <ng-template>
-            <app-emergency-specific-instructions-modal
-              [emergencyInstructions]="emergencyInstructions"
-              [userAllergies]="userAllergies"
-              (addInstruction)="loadEmergencyInstructions()"
-              (updateInstruction)="loadEmergencyInstructions()"
-              (removeInstruction)="loadEmergencyInstructions()"
-              (editInstruction)="loadEmergencyInstructions()"
-              (cancelEdit)="showManageInstructionsModal = false"
-              (showDetails)="showInstructionDetails($event)"
-              (close)="showManageInstructionsModal = false">
-            </app-emergency-specific-instructions-modal>
-          </ng-template>
-        </ion-modal>
 
       <!-- PROFILE SECTION | HEALTH TAB CONTENT -->
       <ng-container *ngIf="selectedTab === 'health'">
-        <div class="section-title">
-          Medications 
-          <ion-button size="small" fill="clear" (click)="openAddMedicationModal()">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Add
-          </ion-button>
-        </div>
-
-        <!-- Medication Search -->
-        <div class="medication-search">
-          <ion-searchbar 
-            [value]="medicationSearchTerm"
-            (ionInput)="searchMedications($event)"
-            (ionClear)="clearMedicationSearch()"
-            placeholder="Search medications..."
-            showClearButton="focus"
-            debounce="300">
-          </ion-searchbar>
-          <div *ngIf="medicationSearchTerm && medicationSearchTerm.trim()" class="search-results-info">
-            <small style="color: #666;">
-              {{ filteredMedications.length }} of {{ userMedications.length }} medications found
-            </small>
-          </div>
-        </div>
-
-        <!-- Medication Filter -->
-        <div class="medication-filters">
-          <ion-segment [(ngModel)]="medicationFilter" (ionChange)="filterMedications()">
-            <ion-segment-button value="all">
-              <ion-label>All</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="active">
-              <ion-label>Active Only</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </div>
-
-        <!-- Medications List -->
-        <div class="medications-list">
-    <div *ngFor="let medication of filteredMedications" 
-      class="medication-card" 
-      [ngClass]="{ 'emergency-medication': isEmergencyMedication(medication), 'expanded': isMedicationDetailsExpanded(medication.id) }"
-      (click)="toggleMedicationDetails(medication.id)">
-            
-            <div class="medication-header">
-              <div class="medication-title-section">
-                <span class="medication-title">{{ medication.name }}</span>
-                <div class="medication-summary">
-                  <span class="dosage">{{ medication.dosage }}</span>
-                  <span class="frequency" *ngIf="medication.frequency"> • {{ medication.frequency }}</span>
-                </div>
-              </div>
-              <div class="medication-actions" (click)="$event.stopPropagation()">
-                <ion-chip 
-                  [color]="medication.isActive ? 'success' : 'medium'" 
-                  size="small">
-                  {{ medication.isActive ? 'Active' : 'Inactive' }}
-                </ion-chip>
-                <div class="action-buttons">
-                  <ion-button 
-                    fill="clear" 
-                    color="medium" 
-                    size="small"
-                    *ngIf="medication.id"
-                    (click)="$event.stopPropagation(); toggleMedicationDetails(medication.id)"
-                    [attr.aria-label]="isMedicationDetailsExpanded(medication.id) ? 'Hide medication details' : 'Show medication details'"
-                    title="Click to show/hide detailed information">
-                    <ion-icon [name]="isMedicationDetailsExpanded(medication.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-                  </ion-button>
-                  <ion-button 
-                    fill="clear" 
-                    color="primary" 
-                    size="small"
-                    *ngIf="medication.id"
-                    (click)="toggleMedicationStatus(medication.id)"
-                    title="Toggle Active Status">
-                    <ion-icon [name]="medication.isActive ? 'pause-outline' : 'play-outline'"></ion-icon>
-                  </ion-button>
-                  <ion-button 
-                    fill="clear" 
-                    color="secondary" 
-                    size="small"
-                    *ngIf="medication.id"
-                    (click)="editMedication(medication)"
-                    title="Edit Medication">
-                    <ion-icon name="create-outline"></ion-icon>
-                  </ion-button>
-                  <ion-button 
-                    fill="clear" 
-                    color="danger" 
-                    size="small"
-                    *ngIf="medication.id"
-                    (click)="deleteMedication(medication.id)"
-                    title="Delete Medication">
-                    <ion-icon name="trash-outline"></ion-icon>
-                  </ion-button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Expanded Details Section -->
-            <div *ngIf="isMedicationDetailsExpanded(medication.id)" class="medication-details-expanded">
-
-              <!-- Additional Details -->
-              <div class="medication-details-grid">
-                <div class="medication-detail" *ngIf="medication.quantity">
-                  <ion-icon name="cube-outline"></ion-icon>
-                  <b>Pills:</b> {{ medication.quantity }}
-                </div>
-                <div class="medication-detail" *ngIf="medication.startDate">
-                  <ion-icon name="calendar-outline"></ion-icon>
-                  <b>Started:</b> {{ medication.startDate | date:'mediumDate' }}
-                </div>
-                <div class="medication-detail" *ngIf="medication.expiryDate">
-                  <ion-icon name="warning-outline" [color]="isExpiringSoon(medication.expiryDate) ? 'warning' : 'medium'"></ion-icon>
-                  <b>Expires:</b> {{ medication.expiryDate | date:'mediumDate' }}
-                </div>
-                <div class="medication-detail" *ngIf="medication.prescribedBy">
-                  <ion-icon name="person-outline"></ion-icon>
-                  <b>Prescribed by:</b> {{ medication.prescribedBy }}
-                </div>
-                <div class="medication-detail" *ngIf="medication.medicationType">
-                  <ion-icon name="medical-outline"></ion-icon>
-                  <b>Type:</b> {{ getMedicationTypeLabel(medication.medicationType) }}
-                </div>
-                <div class="medication-detail" *ngIf="medication.route">
-                  <ion-icon name="arrow-forward-outline"></ion-icon>
-                  <b>Route:</b> {{ getRouteLabel(medication.route) }}
-                </div>
-              </div>
-
-              <!-- Notes -->
-              <div class="medication-detail full-width" *ngIf="medication.notes">
-                <ion-icon name="chatbubble-outline"></ion-icon>
-                <b>Notes:</b> {{ medication.notes }}
-              </div>
-
-              <!-- Images -->
-              <div class="medication-detail full-width" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
-                <ion-icon name="images-outline"></ion-icon>
-                <b>Images:</b>
-                <div style="display:flex; gap:8px; flex-wrap: wrap; margin-top: 6px;">
-                  <ion-button
-                    *ngIf="medication.prescriptionImageUrl"
-                    fill="outline"
-                    size="small"
-                    (click)="$event.stopPropagation(); viewMedicationImage(medication.prescriptionImageUrl, 'Prescription Image')">
-                    <ion-icon name="document-attach" slot="start"></ion-icon>
-                    Prescription
-                  </ion-button>
-                  <ion-button
-                    *ngIf="medication.medicationImageUrl"
-                    fill="outline"
-                    size="small"
-                    (click)="$event.stopPropagation(); viewMedicationImage(medication.medicationImageUrl, 'Medication Photo')">
-                    <ion-icon name="camera" slot="start"></ion-icon>
-                    Photo
-                  </ion-button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div *ngIf="filteredMedications.length === 0" class="no-medications">
-            <div style="text-align: center; padding: 20px;">
-              <ion-icon name="medical-outline" style="font-size: 48px; color: #ccc; margin-bottom: 12px;"></ion-icon>
-              <p style="color: #666; font-style: italic;">
-                <ng-container *ngIf="medicationSearchTerm && medicationSearchTerm.trim(); else noMedicationsAtAll">
-                  No medications found matching "{{ medicationSearchTerm }}"
-                </ng-container>
-                <ng-template #noMedicationsAtAll>
-                  No medications recorded
-                </ng-template>
-              </p>
-                <ion-button 
-                *ngIf="!medicationSearchTerm || !medicationSearchTerm.trim()"
-                fill="outline" 
-                size="small" 
-                (click)="openAddMedicationModal()">
-                <ion-icon name="add-outline" slot="start"></ion-icon>
-                Add Medication
-              </ion-button>
-              <ion-button 
-                *ngIf="medicationSearchTerm && medicationSearchTerm.trim()"
-                fill="outline" 
-                size="small" 
-                (click)="clearMedicationSearch()">
-                <ion-icon name="close-outline" slot="start"></ion-icon>
-                Clear Search
-              </ion-button>
-            </div>
-          </div>
-        </div>
+        <app-profile-health-section
+          [userMedications]="userMedications"
+          [filteredMedications]="filteredMedications"
+          [medicationFilter]="$any(medicationFilter)"
+          [medicationSearchTerm]="medicationSearchTerm"
+          [isLoading]="isLoadingMedications"
+          [isEmergencyMedicationFn]="isEmergencyMedicationBind"
+          [isMedicationDetailsExpandedFn]="isMedicationDetailsExpandedBind"
+          [isExpiringSoonFn]="isExpiringSoonBind"
+          [getMedicationTypeLabelFn]="getMedicationTypeLabelBind"
+          [getRouteLabelFn]="getRouteLabelBind"
+          (add)="openAddMedicationModal()"
+          (search)="searchMedications($event)"
+          (clearSearch)="clearMedicationSearch()"
+          (medicationFilterChange)="medicationFilter = $event; filterMedications()"
+          (toggleDetails)="toggleMedicationDetails($event)"
+          (toggleStatus)="toggleMedicationStatus($event)"
+          (edit)="editMedication($event)"
+          (delete)="deleteMedication($event)"
+          (viewImage)="viewMedicationImage($event.url, $event.title)"
+          (viewDetails)="openMedicationDetails($event)"
+        ></app-profile-health-section>
       </ng-container>
 
       <ng-container *ngIf="selectedTab === 'ehr'">
@@ -512,7 +286,7 @@
                 </ion-input>
               </ion-item>
               
-              <ion-item lines="none">
+              <ion-item lines="none" class="provider-input">
                 <ion-label position="stacked">Provider Role</ion-label>
                 <ion-select [(ngModel)]="newProviderRole" interface="popover">
                   <ion-select-option value="doctor">Doctor</ion-select-option>
@@ -1242,6 +1016,25 @@
   </div>
   <!-- End profile-card -->
 </ion-content>
+
+<!-- Medication Details Modal -->
+<ion-modal
+  [isOpen]="showMedicationDetailsModal"
+  (didDismiss)="closeMedicationDetails()"
+  cssClass="force-white-modal"
+  [initialBreakpoint]="1"
+  [breakpoints]="[0,1]">
+  <ng-template>
+    <app-medication-details-modal
+      [medication]="selectedMedication"
+      [isEmergencyMedicationFn]="isEmergencyMedicationBind"
+      [isExpiringSoonFn]="isExpiringSoonBind"
+      [getMedicationTypeLabelFn]="getMedicationTypeLabelBind"
+      [getRouteLabelFn]="getRouteLabelBind"
+      (close)="closeMedicationDetails()">
+    </app-medication-details-modal>
+  </ng-template>
+</ion-modal>
 <!-- Global Emergency Message Edit Modal (moved outside tab-specific *ngIf to allow single-click open from any tab) -->
 <ion-modal [isOpen]="showEditEmergencyMessageModal" (didDismiss)="closeEditEmergencyMessageModal()" cssClass="force-white-modal">
   <ng-template>
@@ -1283,7 +1076,7 @@
 </ion-modal>
 
 <!-- Detailed Emergency Info Modal -->
-<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()" cssClass="force-white-modal">
+<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
   <ng-template>
     <app-emergency-details-modal
       [emergencyMessageName]="getEmergencyMessageName()"
