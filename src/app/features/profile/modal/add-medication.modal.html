@@ -164,6 +164,54 @@
           placeholder="Additional notes about the medication">
         </ion-textarea>
       </ion-item>
+
+      <!-- Optional: Prescribed By -->
+      <ion-item class="medication-field" lines="none">
+        <ion-label position="stacked">Prescribed by <span class="optional-label">(Optional)</span></ion-label>
+        <ion-input 
+          [(ngModel)]="med.prescribedBy" 
+          name="prescribedBy"
+          placeholder="e.g., Dr. Jane Smith">
+        </ion-input>
+      </ion-item>
+
+      <!-- Optional: Medication Type -->
+      <ion-item class="medication-field" lines="none">
+        <ion-label position="stacked">Type <span class="optional-label">(Optional)</span></ion-label>
+        <ion-select 
+          [(ngModel)]="med.medicationType" 
+          name="medicationType"
+          interface="popover"
+          placeholder="Select type">
+          <ion-select-option value="tablet">Tablet</ion-select-option>
+          <ion-select-option value="capsule">Capsule</ion-select-option>
+          <ion-select-option value="liquid">Liquid</ion-select-option>
+          <ion-select-option value="injection">Injection</ion-select-option>
+          <ion-select-option value="inhaler">Inhaler</ion-select-option>
+          <ion-select-option value="cream">Cream</ion-select-option>
+          <ion-select-option value="drops">Drops</ion-select-option>
+          <ion-select-option value="patch">Patch</ion-select-option>
+          <ion-select-option value="other">Other</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Optional: Route -->
+      <ion-item class="medication-field" lines="none">
+        <ion-label position="stacked">Route <span class="optional-label">(Optional)</span></ion-label>
+        <ion-select 
+          [(ngModel)]="med.route" 
+          name="route"
+          interface="popover"
+          placeholder="Select route">
+          <ion-select-option value="oral">Oral</ion-select-option>
+          <ion-select-option value="topical">Topical</ion-select-option>
+          <ion-select-option value="injection">Injection</ion-select-option>
+          <ion-select-option value="inhalation">Inhalation</ion-select-option>
+          <ion-select-option value="nasal">Nasal</ion-select-option>
+          <ion-select-option value="ophthalmic">Ophthalmic</ion-select-option>
+          <ion-select-option value="otic">Otic</ion-select-option>
+        </ion-select>
+      </ion-item>
     </div>
 
     <!-- Prescription Image Section -->

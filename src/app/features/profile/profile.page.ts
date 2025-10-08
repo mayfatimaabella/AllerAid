@@ -183,6 +183,15 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.audioSettings = this.voiceRecordingService.getAudioSettings();
   }
 
+  async viewMedicationImage(url: string, title: string) {
+    const modal = await this.modalController.create({
+      component: (await import('./modal/image-viewer.modal')).ImageViewerModal,
+      componentProps: { imageUrl: url, title },
+      cssClass: 'force-white-modal'
+    });
+    await modal.present();
+  }
+
   /**
    * Open the Emergency Instructions modal programmatically using ModalController.
    * Awaits the modal dismissal and refreshes emergency instructions when the

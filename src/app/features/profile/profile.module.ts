@@ -12,6 +12,7 @@ import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
 import { DoctorProfileComponent } from './components/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './modal/emergency-details-modal.component';
+import { ImageViewerModal } from './modal/image-viewer.modal';
 
 @NgModule({
   imports: [
@@ -22,7 +23,7 @@ import { EmergencyDetailsModalComponent } from './modal/emergency-details-modal.
     DoctorProfileComponent,  // Standalone component
     EmergencyDetailsModalComponent  // Standalone component
   ],
-  declarations: [ProfilePage, AddMedicationModal, AddDoctorVisitModal, AddMedicalHistoryModal],
+  declarations: [ProfilePage, AddMedicationModal, AddDoctorVisitModal, AddMedicalHistoryModal, ImageViewerModal],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProfilePageModule {}

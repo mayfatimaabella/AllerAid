@@ -287,6 +287,30 @@
                 <b>Notes:</b> {{ medication.notes }}
               </div>
 
+              <!-- Images -->
+              <div class="medication-detail full-width" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
+                <ion-icon name="images-outline"></ion-icon>
+                <b>Images:</b>
+                <div style="display:flex; gap:8px; flex-wrap: wrap; margin-top: 6px;">
+                  <ion-button
+                    *ngIf="medication.prescriptionImageUrl"
+                    fill="outline"
+                    size="small"
+                    (click)="$event.stopPropagation(); viewMedicationImage(medication.prescriptionImageUrl, 'Prescription Image')">
+                    <ion-icon name="document-attach" slot="start"></ion-icon>
+                    Prescription
+                  </ion-button>
+                  <ion-button
+                    *ngIf="medication.medicationImageUrl"
+                    fill="outline"
+                    size="small"
+                    (click)="$event.stopPropagation(); viewMedicationImage(medication.medicationImageUrl, 'Medication Photo')">
+                    <ion-icon name="camera" slot="start"></ion-icon>
+                    Photo
+                  </ion-button>
+                </div>
+              </div>
+
             </div>
           </div>
 

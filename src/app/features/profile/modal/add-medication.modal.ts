@@ -79,7 +79,8 @@ export class AddMedicationModal implements OnInit {
   // Combine dosage amount and unit into a single string (e.g., "50mg")
   combineDosage(): string {
     if (this.med.dosageAmount && this.med.dosageUnit) {
-      return `${this.med.dosageAmount}${this.med.dosageUnit}`;
+      // Include a space for readability, e.g., "50 mg"
+      return `${this.med.dosageAmount} ${this.med.dosageUnit}`;
     }
     return '';
   }
@@ -164,11 +165,9 @@ export class AddMedicationModal implements OnInit {
                              this.med.dosageAmount && 
                              this.med.dosageUnit && 
                              this.validateQuantity());
-    
-    const hasDuration = !!(this.med.frequency.trim() || 
-                          (this.med.startDate && this.med.expiryDate));
-    
-    return hasBasicFields && hasDuration;
+
+    // Duration is optional: allow save without frequency or dates
+    return hasBasicFields;
   }
 
   async selectPrescriptionImage() {
@@ -385,17 +384,9 @@ export class AddMedicationModal implements OnInit {
     // Convert quantity to number to ensure proper data type
     this.med.quantity = Number(this.med.quantity);
 
-    if (!this.med.frequency.trim()) {
-      // If no duration is set, check if we can calculate it from dates
-      if (this.med.startDate && this.med.expiryDate) {
-        this.calculateDuration();
-      }
-      
-      // If still no duration after calculation, show error
-      if (!this.med.frequency.trim()) {
-        this.presentToast('Please enter duration or select start and expiry dates');
-        return;
-      }
+    // If no duration is set but dates are provided, calculate it; otherwise leave blank
+    if (!this.med.frequency?.trim() && this.med.startDate && this.med.expiryDate) {
+      this.calculateDuration();
     }
 
     try {
