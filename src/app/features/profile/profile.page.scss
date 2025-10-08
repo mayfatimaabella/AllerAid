@@ -1,3 +1,23 @@
+/* Force dark text color for form controls on Profile page */
+.profile-section,
+.ehr-section-card,
+.add-provider-section {
+  ion-item,
+  ion-label {
+    color: #1a1a1a;
+  }
+
+  ion-input::part(native),
+  ion-textarea::part(native) {
+    color: #1a1a1a;
+  }
+
+  ion-select::part(text),
+  ion-select::part(placeholder) {
+    color: #1a1a1a;
+    opacity: 1;
+  }
+}
 // // Force green color for '+ ADD' and '+ ADD MEDICATION' text, even inside Ionic shadow DOM
 // ::ng-deep ion-button, ::ng-deep button {
 //   color: #036a5d !important;

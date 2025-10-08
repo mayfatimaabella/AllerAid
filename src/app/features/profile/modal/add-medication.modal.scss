@@ -99,6 +99,13 @@ form {
     min-height: 80px;
   }
 
+    /* Ensure readable dark text inside modal form controls */
+    ion-input::part(native),
+    ion-textarea::part(native),
+    ion-select::part(text),
+    ion-select::part(placeholder) {
+      color: #1a1a1a;
+    }
   // Date field specific styling
   &.date-field {
     ion-datetime-button {
