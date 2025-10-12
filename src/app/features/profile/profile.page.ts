@@ -12,6 +12,7 @@ import { MedicationService, Medication } from '../../core/services/medication.se
 import { EHRService, DoctorVisit, MedicalHistory, HealthcareProvider, AccessRequest } from '../../core/services/ehr.service';
 import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
 import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
+import { MedicationReminderService } from '../../core/services/medication-reminder.service';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
@@ -167,8 +168,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   isEmergencyMedicationBind = (m: Medication) => this.isEmergencyMedication(m);
   isMedicationDetailsExpandedBind = (id: string | undefined) => this.isMedicationDetailsExpanded(id);
   isExpiringSoonBind = (date?: string) => this.isExpiringSoon(date);
-  getMedicationTypeLabelBind = (t: string) => this.getMedicationTypeLabel(t);
-  getRouteLabelBind = (r: string) => this.getRouteLabel(r);
 
   // Medication details modal state
   selectedMedication: any | null = null;
@@ -200,7 +199,8 @@ export class ProfilePage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private modalController: ModalController,
     private alertController: AlertController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private reminders: MedicationReminderService
   ) {
     this.audioSettings = this.voiceRecordingService.getAudioSettings();
   }
@@ -214,15 +214,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     await modal.present();
   }
 
-  /**
-   * Open the Emergency Instructions modal programmatically using ModalController.
-   * Awaits the modal dismissal and refreshes emergency instructions when the
-   * modal returns a `{ refresh: true }` payload.
-   */
-  async openManageInstructionsModal() {
-    // Use inline Overview modal binding rather than programmatic controller
-    this.showManageInstructionsModal = true;
-  }
+  // Manage Instructions modal is now controlled inside OverviewSectionComponent
 
   /**
    * Open the Edit Allergies modal programmatically using ModalController.
@@ -524,6 +516,14 @@ export class ProfilePage implements OnInit, OnDestroy {
       this.medicationsCount = this.userMedications.length;
       this.clearMedicationCache(); // Clear cache when medications reload
       this.filterMedications(); // Apply current filter
+      // Reschedule notifications based on current meds & intervals
+      try {
+        await this.reminders.rescheduleAll(this.userMedications as any[]);
+      } catch (e) {
+        if (!environment.production) {
+          console.warn('Reminder scheduling skipped or failed:', e);
+        }
+      }
       this.isLoadingMedications = false;
     } catch (error) {
       console.error('Error loading medications:', error);
@@ -556,9 +556,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         med.notes?.toLowerCase().includes(term) ||
         med.dosage.toLowerCase().includes(term) ||
         med.prescribedBy?.toLowerCase().includes(term) ||
-        med.frequency?.toLowerCase().includes(term) ||
-        med.medicationType?.toLowerCase().includes(term) ||
-        med.route?.toLowerCase().includes(term)
+        med.frequency?.toLowerCase().includes(term)
       );
     }
 
@@ -684,36 +682,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   /**
    * Get medication type label
    */
-  getMedicationTypeLabel(type: string): string {
-    const types = {
-      'tablet': 'Tablet',
-      'capsule': 'Capsule',
-      'liquid': 'Liquid/Syrup',
-      'injection': 'Injection',
-      'inhaler': 'Inhaler',
-      'cream': 'Cream/Ointment',
-      'drops': 'Drops',
-      'patch': 'Patch',
-      'other': 'Other'
-    };
-    return types[type as keyof typeof types] || type;
-  }
-
-  /**
-   * Get route label
-   */
-  getRouteLabel(route: string): string {
-    const routes = {
-      'oral': 'Oral (by mouth)',
-      'topical': 'Topical (on skin)',
-      'injection': 'Injection',
-      'inhalation': 'Inhalation',
-      'nasal': 'Nasal',
-      'ophthalmic': 'Eye drops',
-      'otic': 'Ear drops'
-    };
-    return routes[route as keyof typeof routes] || route;
-  }
+  
 
   /**
    * View medication image in full screen
@@ -1191,8 +1160,9 @@ export class ProfilePage implements OnInit, OnDestroy {
       const instruction = this.emergencyInstructions.find(i => i.allergyName === label);
       if (instruction) {
         // Pre-populate the modal with this instruction for editing
-        this.closeEmergencyInfoModal();
-        this.openManageInstructionsModal();
+  this.closeEmergencyInfoModal();
+  // Let child open its own manage modal; ensure we're on overview tab
+  this.selectedTab = 'overview';
         // The modal component will need to handle pre-selection
         // We can pass this via componentProps when we refactor to use ModalController
       } else {
@@ -1553,6 +1523,7 @@ export class ProfilePage implements OnInit, OnDestroy {
             try {
               await this.medicationService.deleteMedication(medicationId);
               await this.loadUserMedications();
+              try { await this.reminders.cancelForMedication(medicationId); } catch {}
               this.presentToast('Medication removed successfully');
             } catch (error) {
               console.error('Error removing medication:', error);
@@ -1578,6 +1549,12 @@ export class ProfilePage implements OnInit, OnDestroy {
     try {
       await this.medicationService.toggleMedicationStatus(medicationId);
       await this.loadUserMedications();
+      try {
+        const med = this.userMedications.find((m: any) => m.id === medicationId);
+        if (med) {
+          await this.reminders.scheduleForMedication(med);
+        }
+      } catch {}
       this.presentToast('Medication status updated');
     } catch (error) {
       console.error('Error updating medication status:', error);

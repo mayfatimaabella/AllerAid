@@ -24,7 +24,7 @@
   
 </div>
 
-<!-- Medication Filter -->
+<!-- Medication Filter -->  
 <div class="medication-filters">
   <ion-segment [ngModel]="medicationFilter" (ionChange)="onFilterChange($event)">
     <ion-segment-button value="all">
@@ -138,14 +138,6 @@
         <div class="medication-detail" *ngIf="medication.prescribedBy">
           <ion-icon name="person-outline"></ion-icon>
           <b>Prescribed by:</b> {{ medication.prescribedBy }}
-        </div>
-        <div class="medication-detail" *ngIf="medication.medicationType">
-          <ion-icon name="medical-outline"></ion-icon>
-          <b>Type:</b> {{ getMedicationTypeLabel(medication.medicationType) }}
-        </div>
-        <div class="medication-detail" *ngIf="medication.route">
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-          <b>Route:</b> {{ getRouteLabel(medication.route) }}
         </div>
       </div>
 

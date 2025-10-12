@@ -23,8 +23,6 @@ export class HealthSectionComponent {
   @Input() isEmergencyMedicationFn?: (m: any) => boolean;
   @Input() isMedicationDetailsExpandedFn?: (id: any) => boolean;
   @Input() isExpiringSoonFn?: (date: any) => boolean;
-  @Input() getMedicationTypeLabelFn?: (t: any) => string;
-  @Input() getRouteLabelFn?: (r: any) => string;
 
   // Events to parent
   @Output() add = new EventEmitter<void>();
@@ -53,13 +51,6 @@ export class HealthSectionComponent {
     return this.isExpiringSoonFn ? !!this.isExpiringSoonFn(date) : false;
   }
 
-  getMedicationTypeLabel(t: any): string {
-    return this.getMedicationTypeLabelFn ? this.getMedicationTypeLabelFn(t) : '';
-  }
-
-  getRouteLabel(r: any): string {
-    return this.getRouteLabelFn ? this.getRouteLabelFn(r) : '';
-  }
 
   onFilterChange(ev: CustomEvent) {
     const value = (ev as any)?.detail?.value;

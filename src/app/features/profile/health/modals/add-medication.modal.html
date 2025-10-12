@@ -155,6 +155,25 @@
         </ion-modal>
       </ion-item>
 
+      <!-- Interval (hours) Field (Optional) -->
+      <ion-item class="medication-field interval-field" lines="none">
+        <ion-label position="stacked">Interval (hours) <span class="optional-label">(Optional)</span></ion-label>
+        <ion-select
+          [(ngModel)]="med.intervalHours"
+          name="intervalHours"
+          placeholder="Select interval"
+          interface="popover">
+          <ion-select-option [value]="1">Every 1 hour</ion-select-option>
+          <ion-select-option [value]="2">Every 2 hours</ion-select-option>
+          <ion-select-option [value]="3">Every 3 hours</ion-select-option>
+          <ion-select-option [value]="4">Every 4 hours</ion-select-option>
+          <ion-select-option [value]="6">Every 6 hours</ion-select-option>
+          <ion-select-option [value]="8">Every 8 hours</ion-select-option>
+          <ion-select-option [value]="12">Every 12 hours</ion-select-option>
+          <ion-select-option [value]="24">Every 24 hours</ion-select-option>
+        </ion-select>
+      </ion-item>
+
       <ion-item class="medication-field notes-field" lines="none">
         <ion-label position="stacked">Notes</ion-label>
         <ion-textarea 
@@ -175,43 +194,7 @@
         </ion-input>
       </ion-item>
 
-      <!-- Optional: Medication Type -->
-      <ion-item class="medication-field" lines="none">
-        <ion-label position="stacked">Type <span class="optional-label">(Optional)</span></ion-label>
-        <ion-select 
-          [(ngModel)]="med.medicationType" 
-          name="medicationType"
-          interface="popover"
-          placeholder="Select type">
-          <ion-select-option value="tablet">Tablet</ion-select-option>
-          <ion-select-option value="capsule">Capsule</ion-select-option>
-          <ion-select-option value="liquid">Liquid</ion-select-option>
-          <ion-select-option value="injection">Injection</ion-select-option>
-          <ion-select-option value="inhaler">Inhaler</ion-select-option>
-          <ion-select-option value="cream">Cream</ion-select-option>
-          <ion-select-option value="drops">Drops</ion-select-option>
-          <ion-select-option value="patch">Patch</ion-select-option>
-          <ion-select-option value="other">Other</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <!-- Optional: Route -->
-      <ion-item class="medication-field" lines="none">
-        <ion-label position="stacked">Route <span class="optional-label">(Optional)</span></ion-label>
-        <ion-select 
-          [(ngModel)]="med.route" 
-          name="route"
-          interface="popover"
-          placeholder="Select route">
-          <ion-select-option value="oral">Oral</ion-select-option>
-          <ion-select-option value="topical">Topical</ion-select-option>
-          <ion-select-option value="injection">Injection</ion-select-option>
-          <ion-select-option value="inhalation">Inhalation</ion-select-option>
-          <ion-select-option value="nasal">Nasal</ion-select-option>
-          <ion-select-option value="ophthalmic">Ophthalmic</ion-select-option>
-          <ion-select-option value="otic">Otic</ion-select-option>
-        </ion-select>
-      </ion-item>
+      <!-- Type and Route fields removed per request -->
     </div>
 
     <!-- Prescription Image Section -->

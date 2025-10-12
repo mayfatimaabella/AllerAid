@@ -78,19 +78,15 @@
             [emergencyMessageName]="getEmergencyMessageName()"
             [emergencyInstructionsCombined]="getEmergencyInstructionsCombined()"
             [emergencyLocation]="getEmergencyMessageLocation()"
-            [showManageInstructionsModal]="showManageInstructionsModal"
             [emergencyInstructions]="emergencyInstructions"
-            [selectedInstructionDetails]="selectedInstructionDetails"
-            [showInstructionDetailsModal]="showInstructionDetailsModal"
             (openEditAllergies)="openEditAllergiesModal()"
             (openEmergencyInfo)="openEmergencyInfoModal()"
-            (closeManageInstructions)="showManageInstructionsModal = false"
             (addInstruction)="loadEmergencyInstructions()"
             (updateInstruction)="loadEmergencyInstructions()"
             (removeInstruction)="loadEmergencyInstructions()"
             (editInstruction)="loadEmergencyInstructions()"
-            (cancelEdit)="showManageInstructionsModal = false"
-            (showDetails)="showInstructionDetails($event)">
+            (testInstructionAudio)="testInstructionAudio($event)"
+            (shareInstruction)="shareInstruction($event)">
           </app-profile-overview-section>
         </ng-container>
 
@@ -105,8 +101,7 @@
           [isEmergencyMedicationFn]="isEmergencyMedicationBind"
           [isMedicationDetailsExpandedFn]="isMedicationDetailsExpandedBind"
           [isExpiringSoonFn]="isExpiringSoonBind"
-          [getMedicationTypeLabelFn]="getMedicationTypeLabelBind"
-          [getRouteLabelFn]="getRouteLabelBind"
+          
           (add)="openAddMedicationModal()"
           (search)="searchMedications($event)"
           (clearSearch)="clearMedicationSearch()"
@@ -119,12 +114,40 @@
           (viewDetails)="openMedicationDetails($event)"
         ></app-profile-health-section>
       </ng-container>
+      
+      <!-- Medication Details Modal -->
+       <ion-modal
+       [isOpen]="showMedicationDetailsModal"
+       (didDismiss)="closeMedicationDetails()"
+       cssClass="force-white-modal"
+       [initialBreakpoint]="1"
+       [breakpoints]="[0,1]">
+       <ng-template>
+        <app-medication-details-modal
+        [medication]="selectedMedication"
+        [isEmergencyMedicationFn]="isEmergencyMedicationBind"
+        [isExpiringSoonFn]="isExpiringSoonBind"
+        (close)="closeMedicationDetails()">
+      </app-medication-details-modal>
+    </ng-template>
+</ion-modal>
+
+<!-- Detailed Emergency Info Modal -->
+<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+  <ng-template>
+    <app-emergency-details-modal
+      [emergencyMessageName]="getEmergencyMessageName()"
+      [userAllergies]="userAllergies"
+      [instructionEntries]="getEmergencyInstructionEntries()"
+      [emergencyLocation]="getEmergencyMessageLocation()"
+      (close)="closeEmergencyInfoModal()"
+      (editInstruction)="editInstructionEntry($event.label, $event.text)"
+      (testAudio)="testAudioInstructions()">
+    </app-emergency-details-modal>
+  </ng-template>
+</ion-modal>
 
       <ng-container *ngIf="selectedTab === 'ehr'">
-        <div class="ehr-header">
-          <h2>Electronic Health Record</h2>
-          <p class="ehr-subtitle">Manage your medical information and provider access</p>
-        </div>
 
         <!-- Doctor Visits Card -->
         <div class="ehr-section-card">
@@ -472,121 +495,6 @@
           </div>
         </div>
 
-        <!-- BEGIN: Allergy-Specific Emergency Instructions & Emergency Message / Testing (Inserted) -->
-        <div class="emergency-instructions-display">
-          <div class="instructions-section-header">Allergy-Specific Emergency Instructions</div>
-          <div class="instructions-list-scrollable">
-            <div *ngFor="let instruction of emergencyInstructions" 
-                 class="instruction-card decluttered clickable" 
-                 (click)="showInstructionDetails(instruction)">
-              <div class="instruction-header">
-                <ion-icon name="alert-circle-outline" style="color:#036a5d; font-size:20px; margin-right:8px;"></ion-icon>
-                <strong>{{ instruction.allergyName }}</strong>
-                <ion-icon name="chevron-forward-outline" style="color:#666; font-size:16px; margin-left:auto;"></ion-icon>
-              </div>
-              <div class="instruction-text">
-                {{ instruction.instruction | slice:0:100 }}{{ instruction.instruction.length > 100 ? '...' : '' }}
-              </div>
-            </div>
-            <div *ngIf="emergencyInstructions.length === 0" class="no-instructions-card decluttered">
-              <p style="text-align: center; color: #666; font-style: italic;">
-                No emergency instructions set.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Emergency Instruction Details Modal (Replaced with user-provided layout) -->
-        <ion-modal [isOpen]="showInstructionDetailsModal" (didDismiss)="showInstructionDetailsModal = false">
-          <ng-template>
-            <ion-header>
-              <ion-toolbar>
-                <ion-title>Emergency Instruction Details</ion-title>
-                <ion-buttons slot="start">
-                  <ion-button (click)="showInstructionDetailsModal = false" fill="clear">
-                    <ion-icon name="arrow-back-outline"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-                <ion-buttons slot="end">
-                  <ion-button (click)="showInstructionDetailsModal = false" fill="clear">
-                    <ion-icon name="close"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content class="ion-padding" *ngIf="selectedInstructionDetails">
-              <div class="instruction-details-container">
-                <div class="detail-section">
-                  <div class="detail-header">
-                    <ion-icon name="warning-outline" color="danger"></ion-icon>
-                    <h3>Allergy Information</h3>
-                  </div>
-                  <div class="detail-content">
-                    <div class="detail-row">
-                      <span class="detail-label">Allergy:</span>
-                      <span class="detail-value">{{ selectedInstructionDetails.allergyName }}</span>
-                    </div>
-                    <div class="detail-row" *ngIf="selectedInstructionDetails.allergyId !== selectedInstructionDetails.allergyName">
-                      <span class="detail-label">ID:</span>
-                      <span class="detail-value">{{ selectedInstructionDetails.allergyId }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="detail-section">
-                  <div class="detail-header">
-                    <ion-icon name="medical-outline" color="primary"></ion-icon>
-                    <h3>Emergency Instructions</h3>
-                  </div>
-                  <div class="detail-content">
-                    <div class="instruction-full-text">
-                      {{ selectedInstructionDetails.instruction }}
-                    </div>
-                  </div>
-                </div>
-                <div class="detail-section">
-                  <div class="detail-header">
-                    <ion-icon name="settings-outline" color="medium"></ion-icon>
-                    <h3>Quick Actions</h3>
-                  </div>
-                  <div class="detail-content">
-                    <div class="action-buttons-grid">
-                      <ion-button expand="block" fill="outline" color="primary" (click)="editInstructionFromDetails()">
-                        <ion-icon name="create-outline" slot="start"></ion-icon>
-                        Edit Instruction
-                      </ion-button>
-                      <ion-button expand="block" fill="outline" color="success" (click)="testInstructionAudio()">
-                        <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-                        Test Audio
-                      </ion-button>
-                      <ion-button expand="block" fill="outline" color="warning" (click)="shareInstruction()">
-                        <ion-icon name="share-outline" slot="start"></ion-icon>
-                        Share
-                      </ion-button>
-                      <ion-button expand="block" fill="outline" color="danger" (click)="confirmDeleteInstruction()">
-                        <ion-icon name="trash-outline" slot="start"></ion-icon>
-                        Delete
-                      </ion-button>
-                    </div>
-                  </div>
-                </div>
-                <div class="detail-section">
-                  <div class="detail-header">
-                    <ion-icon name="information-circle-outline" color="tertiary"></ion-icon>
-                    <h3>Usage Tips</h3>
-                  </div>
-                  <div class="detail-content">
-                    <ul class="tips-list">
-                      <li>This instruction will be read aloud during emergencies if audio is enabled</li>
-                      <li>First responders and emergency contacts will see this information</li>
-                      <li>Keep instructions clear and specific to this allergy</li>
-                      <li>Include medication locations and emergency contact numbers</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </ion-content>
-          </ng-template>
-        </ion-modal>
 
         <div class="emergency-message-title" style="display:flex; align-items:center; gap:8px;">
           <span>Emergency Message</span>
@@ -1017,75 +925,3 @@
   <!-- End profile-card -->
 </ion-content>
 
-<!-- Medication Details Modal -->
-<ion-modal
-  [isOpen]="showMedicationDetailsModal"
-  (didDismiss)="closeMedicationDetails()"
-  cssClass="force-white-modal"
-  [initialBreakpoint]="1"
-  [breakpoints]="[0,1]">
-  <ng-template>
-    <app-medication-details-modal
-      [medication]="selectedMedication"
-      [isEmergencyMedicationFn]="isEmergencyMedicationBind"
-      [isExpiringSoonFn]="isExpiringSoonBind"
-      [getMedicationTypeLabelFn]="getMedicationTypeLabelBind"
-      [getRouteLabelFn]="getRouteLabelBind"
-      (close)="closeMedicationDetails()">
-    </app-medication-details-modal>
-  </ng-template>
-</ion-modal>
-<!-- Global Emergency Message Edit Modal (moved outside tab-specific *ngIf to allow single-click open from any tab) -->
-<ion-modal [isOpen]="showEditEmergencyMessageModal" (didDismiss)="closeEditEmergencyMessageModal()" cssClass="force-white-modal">
-  <ng-template>
-    <ion-header>
-      <ion-toolbar class="teal-modal-toolbar">
-        <ion-title>Edit Emergency Message</ion-title>
-        <ion-buttons slot="start">
-          <ion-button (click)="closeEditEmergencyMessageModal()" fill="clear">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button (click)="closeEditEmergencyMessageModal()" fill="clear">
-            <ion-icon name="close"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding force-white-content">
-      <ion-item class="eem-field" lines="none">
-        <ion-label position="stacked">Name</ion-label>
-        <ion-input placeholder="Enter name" [(ngModel)]="emergencyMessage.name"></ion-input>
-      </ion-item>
-      <ion-item class="eem-field" lines="none">
-        <ion-label position="stacked">Allergies</ion-label>
-        <ion-input readonly="true" [value]="emergencyMessage.allergies" placeholder="No allergies set"></ion-input>
-      </ion-item>
-      <ion-item class="eem-field" lines="none">
-        <ion-label position="stacked">Instructions</ion-label>
-        <ion-textarea autoGrow="true" placeholder="Enter instructions" [(ngModel)]="emergencyMessage.instructions"></ion-textarea>
-      </ion-item>
-      <ion-item class="eem-field" lines="none">
-        <ion-label position="stacked">Location</ion-label>
-        <ion-input placeholder="Enter location" [(ngModel)]="emergencyMessage.location"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="saveEmergencyMessage()">Save</ion-button>
-    </ion-content>
-  </ng-template>
-</ion-modal>
-
-<!-- Detailed Emergency Info Modal -->
-<ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="closeEmergencyInfoModal()" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
-  <ng-template>
-    <app-emergency-details-modal
-      [emergencyMessageName]="getEmergencyMessageName()"
-      [userAllergies]="userAllergies"
-      [instructionEntries]="getEmergencyInstructionEntries()"
-      [emergencyLocation]="getEmergencyMessageLocation()"
-      (close)="closeEmergencyInfoModal()"
-      (editInstruction)="editInstructionEntry($event.label, $event.text)"
-      (testAudio)="testAudioInstructions()">
-    </app-emergency-details-modal>
-  </ng-template>
-</ion-modal>

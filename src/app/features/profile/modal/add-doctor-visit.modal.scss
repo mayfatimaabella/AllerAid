@@ -8,6 +8,44 @@
   }
 }
 
+/* White background and dark text for Add Doctor Visit Modal */
+ion-content {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
+ion-list,
+ion-item {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
+ion-label,
+ion-title {
+  color: #1a1a1a !important;
+}
+
+ion-input,
+ion-select,
+ion-textarea {
+  --color: #1a1a1a;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+ion-item-divider {
+  --background: #e3f2fd;
+  --color: #1976d2;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+ion-textarea {
+  --background: #fafafa;
+  border-radius: 8px;
+  color: #1a1a1a;
+}
+
 .prescription-item {
   background: #f8f9fa;
   border-radius: 8px;

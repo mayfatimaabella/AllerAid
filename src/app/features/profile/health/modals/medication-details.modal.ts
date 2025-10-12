@@ -14,8 +14,6 @@ export class MedicationDetailsModal {
   // Helper inputs from parent to keep single source of truth for logic/labels
   @Input() isEmergencyMedicationFn?: (m: any) => boolean;
   @Input() isExpiringSoonFn?: (date?: string) => boolean;
-  @Input() getMedicationTypeLabelFn?: (t: any) => string;
-  @Input() getRouteLabelFn?: (r: any) => string;
   @Output() close = new EventEmitter<void>();
 
   // Wrapper methods to safely use in template without optional call syntax
@@ -27,11 +25,4 @@ export class MedicationDetailsModal {
     return this.isExpiringSoonFn ? !!this.isExpiringSoonFn(this.medication?.expiryDate) : false;
   }
 
-  getTypeLabel(value: any): string {
-    return this.getMedicationTypeLabelFn ? this.getMedicationTypeLabelFn(value) : (value ?? '');
-  }
-
-  getRouteLabel(value: any): string {
-    return this.getRouteLabelFn ? this.getRouteLabelFn(value) : (value ?? '');
-  }
 }

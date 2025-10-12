@@ -1,6 +1,11 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="teal-modal-toolbar">
     <ion-title>{{ isEditMode ? 'Edit Doctor Visit' : 'Add Doctor Visit' }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>    
     <ion-buttons slot="end">
       <ion-button (click)="dismiss()" fill="clear">
         <ion-icon name="close"></ion-icon>

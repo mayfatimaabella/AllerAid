@@ -27,6 +27,8 @@ export interface Medication {
   dosageAmount?: number; // Structured dosage amount (e.g., 50)
   dosageUnit?: string; // Structured dosage unit (e.g., "mg")
   frequency: string; // We'll use this for duration (e.g., "10 days")
+  // Optional interval in hours for reminders/scheduling (e.g., 4 for every 4 hours)
+  intervalHours?: number;
   startDate: string;
   endDate?: string;
   notes: string;
