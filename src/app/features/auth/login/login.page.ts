@@ -62,7 +62,8 @@ export class LoginPage implements OnInit {
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.code === 'auth/email-not-verified') {
-        this.presentToast('Please verify your email address before logging in. Check your inbox for the verification email.');
+        await this.authService.signOut();
+        this.presentToast('Please verify your email, then log in again.');
       } else {
         this.presentToast(`Login failed: ${error.message}`);
       }

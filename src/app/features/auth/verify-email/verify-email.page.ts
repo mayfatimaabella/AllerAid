@@ -28,8 +28,33 @@ export class VerifyEmailPage {
     this.navCtrl.navigateBack('/registration');
   }
 
+  verificationInterval: any;
+
   ngOnInit() {
     this.email = this.authService.getCurrentUserEmail();
+    this.startVerificationCheck();
+  }
+
+  ngOnDestroy() {
+    if (this.verificationInterval) {
+      clearInterval(this.verificationInterval);
+    }
+  }
+
+  startVerificationCheck() {
+    this.verificationInterval = setInterval(async () => {
+      const user = this.authService.getCurrentUser();
+      if (user) {
+        await user.reload();
+        if (user.emailVerified) {
+          clearInterval(this.verificationInterval);
+          this.presentToast('Email verified! Redirecting to login...');
+          setTimeout(() => {
+            this.navCtrl.navigateRoot('/login');
+          }, 1500);
+        }
+      }
+    }, 3000); // check every 3 seconds
   }
 
   async resendVerificationEmail() {

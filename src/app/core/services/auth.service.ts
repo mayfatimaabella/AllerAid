@@ -75,6 +75,7 @@ export class AuthService {
   // Sign in with email and password, require email verification
   async signIn(email: string, password: string) {
     const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+    await userCredential.user.reload();
     if (!userCredential.user.emailVerified) {
       // Optionally, you can resend the verification email here
       // await sendEmailVerification(userCredential.user);
