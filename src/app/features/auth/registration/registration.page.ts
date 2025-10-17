@@ -65,6 +65,7 @@ export class RegistrationPage {
       //  Create user in Firebase Auth
       const userCredential = await this.authService.signUp(this.email, this.password);
 
+
       if (userCredential.user) {
         const uid = userCredential.user.uid;
         console.log('User created in Firebase Auth:', uid);
@@ -96,7 +97,11 @@ export class RegistrationPage {
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      this.presentToast(`Registration failed: ${error.message}`);
+      if (error.code === 'auth/email-already-in-use') {
+        this.presentToast('This email address is already registered. Please log in or use a different email.');
+      } else {
+        this.presentToast(`Registration failed: ${error.message}`);
+      }
     }
   }
 

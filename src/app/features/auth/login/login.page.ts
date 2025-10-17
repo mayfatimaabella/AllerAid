@@ -43,69 +43,29 @@ export class LoginPage implements OnInit {
 
     try {
       const userCredential = await this.authService.signIn(this.email, this.password);
-      
+
       if (userCredential.user) {
-        // Check if user profile exists
+        // ...existing code...
         let userProfile = await this.userService.getUserProfile(userCredential.user.uid);
-        
+        // ...existing code...
         if (!userProfile) {
-          // User exists in Auth but not in Firestore, create profile
-          console.log('User exists in Auth but not in Firestore, creating profile...');
-          
-          // Extract first and last name from email or use defaults
-          const emailParts = this.email.split('@')[0];
-          const firstName = emailParts.split('.')[0] || 'User';
-          const lastName = emailParts.split('.')[1] || '';
-          
-          await this.userService.createUserProfile(userCredential.user.uid, {
-            email: this.email,
-            firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1),
-            lastName: lastName.charAt(0).toUpperCase() + lastName.slice(1),
-            role: 'user' // Default role for existing users
-          });
-          
-          // Get the newly created profile from cache (avoid second API call)
-          userProfile = await this.userService.getUserProfile(userCredential.user.uid, true);
+          // ...existing code...
+          // ...existing code...
         }
-        
+        // ...existing code...
         if (userProfile) {
-          // Update last login timestamp
-          await this.userService.updateLastLogin(userCredential.user.uid);
-          
-          // Check user role for routing - healthcare professionals and buddies skip onboarding
-          if (userProfile.role === 'doctor' || userProfile.role === 'nurse') {
-            this.presentToast(`Welcome back, ${userProfile.role === 'doctor' ? 'Dr.' : 'Nurse'} ${userProfile.firstName}`);
-            this.clearForm(); // Clear form before navigation
-            this.navCtrl.navigateForward('/tabs/doctor-dashboard');
-          } else if (userProfile.role === 'buddy') {
-            this.presentToast(`Welcome back, ${userProfile.firstName}!`);
-            this.clearForm(); // Clear form before navigation
-            this.navCtrl.navigateForward('/tabs/responder-dashboard');
-          } else {
-            // For patients, check if they've completed allergy onboarding
-            const hasCompletedOnboarding = await this.userService.hasCompletedAllergyOnboarding(userCredential.user.uid);
-            
-            if (hasCompletedOnboarding) {
-              this.presentToast('Login successful');
-              this.clearForm(); // Clear form before navigation
-              this.navCtrl.navigateForward('/tabs/home');
-            } else {
-              // First-time user or user who hasn't completed onboarding
-              this.presentToast('Welcome! Please complete your allergy profile');
-              this.clearForm(); // Clear form before navigation
-              this.navCtrl.navigateForward('/allergy-onboarding');
-            }
-          }
+          // ...existing code...
         } else {
-          // If profile still doesn't exist, redirect to onboarding
-          this.presentToast('Please complete your profile setup');
-          this.clearForm(); // Clear form before navigation
-          this.navCtrl.navigateForward('/allergy-onboarding');
+          // ...existing code...
         }
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      this.presentToast(`Login failed: ${error.message}`);
+      if (error.code === 'auth/email-not-verified') {
+        this.presentToast('Please verify your email address before logging in. Check your inbox for the verification email.');
+      } else {
+        this.presentToast(`Login failed: ${error.message}`);
+      }
     }
   }
 
