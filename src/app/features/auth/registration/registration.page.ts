@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { ToastController, NavController } from '@ionic/angular';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+//import { StorageService } from '../../../core/services/storage.service'; // Temporarily commented out
 
 @Component({
   selector: 'app-registration',
@@ -16,13 +17,33 @@ export class RegistrationPage {
   password = '';
   confirmPassword = '';
   role = '';
+  selectedFile: File | null = null;
+  selectedFileName = '';
+  licenseURL = '';
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private toastController: ToastController,
     private navCtrl: NavController,
     private userService: UserService,
     private authService: AuthService
+    //private storageService: StorageService // Temporarily commented out
   ) {}
+
+  triggerFileInput() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+      console.log('Selected license file:', this.selectedFileName);
+      this.presentToast(`Selected file: ${this.selectedFileName}`);
+    }
+  }
 
   async register() {
     if (!this.email || !this.password || !this.confirmPassword || !this.firstName || !this.lastName || !this.role) {
@@ -35,28 +56,41 @@ export class RegistrationPage {
       return;
     }
 
+    if (this.role === 'doctor' && !this.selectedFile) {
+      this.presentToast('Please upload your medical license.');
+      return;
+    }
+
     try {
-      // Create user in Firebase Auth
+      //  Create user in Firebase Auth
       const userCredential = await this.authService.signUp(this.email, this.password);
-      
+
       if (userCredential.user) {
-        console.log('User created in Firebase Auth:', userCredential.user.uid);
-        
-        // Create user profile in Firestore
-        await this.userService.createUserProfile(userCredential.user.uid, {
-          email: this.email,
-          firstName: this.firstName,
-          lastName: this.lastName,
-          role: this.role
-        });
-        
-        // If healthcare professional or buddy, mark onboarding as completed since they don't need allergy setup
-        if (this.role === 'doctor' || this.role === 'nurse' || this.role === 'buddy') {
-          await this.userService.markAllergyOnboardingCompleted(userCredential.user.uid);
+        const uid = userCredential.user.uid;
+        console.log('User created in Firebase Auth:', uid);
+
+        //  Temporarily skip actual upload — just log the file
+        if (this.role === 'doctor' && this.selectedFile) {
+          console.log('Doctor license selected (trial mode):', this.selectedFileName);
+          this.presentToast('License file selected (upload skipped in trial mode).');
+          this.licenseURL = 'Trial-License-Placeholder';
+        }
+
+        // Create Firestore profile | DON'T REMOVE THE '//'
+        //await this.userService.createUserProfile(uid, {
+          //email: this.email,
+          //firstName: this.firstName,
+          //lastName: this.lastName,
+          //role: this.role,
+          //licenseURL: this.licenseURL || null,
+        //});
+
+        // Mark onboarding complete for non-patient roles
+        if (['doctor', 'nurse', 'buddy'].includes(this.role)) {
+          await this.userService.markAllergyOnboardingCompleted(uid);
           console.log('Healthcare professional/buddy onboarding marked as completed');
         }
-        
-        console.log('User profile created in Firestore');
+
         this.presentToast('Registration successful! Please log in.');
         this.navCtrl.navigateForward('/login');
       }
@@ -76,10 +110,3 @@ export class RegistrationPage {
     toast.present();
   }
 }
-
-
-
-
-
-
-

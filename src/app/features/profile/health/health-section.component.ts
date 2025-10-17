@@ -51,9 +51,45 @@ export class HealthSectionComponent {
     return this.isExpiringSoonFn ? !!this.isExpiringSoonFn(date) : false;
   }
 
-
   onFilterChange(ev: CustomEvent) {
     const value = (ev as any)?.detail?.value;
     this.medicationFilterChange.emit(typeof value === 'string' ? value : 'all');
+  }
+
+  /**
+   * Calculate remaining pills based on start date and frequency.
+   * This does NOT modify the database — just displays remaining pills.
+   */
+  calculateRemainingPills(medication: any): number {
+    if (!medication?.startDate || !medication?.quantity) {
+      return medication?.quantity ?? 0;
+    }
+
+    const start = new Date(medication.startDate);
+    const today = new Date();
+
+    if (today < start) return medication.quantity; // medication not started yet
+
+    // Calculate days passed
+    const daysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 3600 * 24));
+
+    // Determine doses per day from frequency (e.g., "3x/day" or "twice daily")
+    let dosesPerDay = 1;
+    if (typeof medication.frequency === 'string') {
+      const match = medication.frequency.match(/(\d+)/);
+      if (match) {
+        dosesPerDay = parseInt(match[1], 10);
+      } else if (medication.frequency.toLowerCase().includes('twice')) {
+        dosesPerDay = 2;
+      } else if (medication.frequency.toLowerCase().includes('thrice')) {
+        dosesPerDay = 3;
+      }
+    }
+
+    // Compute remaining pills
+    const deducted = daysElapsed * dosesPerDay;
+    const remaining = Math.max(medication.quantity - deducted, 0);
+
+    return remaining;
   }
 }

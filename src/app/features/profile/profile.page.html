@@ -13,7 +13,6 @@
       <img alt="person-avatar" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
     </ion-avatar>
     <div class="profile-name">{{ getEmergencyMessageName() }}</div>
-
   </div>
 
   <div class="profile-card">
@@ -148,314 +147,29 @@
 </ion-modal>
 
       <ng-container *ngIf="selectedTab === 'ehr'">
-
-        <!-- Doctor Visits Card -->
-        <div class="ehr-section-card">
-          <div class="card-header">
-            <div class="card-title">
-              <ion-icon name="medical-outline" color="primary"></ion-icon>
-              <h3>Doctor Visits</h3>
-            </div>
-            <ion-button size="small" fill="clear" (click)="openAddDoctorVisitModal()">
-              <ion-icon name="add-outline" slot="start"></ion-icon>
-              Add Visit
-            </ion-button>
-          </div>
-
-          <div class="card-content">
-            <!-- Loading state -->
-            <div *ngIf="isLoadingDoctorVisits" class="loading-state">
-              <ion-skeleton-text animated style="width: 100%; height: 60px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 80%; height: 40px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 60%; height: 30px;"></ion-skeleton-text>
-            </div>
-            
-            <!-- Content when not loading -->
-            <div *ngIf="!isLoadingDoctorVisits">
-              <!-- Data loaded state -->
-              <div *ngIf="doctorVisits.length > 0">
-                <div *ngFor="let visit of (isDoctorVisitsExpanded ? doctorVisits : (doctorVisits | slice:0:3))" 
-                     class="visit-summary-card" 
-                     (click)="openVisitDetails(visit)">
-                  <div class="visit-summary-header">
-                    <div class="visit-summary-info">
-                      <h4>{{ visit.doctorName }}</h4>
-                      <p class="visit-date">{{ visit.visitDate | date:'mediumDate' }}</p>
-                    </div>
-                    <div class="visit-header-actions">
-                      <ion-chip [color]="getVisitTypeColor(visit.visitType)" size="small">
-                        {{ getVisitTypeLabel(visit.visitType) }}
-                      </ion-chip>
-                      <ion-button 
-                        fill="clear" 
-                        size="small" 
-                        class="menu-toggle-btn"
-                        (click)="presentVisitActionsPopover($event, visit); $event.stopPropagation()">
-                        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-                      </ion-button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- No doctor visits message -->
-              <div *ngIf="doctorVisits.length === 0" class="no-data">
-                <p>No doctor visits recorded yet</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-         <!-- Medical History Card -->
-        <div class="ehr-section-card">
-          <div class="card-header">
-            <div class="card-title">
-              <ion-icon name="document-text-outline" color="secondary"></ion-icon>
-              <h3>Medical History</h3>
-            </div>
-            <ion-button size="small" fill="clear" (click)="openAddMedicalHistoryModal()">
-              <ion-icon name="add-outline" slot="start"></ion-icon>
-              Add Condition
-            </ion-button>
-          </div>
-
-          <div class="card-content">
-            <!-- Loading state -->
-            <div *ngIf="isLoadingMedicalHistory" class="loading-state">
-              <ion-skeleton-text animated style="width: 100%; height: 60px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 80%; height: 40px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 60%; height: 30px;"></ion-skeleton-text>
-            </div>
-            
-            <!-- Data loaded state -->
-            <div *ngIf="!isLoadingMedicalHistory && medicalHistory.length > 0">
-              <div *ngFor="let history of (isMedicalHistoryExpanded ? medicalHistory : (medicalHistory | slice:0:3))" 
-                   class="history-summary-card" 
-                   (click)="openMedicalHistoryDetails(history)">
-                <div class="history-summary-header">
-                  <div class="history-summary-info">
-                    <h4>{{ history.condition }}</h4>
-                    <p class="history-date">Diagnosed: {{ history.diagnosisDate | date:'mediumDate' }}</p>
-                  </div>
-                  <div class="history-header-actions">
-                    <ion-chip [color]="getHistoryStatusColor(history.status)" size="small">
-                      {{ history.status }}
-                    </ion-chip>
-                    <ion-button 
-                      fill="clear" 
-                      size="small" 
-                      class="menu-toggle-btn"
-                      (click)="presentHistoryActionsPopover($event, history); $event.stopPropagation()"
-                      #popoverTrigger>
-                      <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-                    </ion-button>
-                  </div>
-                </div>
-                <p class="history-notes" *ngIf="history.notes">{{ history.notes | slice:0:100 }}{{ history.notes.length > 100 ? '...' : '' }}</p>
-                <div class="history-click-hint">
-                  <ion-icon name="eye-outline"></ion-icon>
-                  <span>Click to view full details</span>
-                </div>
-              </div>
-              
-              <div *ngIf="medicalHistory.length > 3" class="view-all-link">
-                <ion-button fill="clear" size="small" (click)="expandMedicalHistory()">
-                  {{ isMedicalHistoryExpanded ? 'Show less' : 'View all ' + medicalHistory.length + ' conditions' }}
-                  <ion-icon [name]="isMedicalHistoryExpanded ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
-                </ion-button>
-              </div>
-            </div>
-
-            <!-- No data state -->
-            <div *ngIf="!isLoadingMedicalHistory && medicalHistory.length === 0" class="empty-state">
-              <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
-              <p class="empty-title">No medical history recorded</p>
-              <p class="empty-subtitle">Document your medical conditions and diagnoses</p>
-              <ion-button fill="outline" size="small" (click)="openAddMedicalHistoryModal()">
-                <ion-icon name="add-outline" slot="start"></ion-icon>
-                Add Condition
-              </ion-button>
-            </div>
-          </div>
-        </div>
-
-        <!-- EHR Access Management Card -->
-        <div class="ehr-section-card">
-          <div class="card-header">
-            <div class="card-title">
-              <ion-icon name="people-outline" color="tertiary"></ion-icon>
-              <h3>Provider Access</h3>
-            </div>
-          </div>
-
-          <div class="card-content">
-            <p class="access-description">Send access requests to verified healthcare providers for coordinated care.</p>
-            
-            <div class="add-provider-section">
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">Provider Email</ion-label>
-                <ion-input 
-                  [(ngModel)]="newProviderEmail" 
-                  placeholder="doctor@example.com"
-                  type="email">
-                </ion-input>
-              </ion-item>
-              
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">Provider Name</ion-label>
-                <ion-input 
-                  [(ngModel)]="newProviderName" 
-                  placeholder="Dr. Sarah Johnson">
-                </ion-input>
-              </ion-item>
-              
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">Provider Role</ion-label>
-                <ion-select [(ngModel)]="newProviderRole" interface="popover">
-                  <ion-select-option value="doctor">Doctor</ion-select-option>
-                  <ion-select-option value="nurse">Nurse</ion-select-option>
-                </ion-select>
-              </ion-item>
-              
-              <!-- Optional Fields -->
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">License Number <span class="optional-label">(Optional)</span></ion-label>
-                <ion-input 
-                  [(ngModel)]="newProviderLicense" 
-                  placeholder="e.g., MD12345">
-                </ion-input>
-              </ion-item>
-              
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">Specialty <span class="optional-label">(Optional)</span></ion-label>
-                <ion-input 
-                  [(ngModel)]="newProviderSpecialty" 
-                  placeholder="e.g., Cardiology, Family Medicine">
-                </ion-input>
-              </ion-item>
-              
-              <ion-item lines="none" class="provider-input">
-                <ion-label position="stacked">Hospital/Clinic <span class="optional-label">(Optional)</span></ion-label>
-                <ion-input 
-                  [(ngModel)]="newProviderHospital" 
-                  placeholder="e.g., City General Hospital">
-                </ion-input>
-              </ion-item>
-              
-              <ion-button 
-                expand="block" 
-                fill="solid" 
-                (click)="sendAccessRequest()"
-                [disabled]="!newProviderEmail || !newProviderName">
-                <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
-                Send Access Request
-              </ion-button>
-              
-              <p class="help-text">
-                <ion-icon name="information-circle-outline"></ion-icon>
-                The provider must be registered in the system and will need to accept your request.
-              </p>
-            </div>
-
-            <div class="current-access" *ngIf="ehrAccessList.length > 0">
-              <h4>Current Provider Access</h4>
-              <div class="access-list">
-                <div *ngFor="let provider of ehrAccessList" class="access-item">
-                  <div class="provider-info">
-                    <ion-icon name="person-outline"></ion-icon>
-                    <span>{{ provider }}</span>
-                  </div>
-                  <ion-button 
-                    fill="clear" 
-                    color="danger" 
-                    size="small"
-                    (click)="revokeEHRAccess(provider)">
-                    <ion-icon name="trash-outline"></ion-icon>
-                  </ion-button>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="ehrAccessList.length === 0" class="no-access">
-              <p class="empty-subtitle">No providers have access to your EHR</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Professional Workflow Access -->
-        <div class="ehr-section-card" 
-          *ngIf="userProfile?.role === 'doctor'">
-          <div class="card-header">
-            <div class="card-title">
-              <ion-icon name="medical-outline" color="primary"></ion-icon>
-              <h3>Professional Features</h3>
-            </div>
-          </div>
-          
-          <div class="card-content">
-            <p class="access-description">Access advanced professional workflow features for healthcare providers.</p>
-            
-            <ion-chip color="primary" style="margin-bottom: 16px;">
-              <ion-icon name="medical-outline"></ion-icon>
-              <ion-label>Doctor Access</ion-label>
-            </ion-chip>
-            
-            <ion-button 
-              expand="block" 
-              fill="outline" 
-              color="primary"
-              (click)="navigateToDoctorDashboard()">
-              <ion-icon name="medical-outline" slot="start"></ion-icon>
-              Doctor Dashboard
-            </ion-button>
-
-            <!-- Access Requests Section for Healthcare Providers -->
-            <div *ngIf="pendingRequests.length > 0" style="margin-top: 20px;">
-              <h4>Pending Access Requests ({{ pendingRequests.length }})</h4>
-              
-              <div *ngFor="let request of pendingRequests" class="access-request-card">
-                <div class="request-header">
-                  <div class="patient-info">
-                    <strong>{{ request.patientName }}</strong>
-                    <div class="patient-email">{{ request.patientEmail }}</div>
-                  </div>
-                  <ion-chip color="warning" size="small">
-                    <ion-icon name="time-outline"></ion-icon>
-                    <ion-label>{{ getRequestAge(request.requestDate) }}</ion-label>
-                  </ion-chip>
-                </div>
-
-                <p class="request-message">{{ request.message }}</p>
-
-                <div class="request-actions">
-                  <ion-button 
-                    size="small" 
-                    fill="solid" 
-                    color="success"
-                    (click)="acceptAccessRequest(request)">
-                    <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-                    Accept
-                  </ion-button>
-                  
-                  <ion-button 
-                    size="small" 
-                    fill="outline" 
-                    color="danger"
-                    (click)="declineAccessRequest(request)">
-                    <ion-icon name="close-outline" slot="start"></ion-icon>
-                    Decline
-                  </ion-button>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="pendingRequests.length === 0" class="no-access">
-              <p class="empty-subtitle">No pending access requests</p>
-            </div>
-          </div>
-        </div>
+        <app-ehr-section-cards
+          [doctorVisits]="doctorVisits"
+          [medicalHistory]="medicalHistory"
+          [ehrAccessList]="ehrAccessList"
+          [isLoadingDoctorVisits]="isLoadingDoctorVisits"
+          [isLoadingMedicalHistory]="isLoadingMedicalHistory"
+          [isDoctorVisitsExpanded]="isDoctorVisitsExpanded"
+          [isMedicalHistoryExpanded]="isMedicalHistoryExpanded"
+          (addDoctorVisit)="openAddDoctorVisitModal()"
+          (addMedicalHistory)="openAddMedicalHistoryModal()"
+          (sendAccessRequest)="sendAccessRequest()"
+           (revokeEHRAccess)="revokeEHRAccess($event)"
+           (expandMedicalHistory)="expandMedicalHistory()"
+           (openVisitDetails)="openVisitDetails($event)"
+           (editDoctorVisit)="openEditDoctorVisitModal($event)"
+           (deleteDoctorVisit)="deleteDoctorVisit($event.id ?? '')"
+           (openMedicalHistoryDetails)="openMedicalHistoryDetails($event)"
+           (presentVisitActionsPopover)="presentVisitActionsPopover($event)"
+           (presentHistoryActionsPopover)="presentHistoryActionsPopover($event)"
+        ></app-ehr-section-cards>
       </ng-container>
-
+      
+        <!-- EMERGENCY!-->
       <ng-container *ngIf="selectedTab === 'emergency'">
         <div class="emergency-settings-title">Emergency Settings</div>
 

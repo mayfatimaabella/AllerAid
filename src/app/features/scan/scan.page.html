@@ -4,13 +4,12 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>AllergyScan</ion-title>
-    <ion-buttons slot="end">
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="wrapper">
+    <!-- Scan Section -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>Scan Product Barcode</ion-card-title>
@@ -22,13 +21,16 @@
             <ion-icon name="barcode-outline" style="font-size: 50px; color: #b3dfd9;"></ion-icon>
           </div>
         </div>
-        <p class="ion-text-center ion-margin-top">Align the barcode within the frame to scan</p>
+        <p class="ion-text-center ion-margin-top">
+          Align the barcode within the frame to scan
+        </p>
 
         <!-- ML Kit Barcode Scan -->
         <ion-button expand="block" id="scanBtn" class="pulse ion-margin-top" (click)="startCameraScan()">
           <ion-icon slot="start" name="camera-outline"></ion-icon>
           Scan Barcode
         </ion-button>
+
         <p class="ion-text-center" style="font-size: 12px; color: var(--ion-color-medium); margin-top: 4px;">
           Uses Google ML Kit for enhanced accuracy - requires module download on first use
         </p>
@@ -52,6 +54,7 @@
         <ion-card-title>{{ productInfo.product_name || 'Unnamed Product' }}</ion-card-title>
         <p *ngIf="productInfo.brands">Brand: {{ productInfo.brands }}</p>
       </ion-card-header>
+
       <ion-card-content>
         <ion-item>
           <ion-label>Allergen Status:</ion-label>
@@ -67,17 +70,17 @@
           </ion-badge>
         </ion-item>
 
-        <!-- Safe Status Message -->
+        <!-- Safe Status -->
         <div *ngIf="allergenStatus === 'safe'" class="status-message safe">
           <ion-icon name="checkmark-circle" color="success"></ion-icon>
           <p>This product appears safe based on your allergy profile. No known allergens detected.</p>
         </div>
 
-        <!-- Warning Status Message -->
+        <!-- Warning Status -->
         <div *ngIf="allergenStatus === 'warning'" class="status-message warning">
           <ion-icon name="warning" color="warning"></ion-icon>
-          <p>⚠️ <strong>Caution:</strong> This product may contain allergens from your profile.</p>
-          
+          <p><strong>Caution:</strong> This product may contain allergens from your profile.</p>
+
           <ion-label class="ion-margin-top"><strong>Allergens detected:</strong></ion-label>
           <div class="allergen-chips">
             <ion-chip *ngFor="let allergen of ingredientsToWatch" color="danger" style="margin: 4px;">
@@ -85,7 +88,7 @@
               {{ allergen }}
             </ion-chip>
           </div>
-          
+
           <ion-note color="warning">
             <strong>Recommendation:</strong> Check the full ingredient list carefully before consuming.
           </ion-note>
@@ -98,6 +101,16 @@
             {{ productInfo.ingredients_text || 'No ingredient information available.' }}
           </p>
         </div>
+
+        <!-- Product Image -->
+        <div class="product-image-container ion-margin-top ion-text-center" *ngIf="productInfo.image_url">
+        <img 
+        [src]="productInfo.image_url" 
+        alt="Product Image"
+        class="product-image"
+        />
+        </div>
+
 
         <!-- Nutritional Info Button -->
         <ion-button 
@@ -112,5 +125,40 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- Recent Scans Section -->
+    <ion-card *ngIf="recentScans.length > 0">
+      <ion-card-header>
+        <ion-card-title>Recent Scans</ion-card-title>
+      </ion-card-header>
+
+      <ion-list>
+        <ion-item 
+          *ngFor="let scan of recentScans" 
+          button 
+          detail="true"
+          (click)="viewScan(scan)">
+          
+          <ion-thumbnail slot="start">
+            <img [src]="scan.image_url || 'assets/img/placeholder.png'" alt="Product Image">
+          </ion-thumbnail>
+
+          <ion-label>
+            <h2>{{ scan.product_name }}</h2>
+            <p>{{ scan.brand }}</p>
+            <small>{{ scan.date | date:'short' }}</small>
+          </ion-label>
+
+          <ion-badge [color]="scan.status === 'safe' ? 'success' : 'danger'">
+            {{ scan.status | uppercase }}
+          </ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <ion-card *ngIf="recentScans.length === 0">
+      <ion-item>
+        <ion-label>No recent scans yet</ion-label>
+      </ion-item>
+    </ion-card>
   </div>
 </ion-content>

@@ -1,0 +1,425 @@
+.ehr-section-card.doctor-visits {
+  padding: 1rem;
+  background: #fafbfc;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 1.5rem;
+
+  .doctor-visits-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .doctor-visits-title {
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: #222;
+    display: flex;
+    align-items: center;
+    .doctor-visits-icon {
+      margin-right: 0.4rem;
+      color: #3a6eea;
+      font-size: 1.2rem;
+    }
+  }
+  .doctor-visits-add-btn {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .doctor-visit-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    .doctor-visit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .doctor-visit-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .doctor-visit-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #222;
+    }
+    .doctor-visit-date {
+      color: #757575;
+      font-size: 0.95rem;
+    }
+    .doctor-visit-type {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 12px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-right: 0.5rem;
+      display: inline-block;
+    }
+    .doctor-visit-menu {
+      font-size: 1.3rem;
+      color: #bdbdbd;
+      cursor: pointer;
+    }
+  }
+}
+/* EHR Section Cards styles. Add your styles here. */
+
+.ehr-section-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 18px 0;
+  padding: 18px 20px;
+  border-left: 4px solid #036a5d;
+  border: 1px solid #ececec;
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+}
+
+.card-header .header-icon {
+  margin-right: 8px;
+  color: #036a5d;
+  font-size: 20px;
+}
+
+.card-header .header-action {
+  color: #036a5d;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.card-header .header-action:hover {
+  color: #065a4c;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #036a5d;
+}
+
+.card-content {
+  margin-top: 8px;
+}
+
+.ehr-card-item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #ececec;
+}
+
+.ehr-card-name {
+  font-weight: 600;
+  color: #222;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.ehr-card-date {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.ehr-card-label {
+  display: inline-block;
+  background: #eaf2ff;
+  color: #3a6eea;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 16px;
+  padding: 3px 14px;
+  margin-left: 8px;
+  letter-spacing: 0.2px;
+}
+
+.ehr-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ehr-section-card.medical-history {
+  margin-top: 24px;
+}
+
+.medical-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.medical-history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #065a4c;
+}
+
+.medical-history-action {
+  color: #3a6eea;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.medical-history-action:hover {
+  color: #065a4c;
+}
+
+.medical-history-card-item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  border: 1px solid #ececec;
+}
+
+.medical-history-condition {
+  font-weight: 600;
+  color: #222;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.medical-history-date {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.medical-history-status {
+  display: inline-block;
+  background: #eafbe7;
+  color: #2db67c;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 16px;
+  padding: 3px 14px;
+  margin-left: 8px;
+  letter-spacing: 0.2px;
+}
+
+.medical-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.medical-history-details-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3a6eea;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.medical-history-details-link:hover {
+  text-decoration: underline;
+}
+
+.medical-history-divider {
+  border: none;
+  border-top: 1px solid #ececec;
+  margin: 10px 0 0 0;
+}
+
+.provider-access-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 18px 0;
+  padding: 18px 20px;
+  border-left: 4px solid #7c3aed;
+  border: 1px solid #ececec;
+  position: relative;
+}
+
+.provider-access-header {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-bottom: 10px;
+}
+
+.provider-access-description {
+  color: #444;
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+
+.provider-access-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.provider-access-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.provider-access-input {
+  background: #f7f7fa;
+  border-radius: 8px;
+  border: 1px solid #ececec;
+  padding: 8px 12px;
+  font-size: 15px;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.provider-access-btn {
+  background: #b4c7fa;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 0;
+  margin-top: 18px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.provider-access-btn:disabled {
+  background: #e3e8f7;
+  color: #b4c7fa;
+  cursor: not-allowed;
+}
+
+.provider-access-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c3aed;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.history-summary-card {
+  margin-bottom: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 1rem;
+}
+
+.history-summary-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.history-summary-info {
+  flex: 1;
+}
+
+.history-condition {
+  color: #222;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.history-date {
+  color: #222;
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.history-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-status-chip {
+  background: #eafbe7;
+  color: #2db67c;
+  font-weight: 500;
+  font-size: 13px;
+  border-radius: 16px;
+  padding: 3px 14px;
+}
+
+.history-menu-btn {
+  // Inherit from .menu-toggle-btn, add customizations if needed
+}
+
+.history-menu-icon {
+  color: #3a6eea;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.history-notes {
+  color: #222;
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.history-click-hint {
+  margin-top: 8px;
+}
+
+.history-eye-icon {
+  color: #3a6eea;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.history-details-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  margin-left: 4px;
+  cursor: pointer;
+}

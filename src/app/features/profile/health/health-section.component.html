@@ -34,7 +34,7 @@
       <ion-label>Active Only</ion-label>
     </ion-segment-button>
   </ion-segment>
-  
+
 </div>
 
 <!-- Medications List -->
@@ -57,9 +57,11 @@
       <div class="medication-title-section">
         <span class="medication-title">{{ medication.name }}</span>
         <div class="medication-summary">
-          <span class="dosage">{{ medication.dosage }}</span>
-          <span class="frequency" *ngIf="medication.frequency"> • {{ medication.frequency }}</span>
+           <span class="dosage">{{ medication.dosage }}</span>
+           <span class="frequency" *ngIf="medication.frequency"> • {{ medication.frequency }}</span>
+           <span class="pills" *ngIf="medication.quantity"> • {{ calculateRemainingPills(medication) }} pills left</span>
         </div>
+
       </div>
       <div class="medication-actions" (click)="$event.stopPropagation()">
         <ion-chip 

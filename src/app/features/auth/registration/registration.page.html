@@ -27,12 +27,38 @@
 
           <ion-item>
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-select placeholder="Select Role" [(ngModel)]="role" interface="popover" [interfaceOptions]="{ cssClass: 'white-select-popover' }">
+            <ion-select 
+              placeholder="Select Role" 
+              [(ngModel)]="role" 
+              interface="popover" 
+              [interfaceOptions]="{ cssClass: 'white-select-popover' }">
               <ion-select-option value="user">Patient</ion-select-option>
               <ion-select-option value="buddy">Buddy</ion-select-option>
               <ion-select-option value="doctor">Doctor</ion-select-option>
             </ion-select>
           </ion-item>
+
+          <!-- License Upload for Doctors -->
+          <div *ngIf="role === 'doctor'" class="ion-margin-top">
+            <ion-item>
+              <ion-icon slot="start" name="document-attach-outline" style="color: black;"></ion-icon>
+              <ion-label position="stacked">Upload Medical License (Proof of Identity)</ion-label>
+              <ion-button expand="block" fill="outline" (click)="triggerFileInput()">
+                <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+                Upload License
+              </ion-button>
+              <input 
+                type="file" 
+                accept="image/*,application/pdf" 
+                hidden 
+                #fileInput 
+                (change)="onFileSelected($event)" />
+            </ion-item>
+
+            <ion-text *ngIf="selectedFileName" color="success">
+              <small>{{ selectedFileName }} uploaded successfully</small>
+            </ion-text>
+          </div>
 
           <ion-item>
             <ion-icon slot="start" name="lock-closed-outline"></ion-icon>

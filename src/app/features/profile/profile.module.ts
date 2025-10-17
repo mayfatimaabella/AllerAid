@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ProfilePageRoutingModule } from './profile-routing.module';
 
 import { ProfilePage } from './profile.page';
+import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
@@ -26,8 +27,9 @@ import { MedicationDetailsModal } from './health/modals/medication-details.modal
     DoctorProfileComponent,  // Standalone component
     EmergencyDetailsModalComponent,  // Standalone component
     OverviewSectionComponent, // Standalone component
-    HealthSectionComponent // Standalone component
-    ,MedicationDetailsModal // Standalone modal
+  HealthSectionComponent, // Standalone component
+  MedicationDetailsModal, // Standalone modal
+  EHRSectionCardsComponent // Import EHR section cards standalone component
   ],
   declarations: [ProfilePage, AddMedicationModal, AddDoctorVisitModal, AddMedicalHistoryModal, ImageViewerModal],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
