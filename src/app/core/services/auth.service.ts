@@ -1,6 +1,7 @@
+// ...existing imports...
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
 import { firebaseConfig } from './firebase.config';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -27,6 +28,17 @@ export class AuthService {
   // Get current user as observable
   getCurrentUser$(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
+  }
+
+  // Resend verification email to current user
+  async resendVerificationEmail() {
+    const user = this.auth.currentUser;
+    if (user) {
+      await sendEmailVerification(user);
+      console.log('Verification email resent to', user.email);
+    } else {
+      throw new Error('No user is currently signed in.');
+    }
   }
 
   // Get current user synchronously (may return null if not initialized)
@@ -60,14 +72,28 @@ export class AuthService {
     });
   }
 
-  // Sign in with email and password
+  // Sign in with email and password, require email verification
   async signIn(email: string, password: string) {
-    return await signInWithEmailAndPassword(this.auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+    if (!userCredential.user.emailVerified) {
+      // Optionally, you can resend the verification email here
+      // await sendEmailVerification(userCredential.user);
+      throw { code: 'auth/email-not-verified', message: 'Please verify your email address before logging in.' };
+    }
+    return userCredential;
   }
 
-  // Create user with email and password
+  // Create user with email and password, then send verification email
   async signUp(email: string, password: string) {
-    return await createUserWithEmailAndPassword(this.auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+    try {
+      await sendEmailVerification(userCredential.user);
+      console.log('Verification email sent to', userCredential.user.email);
+    } catch (verifyError) {
+      console.error('Failed to send verification email:', verifyError);
+      // proceed — account created even if email send failed
+    }
+    return userCredential;
   }
 
   // Sign out

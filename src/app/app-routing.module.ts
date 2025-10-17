@@ -6,6 +6,10 @@ import { RoleGuard } from './core/guards/role.guard';
 
 const routes: Routes = [
   {
+    path: 'verify-email',
+    loadChildren: () => import('./features/auth/verify-email/verify-email.module').then(m => m.VerifyEmailPageModule)
+  },
+  {
     path: 'registration',
     loadChildren: () => import('./features/auth/registration/registration.module').then( m => m.RegistrationPageModule)
   },
