@@ -18,15 +18,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-      <ion-fab-button (click)="openModal()">
-        <ion-icon name="person-add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-
-    <!-- Only show the modal when showModal is true -->
-    <app-buddy-modal *ngIf="showModal" (add)="onAddBuddy($event)" (close)="closeModal()"></app-buddy-modal>
-
     <!-- Buddy Actions Modal -->
     <app-buddy-actions-modal *ngIf="showActionsModal" [buddy]="selectedBuddy" (edit)="onEditBuddy($event)" (delete)="onDeleteBuddy($event)" (closeModal)="closeActionsModal()"></app-buddy-actions-modal>
 
@@ -63,6 +54,12 @@
               </ion-button>
             </ion-item>
           </ion-list>
+        </ion-card-content>
+      </ion-card>
+      <!-- Empty state when there are no buddies -->
+      <ion-card *ngIf="buddies.length === 0">
+        <ion-card-content style="text-align:center; color:var(--ion-color-medium);">
+          You have no buddies yet. Invite friends to be your buddies!
         </ion-card-content>
       </ion-card>
     </ng-container>
