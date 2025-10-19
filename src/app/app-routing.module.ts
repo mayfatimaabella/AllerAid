@@ -81,7 +81,7 @@ const routes: Routes = [
   },
   {
     path: 'medical-history-details/:id',
-    loadChildren: () => import('./features/profile/medical/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
+    loadChildren: () => import('./features/profile/ehr/pages/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
     canActivate: [AuthGuard]
   },
 

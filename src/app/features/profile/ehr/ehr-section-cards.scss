@@ -1,20 +1,25 @@
 .ehr-section-card.doctor-visits {
-  padding: 1rem;
-  background: #fafbfc;
+  padding: 0;
+  background: #fff;
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 18px;
+  border: 1px solid #ececec;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 
   .doctor-visits-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+  margin-bottom: 12px;
+  padding: 16px 16px 0 16px;
   }
   .doctor-visits-title {
-    font-weight: 500;
-    font-size: 1.05rem;
-    color: #222;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f4a42;
     display: flex;
     align-items: center;
     .doctor-visits-icon {
@@ -29,14 +34,15 @@
     color: #1976d2;
     font-weight: 500;
     cursor: pointer;
-    font-size: 0.95rem;
+  font-size: 13px;
   }
   .doctor-visit-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    padding: 1rem;
-    margin-bottom: 1rem;
+  background: #fafbfc;
+  border-radius: 12px;
+  box-shadow: none;
+  border: 1px solid #eee;
+  margin-bottom: 12px;
+  padding: 14px 16px;
     .doctor-visit-row {
       display: flex;
       align-items: center;
@@ -49,28 +55,31 @@
       gap: 0.2rem;
     }
     .doctor-visit-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #222;
+  font-weight: 600;
+  font-size: 15px;
+  color: #1f1f1f;
     }
     .doctor-visit-date {
-      color: #757575;
-      font-size: 0.95rem;
+  color: #888;
+  font-size: 13px;
     }
     .doctor-visit-type {
-      background: #e3f2fd;
-      color: #1976d2;
-      border-radius: 12px;
-      padding: 0.2rem 0.7rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-right: 0.5rem;
-      display: inline-block;
+  background: #eaf3fb;
+  color: #3a6eea;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 8px;
+  display: inline-block;
     }
     .doctor-visit-menu {
-      font-size: 1.3rem;
-      color: #bdbdbd;
-      cursor: pointer;
+  font-size: 1.1rem;
+  color: #bdbdbd;
+  cursor: pointer;
+  padding: 0 4px;
+  min-width: 28px;
+  height: 28px;
     }
   }
 }
@@ -389,9 +398,6 @@
   padding: 3px 14px;
 }
 
-.history-menu-btn {
-  // Inherit from .menu-toggle-btn, add customizations if needed
-}
 
 .history-menu-icon {
   color: #3a6eea;

@@ -7,12 +7,12 @@ import { MedicalHistoryDetailsPageRoutingModule } from './medical-history-detail
 import { MedicalHistoryDetailsPage } from './medical-history-details.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MedicalHistoryDetailsPageRoutingModule
-  ],
-  declarations: [MedicalHistoryDetailsPage]
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		MedicalHistoryDetailsPageRoutingModule
+	],
+	declarations: [MedicalHistoryDetailsPage]
 })
 export class MedicalHistoryDetailsPageModule {}

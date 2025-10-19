@@ -14,7 +14,7 @@ import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-
 import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
 import { MedicationReminderService } from '../../core/services/medication-reminder.service';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
-import { AddDoctorVisitModal } from './modal/add-doctor-visit.modal';
+import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
 import { IonList, IonItem, IonIcon, IonLabel } from '@ionic/angular/standalone';
 import { environment } from '../../../environments/environment';
@@ -38,7 +38,18 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
   // Adapter for template event binding
   // Template event handler stubs for compatibility
-  toggleMedicationDetails(event: any) {}
+
+  isMedicationDetailsExpanded = (id: string) => {
+    return this.expandedMedicationIds.has(id);
+  };
+
+  toggleMedicationDetails(id: string) {
+    if (this.expandedMedicationIds.has(id)) {
+      this.expandedMedicationIds.delete(id);
+    } else {
+      this.expandedMedicationIds.add(id);
+    }
+  }
   expandMedicalHistory() {}
   openVisitDetails(event: any) {
     if (event && event.doctorVisit && event.doctorVisit.id) {
@@ -58,7 +69,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   // Template compatibility stubs
   openEditAllergiesModal() {}
   isEmergencyMedicationBind = this.isEmergencyMedication.bind(this);
-  isMedicationDetailsExpandedBind = () => false;
+  isMedicationDetailsExpandedBind = this.isMedicationDetailsExpanded;
   isExpiringSoonBind = this.isExpiringSoon.bind(this);
   viewMedicationImage(url: string, title: string) {}
   openMedicationDetails(medication: any) { this.selectedMedication = medication; this.showMedicationDetailsModal = true; }
@@ -385,6 +396,9 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     // Apply category filter
     switch (this.medicationFilter) {
+      case 'active':
+        filtered = filtered.filter(med => med.isActive);
+        break;
       case 'emergency':
         filtered = filtered.filter(med => 
           med.category === 'emergency' || 

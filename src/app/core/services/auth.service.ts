@@ -32,12 +32,12 @@ export class AuthService {
 
   // Resend verification email to current user
   async resendVerificationEmail() {
-    const user = this.auth.currentUser;
+    const user = await this.auth.currentUser;
     if (user) {
-      await sendEmailVerification(user);
+      await sendEmailVerification(user); // Sends the verification email
       console.log('Verification email resent to', user.email);
     } else {
-      throw new Error('No user is currently signed in.');
+      throw new Error('No user is currently logged in.');
     }
   }
 

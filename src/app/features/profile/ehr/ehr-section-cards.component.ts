@@ -53,8 +53,6 @@ export class EHRSectionCardsComponent {
     }
   }
 
-  // ...existing code...
-
   getVisitTypeLabel(type: string): string {
     switch (type) {
       case 'routine': return 'Routine';
@@ -131,5 +129,4 @@ export class EHRSectionCardsComponent {
   presentHistoryActionsPopoverHandler(event: any, history: MedicalHistory) {
     this.presentHistoryActionsPopover.emit({ event, history });
   }
-  // Add any EHR-specific logic here if needed
 }

@@ -1,3 +1,44 @@
+// Match Add Medication modal button style
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e8f2f0;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: none;
+    letter-spacing: 0.3px;
+    margin: 0;
+
+    &[type="submit"] {
+      --background: #036a5d;
+      --background-hover: #025449;
+      --background-activated: #014a3e;
+      --color: #ffffff;
+
+      &:disabled {
+        --background: #b3d4ce;
+        --color: #7a9f98;
+        opacity: 0.6;
+      }
+    }
+
+    &[fill="outline"] {
+      --border-width: 1.5px;
+      --border-color: #8ba19c;
+      --color: #5a6c69;
+      --background: transparent;
+      --background-hover: rgba(139, 161, 156, 0.05);
+      --background-activated: rgba(139, 161, 156, 0.1);
+    }
+  }
+}
 .vital-signs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

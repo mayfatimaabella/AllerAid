@@ -92,8 +92,9 @@ export class RegistrationPage {
           console.log('Healthcare professional/buddy onboarding marked as completed');
         }
 
-        this.presentToast('Registration successful! Please log in.');
-        this.navCtrl.navigateForward('/login');
+        // Navigate to verify-email page
+        this.presentToast('Registration successful! Check your email to verify your account.');
+        this.navCtrl.navigateForward('/verify-email');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
