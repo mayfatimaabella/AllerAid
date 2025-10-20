@@ -225,8 +225,16 @@ export class ProfilePage implements OnInit, OnDestroy {
       }
       
       // Load user profile
-      this.userProfile = await this.userService.getUserProfile(currentUser.uid);
-      
+      try {
+        this.userProfile = await this.userService.getUserProfile(currentUser.uid);
+      } catch (err: any) {
+        // Likely a network / extension (ERR_BLOCKED_BY_CLIENT) or permission issue
+        console.error('Failed to fetch user profile (possible network/blocked request):', err);
+        // Show a clearer message to the user so they can check adblockers/firewall
+        this.presentToast('Unable to reach Firebase. Check network or browser extensions (adblock/privacy) and try again.');
+        return;
+      }
+
       if (this.userProfile) {
         // Load user allergies
         const userAllergyDocs = await this.allergyService.getUserAllergies(currentUser.uid);

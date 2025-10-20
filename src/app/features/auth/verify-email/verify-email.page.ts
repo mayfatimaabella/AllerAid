@@ -28,6 +28,10 @@ export class VerifyEmailPage {
     this.navCtrl.navigateBack('/registration');
   }
 
+  goToLogin() {
+    this.navCtrl.navigateBack('/login');
+  }
+
   ngOnInit() {
     this.email = this.authService.getCurrentUserEmail();
     this.checkEmailVerification(); // Check email verification status
