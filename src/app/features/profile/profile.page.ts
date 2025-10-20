@@ -100,10 +100,13 @@ export class ProfilePage implements OnInit, OnDestroy {
   newProviderLicense: string = '';
   newProviderSpecialty: string = '';
   newProviderHospital: string = '';
+  
   async ngOnInit(): Promise<void> {
-    await this.loadUserData();
+    await this.loadAllergyOptions(); // Load allergy options first
+    await this.loadUserData();       // Then load user data and merge
     this.setDefaultTabForRole();
   }
+  
   // Service dependencies
   constructor(
     public allergyService: AllergyService,

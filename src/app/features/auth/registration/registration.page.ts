@@ -27,8 +27,8 @@ export class RegistrationPage {
     private toastController: ToastController,
     private navCtrl: NavController,
     private userService: UserService,
-    private authService: AuthService
-    //private storageService: StorageService // Temporarily commented out
+    private authService: AuthService,
+    //private storageService: StorageService, // Temporarily commented out
   ) {}
 
   triggerFileInput() {

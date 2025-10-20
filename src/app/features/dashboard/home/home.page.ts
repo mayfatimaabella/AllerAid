@@ -301,8 +301,8 @@ export class HomePage implements OnInit, OnDestroy {
     const status = this.notificationStatus[buddyId] || 'pending';
     switch (status) {
       case 'sending': return 'Sending...';
-      case 'sent': return 'Notified ✅';
-      case 'failed': return 'Failed ❌';
+      case 'sent': return 'Notified';
+      case 'failed': return 'Failed';
       default: return 'Pending...';
     }
   }
@@ -349,7 +349,7 @@ export class HomePage implements OnInit, OnDestroy {
         allergy.label || allergy.name || ''
       ).filter((allergy: string) => allergy !== '');
       
-      console.log('🚨 Sending emergency alert with auto notifications...');
+      console.log('Sending emergency alert with auto notifications...');
       
       // Send the emergency alert (this will automatically trigger SMS and push notifications)
       this.currentEmergencyId = await this.emergencyService.sendEmergencyAlert(
@@ -389,15 +389,15 @@ export class HomePage implements OnInit, OnDestroy {
       
       // Show success message with notification info
       await this.presentToast(
-        `🚨 Emergency alert sent to ${this.userBuddies.length} buddies! ` +
+        `Emergency alert sent to ${this.userBuddies.length} buddies! ` +
         `SMS and push notifications are being delivered.`
       );
       
-      console.log('✅ Emergency alert process completed successfully');
+      console.log('Emergency alert process completed successfully');
       
     } catch (error) {
       await loading.dismiss();
-      console.error('❌ Error sending emergency alert:', error);
+      console.error('Error sending emergency alert:', error);
       await this.presentToast('Failed to send emergency alert. Please try again.');
     }
   }

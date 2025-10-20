@@ -39,13 +39,13 @@ export class EmergencyNotificationService {
     userProfile: any
   ): Promise<void> {
     try {
-      console.log('🚨 Starting emergency notification process...');
+      console.log('Starting emergency notification process...');
       
       // Get all buddies for this user (who should receive notifications)
       const buddyRelations = await this.buddyService.getUserBuddies(emergencyAlert.userId);
       
       if (buddyRelations.length === 0) {
-        console.log('⚠️ No buddies found to notify');
+        console.log('No buddies found to notify');
         return;
       }
 
@@ -66,10 +66,10 @@ export class EmergencyNotificationService {
       // Wait for all notifications to complete
       await Promise.all(notificationPromises);
       
-      console.log('✅ Emergency notifications process completed');
+      console.log('Emergency notifications process completed');
       
     } catch (error) {
-      console.error('❌ Emergency notification process failed:', error);
+      console.error('Emergency notification process failed:', error);
       throw error;
     }
   }
@@ -126,7 +126,7 @@ export class EmergencyNotificationService {
     // Send push notification (if supported)
     await this.sendPushNotification(buddyProfile, notificationData);
 
-    console.log(`✅ Notifications sent to buddy: ${buddyProfile.fullName}`);
+    console.log(`Notifications sent to buddy: ${buddyProfile.fullName}`);
   }
 
   /**
@@ -142,7 +142,7 @@ export class EmergencyNotificationService {
       // In a real implementation, you would use a service like Twilio, AWS SNS, or similar
       // For now, we'll simulate the SMS sending
       
-      console.log('📱 SMS Notification Sent:');
+      console.log('SMS Notification Sent:');
       console.log(`To: ${phoneNumber}`);
       console.log(`Message: ${smsMessage}`);
       
@@ -165,7 +165,7 @@ export class EmergencyNotificationService {
       */
       
     } catch (error) {
-      console.error('❌ SMS sending failed:', error);
+      console.error('SMS sending failed:', error);
       throw error;
     }
   }
@@ -179,7 +179,7 @@ export class EmergencyNotificationService {
   ): Promise<void> {
     try {
       const pushMessage = {
-        title: '🚨 EMERGENCY ALERT',
+        title: 'EMERGENCY ALERT',
         body: `${notificationData.patientName} needs immediate help!`,
         data: {
           type: 'emergency',
@@ -192,7 +192,7 @@ export class EmergencyNotificationService {
         click_action: `https://your-app-domain.com/tabs/responder-dashboard?emergency=${notificationData.emergencyId}`
       };
 
-      console.log('🔔 Push Notification Sent:');
+      console.log('Push Notification Sent:');
       console.log(`To: ${buddyProfile.fullName}`);
       console.log(`Message:`, pushMessage);
 
@@ -218,7 +218,7 @@ export class EmergencyNotificationService {
       */
 
     } catch (error) {
-      console.error('❌ Push notification failed:', error);
+      console.error('Push notification failed:', error);
       throw error;
     }
   }
@@ -231,7 +231,7 @@ export class EmergencyNotificationService {
       ? `Allergies: ${notificationData.allergies.join(', ')}`
       : 'No known allergies';
 
-    return `🚨 EMERGENCY ALERT 🚨
+    return `EMERGENCY ALERT
 
 ${notificationData.patientName} needs immediate help!
 
@@ -239,9 +239,9 @@ ${allergiesText}
 
 Instructions: ${notificationData.emergencyInstructions}
 
-📍 Location: ${notificationData.location.locationLink}
+Location: ${notificationData.location.locationLink}
 
-⏰ Time: ${new Date(notificationData.timestamp).toLocaleString()}
+Time: ${new Date(notificationData.timestamp).toLocaleString()}
 
 Respond immediately through the AllerAid app or call emergency services if needed.`;
   }
@@ -296,11 +296,11 @@ Respond immediately through the AllerAid app or call emergency services if neede
       timestamp: new Date().toISOString()
     };
 
-    console.log('🧪 Testing notification system with data:', testData);
+    console.log('Testing notification system with data:', testData);
     
     // Simulate sending to a test buddy
     await this.sendSMS('+1234567890', testData);
     
-    console.log('✅ Test notification completed');
+    console.log('Test notification completed');
   }
 }

@@ -43,29 +43,18 @@ export class LoginPage implements OnInit {
 
     try {
       const userCredential = await this.authService.signIn(this.email, this.password);
-
       if (userCredential.user) {
-        // ...existing code...
+        // it will check if the user is verified
         let userProfile = await this.userService.getUserProfile(userCredential.user.uid);
-        // ...existing code...
         if (!userProfile) {
-          // ...existing code...
-          // ...existing code...
+          this.presentToast('User profile not found. Please contact support.');
+          return;
         }
-        // ...existing code...
-        if (userProfile) {
-          // ...existing code...
-        } else {
-          // ...existing code...
-        }
+        this.navCtrl.navigateRoot('/allergy-onboarding');
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.code === 'auth/email-not-verified') {
-        this.presentToast('Please verify your email address before logging in. Check your inbox for the verification email.');
-      } else {
-        this.presentToast(`Login failed: ${error.message}`);
-      }
+      this.presentToast(`Login failed: ${error.message}`);
     }
   }
 
