@@ -13,9 +13,13 @@
           Resend Verification Email
           <span *ngIf="resendDisabled"> (Wait {{resendCountdown}}s)</span>
         </ion-button>
-        <ion-button expand="block" fill="clear" color="dark" (click)="goToRegistration()" style="margin-top: 8px;">
-          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        <ion-button expand="block" fill="clear" style="margin-top: 8px; color: #000;" (click)="goToRegistration()">
+          <ion-icon name="arrow-back-outline" slot="start" style="color: #000;"></ion-icon>
           Back to Registration
+        </ion-button>
+        <ion-button expand="block" fill="clear" style="margin-top: 8px; color: #000;" (click)="goToLogin()">
+          <ion-icon name="log-in-outline" slot="start" style="color: #000;"></ion-icon>
+          Go to Login
         </ion-button>
       </ion-card-content>
     </ion-card>

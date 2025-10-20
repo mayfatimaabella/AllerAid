@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { ToastController, NavController } from '@ionic/angular';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
-//import { StorageService } from '../../../core/services/storage.service'; // Temporarily commented out
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'app-registration',
@@ -27,8 +27,8 @@ export class RegistrationPage {
     private toastController: ToastController,
     private navCtrl: NavController,
     private userService: UserService,
-    private authService: AuthService
-    //private storageService: StorageService // Temporarily commented out
+    private authService: AuthService,
+    private storageService: StorageService // Temporarily commented out
   ) {}
 
   triggerFileInput() {
@@ -70,21 +70,28 @@ export class RegistrationPage {
         const uid = userCredential.user.uid;
         console.log('User created in Firebase Auth:', uid);
 
-        //  Temporarily skip actual upload — just log the file
+
+        // Upload license photo for doctors
         if (this.role === 'doctor' && this.selectedFile) {
-          console.log('Doctor license selected (trial mode):', this.selectedFileName);
-          this.presentToast('License file selected (upload skipped in trial mode).');
-          this.licenseURL = 'Trial-License-Placeholder';
+          try {
+            this.licenseURL = await this.storageService.uploadLicense(this.selectedFile, uid);
+            this.presentToast('License uploaded successfully.');
+          } catch (uploadErr) {
+            console.error('License upload failed:', uploadErr);
+            this.presentToast('License upload failed. Please try again.');
+            this.licenseURL = '';
+          }
         }
 
-        // Create Firestore profile | DON'T REMOVE THE '//'
-        //await this.userService.createUserProfile(uid, {
-          //email: this.email,
-          //firstName: this.firstName,
-          //lastName: this.lastName,
-          //role: this.role,
-          //licenseURL: this.licenseURL || null,
-        //});
+
+        // Create Firestore profile
+        await this.userService.createUserProfile(uid, {
+          email: this.email,
+          firstName: this.firstName,
+          lastName: this.lastName,
+          role: this.role,
+          licenseURL: this.licenseURL || undefined,
+        });
 
         // Mark onboarding complete for non-patient roles
         if (['doctor', 'nurse', 'buddy'].includes(this.role)) {

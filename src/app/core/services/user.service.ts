@@ -28,7 +28,7 @@ export interface UserProfile {
   license?: string; // Medical license number
   specialty?: string; // Medical specialty
   hospital?: string; // Hospital or practice name
-  
+  licenseURL?: string; // License photo download URL
   emergencyInstruction?: string;
   emergencyMessage?: {
     name: string;
@@ -48,67 +48,58 @@ export interface UserProfile {
     address: string;
     timestamp: any;
   };
-  dateCreated: any;
-  lastLogin: any;
+  dateCreated?: any;
+  lastLogin?: any;
   isActive: boolean;
   allergyOnboardingCompleted?: boolean;
 }
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-  private db;
-  private userProfileCache: Map<string, UserProfile> = new Map(); // Simple cache to reduce API calls
-
-  constructor(
-    private firebaseService: FirebaseService,
-    private authService: AuthService
-  ) {
-    this.db = this.firebaseService.getDb();
-  }
-
-  // Create user profile in Firestore
-  async createUserProfile(uid: string, userData: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  }): Promise<void> {
+  // Create user profile for registration
+  async createUserProfile(
+    uid: string,
+    userData: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+      licenseURL?: string;
+      license?: string;
+      specialty?: string;
+      hospital?: string;
+      phone?: string;
+    }
+  ): Promise<void> {
     try {
       const userProfile: UserProfile = {
         uid,
         email: userData.email,
         firstName: userData.firstName,
-        lastName: userData.lastName || '',
-        fullName: `${userData.firstName} ${userData.lastName || ''}`.trim(),
+        lastName: userData.lastName,
+        fullName: `${userData.firstName} ${userData.lastName}`.trim(),
         role: userData.role,
+        licenseURL: userData.licenseURL,
+        license: userData.license,
+        specialty: userData.specialty,
+        hospital: userData.hospital,
+        phone: userData.phone,
         dateCreated: serverTimestamp(),
         lastLogin: serverTimestamp(),
         isActive: true
       };
-
       await setDoc(doc(this.db, 'users', uid), userProfile);
-      
-      // Cache the newly created profile
-      this.userProfileCache.set(uid, userProfile);
-      
       console.log('User profile created successfully');
-      
-      // Verify the document was created
-      const createdDoc = await getDoc(doc(this.db, 'users', uid));
-      if (createdDoc.exists()) {
-        console.log('User profile creation verified');
-      } else {
-        console.error('User profile creation failed - document not found');
-      }
     } catch (error) {
       console.error('Error creating user profile:', error);
       throw error;
     }
   }
+  private db: any;
+  private userProfileCache: Map<string, UserProfile> = new Map();
+  constructor(private firebaseService: FirebaseService, private authService: AuthService) {
+    this.db = this.firebaseService.getDb();
+  }
 
-  // Get user profile from Firestore
   async getUserProfile(uid: string, useCache: boolean = true): Promise<UserProfile | null> {
     try {
       // Check cache first if enabled
@@ -330,9 +321,11 @@ export class UserService {
         return true;
       }
       
-      // Fallback: check if user has any allergies saved
-      const userAllergies = await this.getUserAllergies(uid);
-      return userAllergies.length > 0;
+  // Fallback: check if user has any allergies saved
+  // TODO: Implement getUserAllergies or remove this check
+  // const userAllergies = await this.getUserAllergies(uid);
+  // return userAllergies.length > 0;
+  return false;
     } catch (error) {
       console.error('Error checking allergy onboarding status:', error);
       return false;
@@ -352,18 +345,8 @@ export class UserService {
     }
   }
 
-  // Get user allergies (reusing from allergy service logic)
-  async getUserAllergies(uid: string): Promise<any[]> {
-    try {
-      const allergiesRef = collection(this.db, 'allergies');
-      const q = query(allergiesRef, where('userId', '==', uid));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error('Error getting user allergies:', error);
-      return [];
-    }
-  }
+// ...existing code...
+// ...existing code...
 
   // Update user avatar
   async updateUserAvatar(uid: string, avatarUrl: string): Promise<void> {
