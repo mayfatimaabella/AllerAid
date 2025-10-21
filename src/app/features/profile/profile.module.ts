@@ -17,6 +17,7 @@ import { ImageViewerModal } from './modal/image-viewer.modal';
 import { OverviewSectionComponent } from './overview/overview-section.component';
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details.modal';
+import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
 
 @NgModule({
   imports: [
@@ -27,13 +28,22 @@ import { MedicationDetailsModal } from './health/modals/medication-details.modal
     DoctorProfileComponent,  // Standalone component
     EmergencyDetailsModalComponent,  // Standalone component
     OverviewSectionComponent, // Standalone component
-  HealthSectionComponent, // Standalone component
-  MedicationDetailsModal, // Standalone modal
-  EHRSectionCardsComponent // Import EHR section cards standalone component
+    HealthSectionComponent, // Standalone component
+    MedicationDetailsModal, // Standalone modal
+    EHRSectionCardsComponent, // Import EHR section cards standalone component
+    EmergencySettingsCardComponent
   
    // Standalone component
   ],
-  declarations: [ProfilePage, AddMedicationModal, AddDoctorVisitModal, AddMedicalHistoryModal, ImageViewerModal],
+
+
+  declarations: [
+  ProfilePage,
+  AddMedicationModal,
+  AddDoctorVisitModal,
+  AddMedicalHistoryModal,
+  ImageViewerModal,
+],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProfilePageModule {}

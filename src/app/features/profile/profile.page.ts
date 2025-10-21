@@ -24,8 +24,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
-  standalone: true,
-  imports: [EmergencySettingsCardComponent]
+  standalone: false,
 })
 export class ProfilePage implements OnInit, OnDestroy {
   async openEditDoctorVisitModal(visit: DoctorVisit) {
