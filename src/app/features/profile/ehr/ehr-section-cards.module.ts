@@ -1,7 +1,12 @@
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { EhrAccessManagementCardComponent } from './access-management/ehr-access-management-card.component';
+
 
 @NgModule({
-  imports: [CommonModule]
+  declarations: [EhrAccessManagementCardComponent],
+  imports: [CommonModule],
+  exports: [EhrAccessManagementCardComponent]
 })
 export class EHRSectionCardsModule {}

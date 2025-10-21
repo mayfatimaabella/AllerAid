@@ -1,3 +1,36 @@
+// No medications state styles
+.no-medications-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.no-medications-icon {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.no-medications-text {
+  color: #666;
+  font-style: italic;
+}
+// Style for medication image button container
+.medication-image-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+// Skeleton loading style for medications
+.medication-skeleton {
+  width: 100%;
+  height: 64px;
+  margin-bottom: 12px;
+}
+// Style for medication search results info
+.search-results-info small {
+  color: #666;
+}
 :host {
   display: block;
   position: relative;

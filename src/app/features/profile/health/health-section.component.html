@@ -2,7 +2,7 @@
   Medications 
   <ion-button size="small" fill="clear" (click)="add.emit()">
     <ion-icon name="add-outline" slot="start"></ion-icon>
-    Add
+    Add Medication
   </ion-button>
 </div>
 
@@ -17,7 +17,7 @@
     debounce="300">
   </ion-searchbar>
   <div *ngIf="medicationSearchTerm && medicationSearchTerm.trim()" class="search-results-info">
-    <small style="color: #666;">
+  <small>
       {{ filteredMedications.length }} of {{ userMedications.length }} medications found
     </small>
   </div>
@@ -40,9 +40,9 @@
 <div class="medications-list">
   <!-- Loading state -->
   <div *ngIf="isLoading && (!userMedications || userMedications.length === 0)" class="loading-state">
-    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
-    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
-    <ion-skeleton-text animated style="width: 100%; height: 64px; margin-bottom: 12px;"></ion-skeleton-text>
+  <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
+  <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
+  <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
   </div>
 
   <!-- Actual content when not loading -->
@@ -153,7 +153,7 @@
       <div class="medication-detail full-width" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
         <ion-icon name="images-outline"></ion-icon>
         <b>Images:</b>
-        <div style="display:flex; gap:8px; flex-wrap: wrap; margin-top: 6px;">
+  <div class="medication-image-btns">
           <ion-button
             *ngIf="medication.prescriptionImageUrl"
             fill="outline"
@@ -176,9 +176,9 @@
   </div>
 
   <div *ngIf="!isLoading && filteredMedications.length === 0" class="no-medications">
-    <div style="text-align: center; padding: 20px;">
-      <ion-icon name="medical-outline" style="font-size: 48px; color: #ccc; margin-bottom: 12px;"></ion-icon>
-      <p style="color: #666; font-style: italic;">
+  <div class="no-medications-container">
+  <ion-icon name="medical-outline" class="no-medications-icon"></ion-icon>
+  <p class="no-medications-text">
         <ng-container *ngIf="medicationSearchTerm && medicationSearchTerm.trim(); else noMedicationsAtAll">
           No medications found matching "{{ medicationSearchTerm }}"
         </ng-container>

@@ -10,7 +10,7 @@ import { ProfilePage } from './profile.page';
 import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit.modal';
-import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
+import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history.modal';
 import { DoctorProfileComponent } from './components/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './overview/modals/emergency-details-modal.component';
 import { ImageViewerModal } from './modal/image-viewer.modal';
@@ -30,6 +30,8 @@ import { MedicationDetailsModal } from './health/modals/medication-details.modal
   HealthSectionComponent, // Standalone component
   MedicationDetailsModal, // Standalone modal
   EHRSectionCardsComponent // Import EHR section cards standalone component
+  
+   // Standalone component
   ],
   declarations: [ProfilePage, AddMedicationModal, AddDoctorVisitModal, AddMedicalHistoryModal, ImageViewerModal],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

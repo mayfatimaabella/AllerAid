@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, DatePipe, SlicePipe } from '@angular/common';
 import { DoctorVisit, MedicalHistory, HealthcareProvider } from '../../../core/services/ehr.service';
+import { EhrAccessManagementCardComponent } from './access-management/ehr-access-management-card.component';
 
 @Component({
   selector: 'app-ehr-section-cards',
@@ -17,13 +18,15 @@ import { DoctorVisit, MedicalHistory, HealthcareProvider } from '../../../core/s
     NgIf,
     NgFor,
     DatePipe,
-    SlicePipe
+    SlicePipe,
+    EhrAccessManagementCardComponent
   ]
 })
 export class EHRSectionCardsComponent {
   visitActionsEvent: any = null;
   @Output() deleteDoctorVisit = new EventEmitter<DoctorVisit>();
   @Output() editDoctorVisit = new EventEmitter<DoctorVisit>();
+
 
   visitActionsPopover: DoctorVisit | null = null;
   selectedTab: string = 'ehr';
@@ -117,7 +120,12 @@ export class EHRSectionCardsComponent {
   }
 
   openMedicalHistoryDetailsHandler(medicalHistory: MedicalHistory) {
-    this.openMedicalHistoryDetails.emit({ medicalHistory });
+    // Navigate to the medical history details page
+    if (medicalHistory && medicalHistory.id) {
+      window.location.href = `/medical-history-details/${medicalHistory.id}`;
+    } else {
+      this.openMedicalHistoryDetails.emit({ medicalHistory });
+    }
   }
 
   presentVisitActionsPopoverHandler(event: any, visit: DoctorVisit) {

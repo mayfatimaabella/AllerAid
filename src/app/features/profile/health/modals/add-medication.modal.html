@@ -209,7 +209,7 @@
         fill="outline" 
         color="primary"
         (click)="selectPrescriptionImage()"
-        class="image-upload-btn">
+        class="teal-modal-btn">
         <ion-icon name="camera-outline" slot="start"></ion-icon>
         Add Prescription Photo
       </ion-button>
@@ -230,7 +230,7 @@
       <ion-button 
         expand="block" 
         type="submit" 
-        color="primary"
+        class="teal-modal-btn"
         [disabled]="!isFormValid">
         <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
         {{ isEditMode ? 'Update Medication' : 'Save Medication' }}

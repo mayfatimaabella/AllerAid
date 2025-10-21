@@ -1,0 +1,93 @@
+
+.ehr-section-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 18px 0;
+  padding: 18px 20px;
+  border-left: 4px solid #7c3aed;
+  border: 1px solid #ececec;
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.card-content {
+  margin-top: 8px;
+}
+
+.provider-access-btn {
+  background: #b4c7fa;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 0;
+  margin-top: 18px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.provider-access-btn:disabled {
+  background: #e3e8f7;
+  color: #b4c7fa;
+  cursor: not-allowed;
+}
+
+.help-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c3aed;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.current-access {
+  margin-top: 18px;
+}
+.access-list {
+  margin-top: 8px;
+}
+.access-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f7fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.provider-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #222;
+}
+.no-access {
+  color: #888;
+  font-size: 14px;
+  margin-top: 12px;
+}

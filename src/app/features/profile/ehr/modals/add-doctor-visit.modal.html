@@ -288,17 +288,18 @@
         <ion-button 
           expand="block" 
           type="submit" 
-          color="primary"
+          
           [disabled]="!visitData.doctorName.trim() || !visitData.chiefComplaint.trim()">
           <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
           {{ isEditMode ? 'Update Visit' : 'Save Visit' }}
         </ion-button>
+
         <ion-button 
           expand="block" 
           fill="outline" 
           color="medium"
           (click)="dismiss()"
-          style="margin-top: 8px;">
+         >
           <ion-icon name="close-outline" slot="start"></ion-icon>
           Cancel
         </ion-button>

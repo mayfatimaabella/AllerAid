@@ -11,19 +11,21 @@ import { EmergencyDetectorService } from '../../core/services/emergency-detector
 import { MedicationService, Medication } from '../../core/services/medication.service';
 import { EHRService, DoctorVisit, MedicalHistory, HealthcareProvider, AccessRequest } from '../../core/services/ehr.service';
 import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
-import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
+import { ToastController, ModalController, AlertController, PopoverController,IonicModule } from '@ionic/angular';
 import { MedicationReminderService } from '../../core/services/medication-reminder.service';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit.modal';
-import { AddMedicalHistoryModal } from './modal/add-medical-history.modal';
+import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history.modal';
 import { IonList, IonItem, IonIcon, IonLabel } from '@ionic/angular/standalone';
+import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [EmergencySettingsCardComponent]
 })
 export class ProfilePage implements OnInit, OnDestroy {
   async openEditDoctorVisitModal(visit: DoctorVisit) {
@@ -58,7 +60,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
   openMedicalHistoryDetails(event: any) {
     if (event && event.medicalHistory) {
-      // Use event.medicalHistory as needed
+      this.viewMedicalHistoryDetails(event.medicalHistory);
     }
   }
   presentVisitActionsPopover(event: any) {
