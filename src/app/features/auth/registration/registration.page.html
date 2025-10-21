@@ -38,25 +38,31 @@
           </ion-item>
 
           <!-- License Upload for Doctors -->
-          <div *ngIf="role === 'doctor'" class="ion-margin-top">
-            <ion-item>
-              <ion-icon slot="start" name="document-attach-outline" style="color: black;"></ion-icon>
-              <ion-label position="stacked">Upload Medical License (Proof of Identity)</ion-label>
-              <ion-button expand="block" fill="outline" (click)="triggerFileInput()">
-                <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
-                Upload License
-              </ion-button>
-              <input 
-                type="file" 
-                accept="image/*,application/pdf" 
-                hidden 
-                #fileInput 
-                (change)="onFileSelected($event)" />
-            </ion-item>
+          <div *ngIf="role === 'doctor'" class="ion-margin-top upload-area">
+            <ion-item lines="none" class="upload-item">
+              <ion-icon slot="start" name="document-attach-outline" class="upload-icon"></ion-icon>
+              <div class="upload-content">
+                <ion-label class="upload-label">Upload Medical License <span class="thin">(Proof of Identity)</span></ion-label>
 
-            <ion-text *ngIf="selectedFileName" color="success">
-              <small>{{ selectedFileName }} uploaded successfully</small>
-            </ion-text>
+                <!-- Use a visually-hidden file input but keep it accessible; clicking the button opens file picker -->
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf" 
+                  #fileInput 
+                  (change)="onFileSelected($event)" 
+                  id="licenseInput"
+                  class="visually-hidden" />
+
+                <ion-button type="button" expand="block" fill="outline" class="upload-btn" (click)="triggerFileInput()" aria-controls="licenseInput" aria-label="Upload medical license">
+                  <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+                  Upload License
+                </ion-button>
+
+                <ion-text *ngIf="selectedFileName" color="success" class="uploaded-text">
+                  <small>{{ selectedFileName }} uploaded successfully</small>
+                </ion-text>
+              </div>
+            </ion-item>
           </div>
 
           <ion-item>

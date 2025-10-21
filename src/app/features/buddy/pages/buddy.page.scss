@@ -132,3 +132,53 @@ ion-button[fill="clear"] ion-icon[name="ellipsis-vertical"] {
   }
 }
 
+/* Empty state card: gray background and centered muted text */
+.no-buddies-card {
+  background: #eaeaea !important;
+  border: 1 !important;
+  box-shadow: none !important;
+  border-color: #b7b7b7 !important;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Center the empty state block in the content area */
+.no-buddies-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 60vh; /* keep it centered vertically in most viewports */
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.no-buddies-card .no-buddies-content {
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 14px;
+}
+
+.no-buddies-icon {
+  font-size: 42px;
+  color: #8a8f94; /* muted gray */
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+.no-buddies-text {
+  line-height: 1.4;
+}
+
+/* Make sure the empty-state card and its children use dark gray, overriding the global card color */
+.no-buddies-card,
+.no-buddies-card * {
+  color: #6f6f6f !important;
+}
+
+.no-buddies-card ion-icon.no-buddies-icon {
+  color: #6f6f6f !important; /* ensure icon uses gray */
+}
+

@@ -27,6 +27,58 @@ ion-item{
   margin-top: 5px;
 }
 
+/* Upload area styles to avoid overlap between label and button */
+.upload-area {
+  .upload-item {
+    align-items: flex-start;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .upload-icon {
+    color: #272727 !important;
+    margin-top: 6px;
+  }
+
+  .upload-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-left: 8px;
+  }
+
+  .upload-label {
+    font-size: 0.95rem;
+    color: #272727;
+    margin-bottom: 3px;
+  }
+
+  .upload-btn {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --min-height: 38px;
+    align-self: stretch;
+  }
+
+  .uploaded-text {
+    margin-top: 6px;
+    display: block;
+  }
+}
+
+/* Utility: visually hide the native input but keep it accessible */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
+
 ion-icon[name="mail-outline"],
 ion-icon[name="lock-closed-outline"],
 ion-icon[name="person-outline"],

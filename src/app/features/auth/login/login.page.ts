@@ -101,7 +101,7 @@ export class LoginPage implements OnInit {
           console.error('Failed to create or retrieve user profile');
           this.presentToast('Failed to load user profile. Please contact support.');
         }
-        this.navCtrl.navigateRoot('/allergy-onboarding');
+  // No unconditional navigation here — routing is handled above or by RoleRedirectService
       }
     } catch (error: any) {
       console.error('Login error:', error);

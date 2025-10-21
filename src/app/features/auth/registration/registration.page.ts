@@ -21,6 +21,23 @@ export class RegistrationPage {
   selectedFileName = '';
   licenseURL = '';
 
+  // Password policy: at least 8 characters, 1 uppercase, 1 number, 1 special character
+  minPasswordLength = 8;
+
+  isPasswordStrong(password: string): boolean {
+    if (!password) return false;
+    const lengthOk = password.length >= this.minPasswordLength;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    return lengthOk && hasUpper && hasNumber && hasSpecial;
+  }
+
+  // Useful for template binding
+  get isPasswordValid(): boolean {
+    return this.isPasswordStrong(this.password);
+  }
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -56,6 +73,11 @@ export class RegistrationPage {
       return;
     }
 
+    if (!this.isPasswordStrong(this.password)) {
+      this.presentToast('Password must be at least 8 characters long and include at least one uppercase letter, one number, and one special character.');
+      return;
+    }
+
     if (this.role === 'doctor' && !this.selectedFile) {
       this.presentToast('Please upload your medical license.');
       return;
@@ -84,14 +106,19 @@ export class RegistrationPage {
         }
 
 
-        // Create Firestore profile
-        await this.userService.createUserProfile(uid, {
+        // Create Firestore profile — only include licenseURL when it's a non-empty string
+        const profileData: any = {
           email: this.email,
           firstName: this.firstName,
           lastName: this.lastName,
           role: this.role,
-          licenseURL: this.licenseURL || undefined,
-        });
+        };
+
+        if (this.licenseURL && this.licenseURL.length > 0) {
+          profileData.licenseURL = this.licenseURL;
+        }
+
+        await this.userService.createUserProfile(uid, profileData);
 
         // Mark onboarding complete for non-patient roles
         if (['doctor', 'nurse', 'buddy'].includes(this.role)) {

@@ -16,6 +16,7 @@ import {
   where,
   onSnapshot,
   getDoc,
+  setDoc,
   limit
 } from 'firebase/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -97,8 +98,23 @@ export class BuddyService {
 
   // UPDATE buddy
   async updateBuddy(id: string, updatedData: any): Promise<void> {
-    const buddyDoc = doc(this.db, 'buddies', id);
-    await updateDoc(buddyDoc, updatedData);
+    try {
+      const buddyDoc = doc(this.db, 'buddies', id);
+      const snap = await getDoc(buddyDoc);
+
+      if (snap.exists()) {
+        await updateDoc(buddyDoc, updatedData);
+      } else {
+        // If the document doesn't exist, create it (fallback)
+        await setDoc(buddyDoc, { id, ...updatedData });
+        if (!environment.production) {
+          console.warn(`Buddy doc ${id} did not exist. Created new document.`);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating buddy:', error);
+      throw error;
+    }
   }
 
   // DELETE buddy

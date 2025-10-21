@@ -34,7 +34,6 @@
       </ion-button>
     </ion-item>
 
-    <!-- Hide recent buddies list when the modal is open -->
     <ng-container *ngIf="!showModal">
       <ion-card *ngIf="buddies.length > 0">
         <ion-card-header style="display: flex; justify-content: space-between;">
@@ -56,14 +55,16 @@
           </ion-list>
         </ion-card-content>
       </ion-card>
-      <!-- Empty state when there are no buddies -->
-      <ion-card *ngIf="buddies.length === 0">
-        <ion-card-content style="text-align:center; color:var(--ion-color-medium);">
-          You have no buddies yet. Invite friends to be your buddies!
-        </ion-card-content>
-      </ion-card>
+
+      <div *ngIf="buddies.length === 0" class="no-buddies-container">
+        <ion-card class="no-buddies-card">
+          <ion-card-content class="no-buddies-content">
+            <ion-icon name="person-add-outline" class="no-buddies-icon"></ion-icon>
+            <div class="no-buddies-text">You have no buddies yet. Invite friends to be your buddies!</div>
+          </ion-card-content>
+        </ion-card>
+      </div>
     </ng-container>
 
-    <!-- Buddy Details Modal -->
     <app-buddy-details-modal *ngIf="showDetailsModal" [buddy]="buddyToShowDetails" (closeDetails)="closeDetailsModal()"></app-buddy-details-modal>
 </ion-content>

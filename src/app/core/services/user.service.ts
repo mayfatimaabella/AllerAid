@@ -71,7 +71,8 @@ export class UserService {
     }
   ): Promise<void> {
     try {
-      const userProfile: UserProfile = {
+      // Build userProfile and only include optional fields when defined to avoid Firestore errors
+      const userProfile: any = {
         uid,
         email: userData.email,
         firstName: userData.firstName,
@@ -87,6 +88,26 @@ export class UserService {
         lastLogin: serverTimestamp(),
         isActive: true
       };
+
+      if (typeof userData.licenseURL !== 'undefined' && userData.licenseURL !== null) {
+        userProfile.licenseURL = userData.licenseURL;
+      }
+
+      if (typeof userData.license !== 'undefined' && userData.license !== null) {
+        userProfile.license = userData.license;
+      }
+
+      if (typeof userData.specialty !== 'undefined' && userData.specialty !== null) {
+        userProfile.specialty = userData.specialty;
+      }
+
+      if (typeof userData.hospital !== 'undefined' && userData.hospital !== null) {
+        userProfile.hospital = userData.hospital;
+      }
+
+      if (typeof userData.phone !== 'undefined' && userData.phone !== null) {
+        userProfile.phone = userData.phone;
+      }
       await setDoc(doc(this.db, 'users', uid), userProfile);
       console.log('User profile created successfully');
     } catch (error) {

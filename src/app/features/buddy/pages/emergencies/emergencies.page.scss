@@ -3,6 +3,10 @@ ion-toolbar {
   --color: white;
 }
 
+ion-content {
+  --background: #ffffff !important;
+}
+
 .empty-state {
   text-align: center;
   padding: 2rem;
