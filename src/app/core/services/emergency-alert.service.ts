@@ -165,7 +165,7 @@ export class EmergencyAlertService {
     const { emergencyInstructions, emergencyInstruction, emergencyMessage, name, allergies } = emergencyData;
     
     let display = `<div class="emergency-instruction-box">`;
-    display += `<h3>🚨 Emergency Instructions for ${name}</h3>`;
+    display += `<h3>Emergency Instructions for ${name}</h3>`;
     
     // Use structured emergency instructions if available
     if (emergencyInstructions && emergencyInstructions.length > 0) {

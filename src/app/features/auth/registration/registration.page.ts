@@ -28,7 +28,7 @@ export class RegistrationPage {
     private navCtrl: NavController,
     private userService: UserService,
     private authService: AuthService,
-    private storageService: StorageService // Temporarily commented out
+    private storageService: StorageService
   ) {}
 
   triggerFileInput() {

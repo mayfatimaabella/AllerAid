@@ -17,52 +17,37 @@ export class RoleGuard implements CanActivate {
   ) {}
   
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean> {
+    // Uncommented role guard logic for production
     try {
-      // First check if user is authenticated
       const user = await this.authService.waitForAuthInit();
-      
       if (!user) {
         console.log('RoleGuard: User not authenticated, redirecting to login');
         this.router.navigate(['/login']);
         return false;
       }
-
-      // Get user profile to check role
       const userProfile = await this.userService.getUserProfile(user.uid);
-      
       if (!userProfile) {
         console.log('RoleGuard: User profile not found, redirecting to profile creation');
         this.presentToast('User profile not found. Redirecting to complete setup.');
         this.router.navigate(['/registration']);
         return false;
       }
-
-      // Check if user has undefined or null role
       if (!userProfile.role || userProfile.role === 'undefined') {
         console.log('RoleGuard: User role is undefined, redirecting to profile setup');
         this.presentToast('User role not set. Please complete your profile setup.');
         this.router.navigate(['/profile'], { queryParams: { tab: 'settings', setup: 'role' } });
         return false;
       }
-
-      // Get required roles from route data
       const requiredRoles = route.data['roles'] as string[];
-      
       if (!requiredRoles || requiredRoles.length === 0) {
-        // No role requirement specified
         return true;
       }
-
-      // Check if user has required role
       const hasRequiredRole = requiredRoles.includes(userProfile.role);
-      
       if (hasRequiredRole) {
         return true;
       } else {
         console.log(`RoleGuard: User role '${userProfile.role}' not authorized for this page. Required: ${requiredRoles.join(', ')}`);
         this.presentToast(`Access denied. This feature requires ${requiredRoles.join(' or ')} privileges.`);
-        
-        // Redirect based on user's actual role to prevent infinite loops
         switch (userProfile.role) {
           case 'doctor':
           case 'nurse':

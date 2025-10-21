@@ -46,7 +46,6 @@ export class LoginPage implements OnInit {
     try {
       console.log('Attempting to sign in...');
       const userCredential = await this.authService.signIn(this.email, this.password);
-
       if (userCredential.user) {
         console.log('User authenticated:', userCredential.user.uid);
         
@@ -102,6 +101,7 @@ export class LoginPage implements OnInit {
           console.error('Failed to create or retrieve user profile');
           this.presentToast('Failed to load user profile. Please contact support.');
         }
+        this.navCtrl.navigateRoot('/allergy-onboarding');
       }
     } catch (error: any) {
       console.error('Login error:', error);
