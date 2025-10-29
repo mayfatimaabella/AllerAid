@@ -93,6 +93,10 @@ ion-content {
   height: 48px;
 }
 
+.patient-item ion-avatar {
+  margin-left: 8px;
+}
+
 .patient-name {
   font-size: 1.25rem;
   font-weight: 600;
@@ -106,6 +110,7 @@ ion-content {
 }
 
 .critical-badge {
+  margin-right: 12px;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 6px 12px;

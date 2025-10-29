@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { EmergencyService } from '../../../core/services/emergency.service';
 import { Subscription } from 'rxjs';
 import { LoadingController } from '@ionic/angular';
-import { Capacitor } from '@capacitor/core';
 import * as L from 'leaflet';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocationPermissionService } from '../../../core/services/location-permission.service';
@@ -23,10 +22,12 @@ L.Icon.Default.mergeOptions({
   standalone: false,
 })
 export class ResponderMapPage implements OnInit, OnDestroy {
+  routingControl: any = null;
+  startNavigation: () => void = () => {};
   @ViewChild('map', { static: false }) mapElement!: ElementRef;
   private map!: L.Map;
-  private userMarker!: L.Marker;
   private responderMarker!: L.Marker;
+  private patientMarker!: L.Marker;
   private emergencyId: string | null = null;
   private emergencySubscription: Subscription | null = null;
   private updateInterval: any;
@@ -114,7 +115,9 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     const permissionResult = await this.locationPermissionService.requestLocationPermissions();
     if (!permissionResult.granted) {
       console.error('Location permission denied:', permissionResult.message);
-      await this.locationPermissionService.showLocationRequiredToast();
+      // Only show toast if user is actively trying to track location, not when navigating away
+      // Remove or comment out the toast to prevent it from showing on navigation
+      // await this.locationPermissionService.showLocationRequiredToast();
       return;
     }
 
@@ -144,12 +147,12 @@ export class ResponderMapPage implements OnInit, OnDestroy {
             location
           );
 
-          // Update own marker on the map
-          if (this.userMarker && this.map) {
-            this.userMarker.setLatLng([location.latitude, location.longitude]);
+          // Update responder marker on the map
+          if (this.responderMarker && this.map) {
+            this.responderMarker.setLatLng([location.latitude, location.longitude]);
           }
 
-          console.log('📍 Own location updated:', location);
+          console.log('Own location updated:', location);
         } catch (error) {
           console.error('Error updating own location:', error);
         }
@@ -160,7 +163,7 @@ export class ResponderMapPage implements OnInit, OnDestroy {
       options
     );
 
-    console.log('🚀 Own location tracking started');
+    console.log('Own location tracking started');
   }
 
   async loadMap() {
@@ -170,60 +173,134 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     await loading.present();
 
     try {
-      console.log('✅ Initializing Leaflet map for responder...');
-      console.log('🔍 MapElement check:', this.mapElement);
-      console.log('🔍 MapElement.nativeElement check:', this.mapElement?.nativeElement);
+      console.log('Initializing Leaflet map for responder...');
+      console.log('MapElement check:', this.mapElement);
+      console.log('MapElement.nativeElement check:', this.mapElement?.nativeElement);
 
-      let latitude = 14.5995; // Default to Manila
-      let longitude = 120.9842;
-
-      try {
-        // Try to get current location
-        const position = await this.emergencyService.getCurrentLocation();
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
-        console.log('📍 Got user location:', latitude, longitude);
-      } catch (locationError) {
-        console.warn('⚠️ Could not get user location, using default:', locationError);
-        // Continue with default coordinates
+      // Get patient location from real-time emergency updates
+      let patientLat: number | undefined;
+      let patientLng: number | undefined;
+      if (this.emergencyId && this.emergencyService.getEmergencyById) {
+        const emergency = await this.emergencyService.getEmergencyById(this.emergencyId);
+        if (emergency && emergency.location && emergency.location.latitude && emergency.location.longitude) {
+          patientLat = emergency.location.latitude;
+          patientLng = emergency.location.longitude;
+        }
       }
-      
+      // If not available, do not show patient marker
+      if (typeof patientLat === 'undefined' || typeof patientLng === 'undefined') {
+        await loading.dismiss();
+        this.showFallbackView();
+        return;
+      }
+
+      // Get responder location (current device location)
+      let responderLat: number | undefined = undefined;
+      let responderLng: number | undefined = undefined;
+      try {
+        const position = await this.emergencyService.getCurrentLocation();
+        responderLat = position.coords.latitude;
+        responderLng = position.coords.longitude;
+        console.log('Responder location:', responderLat, responderLng);
+      } catch (locationError) {
+        console.warn('Could not get responder location:', locationError);
+      }
+      // If responder location is not available, do not show responder marker
+      if (typeof responderLat === 'undefined' || typeof responderLng === 'undefined') {
+        console.warn('Responder location not available, skipping responder marker');
+      }
+
       // Check if map element is available
       if (!this.mapElement || !this.mapElement.nativeElement) {
-        console.error('❌ Map element not found, retrying...');
-        console.log('🔍 Available ViewChildren:', Object.keys(this));
+        console.error('Map element not found, retrying...');
+        console.log('Available ViewChildren:', Object.keys(this));
         await loading.dismiss();
-        // Retry after a longer delay
         setTimeout(() => this.loadMap(), 1000);
         return;
       }
-      
-      console.log('✅ Map element found, initializing Leaflet...');
-      
-      // Initialize the map
+
+      // Initialize the map centered on patient location
       this.map = L.map(this.mapElement.nativeElement, {
-        center: [latitude, longitude],
+        center: [patientLat, patientLng],
         zoom: 15,
         zoomControl: true,
         attributionControl: true
       });
 
-      // Add OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 18
       }).addTo(this.map);
-      
-      // Add marker for user's position
-      this.userMarker = L.marker([latitude, longitude])
+
+      // Add patient marker (always from emergency)
+      this.patientMarker = L.marker([patientLat, patientLng], {
+        icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] })
+      })
         .addTo(this.map)
-        .bindPopup('Your Location')
-        .openPopup();
+        .bindPopup('Patient Location');
+
+      // Add responder marker (device location) if location is available
+      if (typeof responderLat === 'number' && typeof responderLng === 'number') {
+        this.responderMarker = L.marker([responderLat, responderLng], {
+          icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon-2x.png', iconSize: [25, 41], iconAnchor: [12, 41], className: 'responder-marker' })
+        })
+          .addTo(this.map)
+          .bindPopup('Your Location');
+      }
+
+      // Always fit map to show both markers if both are available
+      if (
+        typeof responderLat === 'number' && typeof responderLng === 'number' &&
+        (responderLat !== patientLat || responderLng !== patientLng)
+      ) {
+        const bounds = L.latLngBounds([
+          [patientLat, patientLng],
+          [responderLat, responderLng]
+        ]);
+        this.map.fitBounds(bounds, { padding: [30, 30] });
+      }
+
+      // Add routing from responder to patient ONLY when navigation is triggered
+      // Navigation button should call this method
+      this.startNavigation = () => {
+        const Routing = (L as any).Routing || (window as any).L?.Routing;
+        if (
+          typeof Routing !== 'undefined' &&
+          typeof responderLat === 'number' && typeof responderLng === 'number' &&
+          typeof patientLat === 'number' && typeof patientLng === 'number'
+        ) {
+          // Remove any existing routing controls if needed
+          if (this.routingControl && this.map) {
+            this.map.removeControl(this.routingControl);
+          }
+          // @ts-ignore
+          this.routingControl = Routing.control({
+            waypoints: [
+              L.latLng(responderLat, responderLng),
+              L.latLng(patientLat, patientLng)
+            ],
+            routeWhileDragging: false,
+            show: true,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            createMarker: function(i: any, wp: any, nWps: any) {
+              // Use custom markers for start/end
+              if (i === 0) {
+                return L.marker(wp.latLng, { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon-2x.png', iconSize: [25, 41], iconAnchor: [12, 41], className: 'responder-marker' }) });
+              } else {
+                return L.marker(wp.latLng, { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) });
+              }
+            }
+          }).addTo(this.map);
+        } else {
+          console.warn('Navigation cannot start: missing responder or patient location');
+        }
+      };
 
       this.mapAvailable = true;
       await loading.dismiss();
-      
-      console.log('✅ Leaflet responder map initialized successfully');
+      console.log('Leaflet responder map initialized with patient and responder markers');
       
     } catch (error) {
       console.error('Error loading map:', error);
@@ -233,7 +310,7 @@ export class ResponderMapPage implements OnInit, OnDestroy {
   }
 
   private showFallbackView() {
-    console.log('📍 Showing fallback view for responder map');
+    console.log('Showing fallback view for responder map');
     this.mapAvailable = false;
     // Fallback UI is handled in the template
   }
@@ -242,40 +319,71 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     // Simplified version for Leaflet - just basic updates
     this.emergencyService.userEmergency$.subscribe(emergency => {
       if (emergency && emergency.id === emergencyId) {
-        console.log('📍 Emergency update received:', emergency);
+        console.log('Emergency update received:', emergency);
         
         // For now, just log updates. Full implementation will come later.
         if (emergency.location) {
-          console.log('📍 Patient location updated:', emergency.location);
+          console.log('Patient location updated:', emergency.location);
         }
         
         if (emergency.responderLocation) {
-          console.log('📍 Responder location updated:', emergency.responderLocation);
+          console.log('Responder location updated:', emergency.responderLocation);
         }
       }
     });
   }
   
   updateMapBounds(userPosition: any, responderLocation: any) {
-    // Commented out for now - will be implemented with full Leaflet integration
-    console.log('📍 Map bounds update requested');
+    console.log('Map bounds update requested');
   }
   
   updateDistanceAndEta() {
-    // Simplified version - just set basic values
-    this.responderDistance = 'Calculating...';
-    this.estimatedArrivalTime = 'Calculating...';
-    console.log('📍 Distance and ETA update requested');
+    // Calculate distance between responder and patient
+    let responderLat: number | undefined = undefined;
+    let responderLng: number | undefined = undefined;
+    let patientLat: number | undefined = undefined;
+    let patientLng: number | undefined = undefined;
+
+    if (this.responderMarker) {
+      const responderPos = this.responderMarker.getLatLng();
+      responderLat = responderPos.lat;
+      responderLng = responderPos.lng;
+    }
+    if (this.patientMarker) {
+      const patientPos = this.patientMarker.getLatLng();
+      patientLat = patientPos.lat;
+      patientLng = patientPos.lng;
+    }
+
+    if (
+      typeof responderLat === 'number' && typeof responderLng === 'number' &&
+      typeof patientLat === 'number' && typeof patientLng === 'number'
+    ) {
+      // Haversine formula
+      const toRad = (value: number) => value * Math.PI / 180;
+      const R = 6371; // Earth radius in km
+      const dLat = toRad(patientLat - responderLat);
+      const dLng = toRad(patientLng - responderLng);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(responderLat)) * Math.cos(toRad(patientLat)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+      this.responderDistance = `${distance.toFixed(2)} km`;
+      // ETA calculation (assume average speed 40 km/h)
+      const speed = 40; // km/h
+      const etaMinutes = distance > 0 ? Math.ceil((distance / speed) * 60) : 0;
+      this.estimatedArrivalTime = etaMinutes > 0 ? `${etaMinutes} min` : 'Arrived';
+      console.log(`Distance: ${this.responderDistance}, ETA: ${this.estimatedArrivalTime}`);
+    } else {
+      this.responderDistance = 'Unknown';
+      this.estimatedArrivalTime = 'Unknown';
+      console.log('Distance and ETA could not be calculated');
+    }
   }
   
   goBack() {
-    this.router.navigate(['/tabs/home']);
+  this.router.navigate(['/tabs/home']);
   }
 }
-
-
-
-
-
-
-

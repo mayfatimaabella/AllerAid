@@ -52,8 +52,8 @@ export class EditAllergiesModalComponent implements OnInit {
     }
 
     // Emit save event and show success toast
-    this.save.emit(this.allergyOptions);
-    
+    const clonedOptions = JSON.parse(JSON.stringify(this.allergyOptions));
+    this.save.emit(clonedOptions);
     const toast = await this.toastCtrl.create({
       message: 'Allergies updated successfully!',
       duration: 2000,
@@ -62,8 +62,8 @@ export class EditAllergiesModalComponent implements OnInit {
       icon: 'checkmark-circle-outline'
     });
     await toast.present();
-    
-    this.modalCtrl.dismiss({ refresh: true });
+    // Dismiss with updated allergyOptions so parent can persist
+    this.modalCtrl.dismiss({ refresh: true, allergyOptions: clonedOptions });
   }
 
   onClose() {

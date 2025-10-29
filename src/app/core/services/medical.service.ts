@@ -46,7 +46,7 @@ export class MedicalService {
 
   constructor(
     private firebaseService: FirebaseService,
-    private authService: AuthService
+    
   ) {
     this.db = this.firebaseService.getDb();
   }
@@ -371,7 +371,7 @@ export class MedicalService {
   generateEmergencyAlertPayload(emergencyData: any, currentLocation?: any): string {
     const { name, allergies, emergencyInstruction, emergencyMessage } = emergencyData;
     
-    let alertMessage = `🚨 ALLERGY EMERGENCY 🚨\n`;
+    let alertMessage = `ALLERGY EMERGENCY \n`;
     alertMessage += `Name: ${name}\n`;
     
     if (allergies && allergies !== 'None') {
@@ -489,20 +489,20 @@ export class MedicalService {
    */
   async runLocationMigration(): Promise<{ userProfiles: number; medicalProfiles: number }> {
     try {
-      console.log('🔄 Starting complete location migration...');
+      console.log('Starting complete location migration...');
       
       const userProfilesUpdated = await this.migrateEmergencyMessageLocations();
       const medicalProfilesUpdated = await this.migrateMedicalProfileLocations();
       
       const totalUpdated = userProfilesUpdated + medicalProfilesUpdated;
-      console.log(`✅ Migration completed! Updated ${totalUpdated} documents total`);
+      console.log(`Migration completed! Updated ${totalUpdated} documents total`);
       
       return {
         userProfiles: userProfilesUpdated,
         medicalProfiles: medicalProfilesUpdated
       };
     } catch (error) {
-      console.error('❌ Migration failed:', error);
+      console.error('Migration failed:', error);
       throw error;
     }
   }

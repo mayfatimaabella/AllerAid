@@ -7,7 +7,6 @@ import { EmergencyService } from '../../../core/services/emergency.service';
 import { EmergencyNotificationService } from '../../../core/services/emergency-notification.service';
 import { UserService } from '../../../core/services/user.service';
 import { AllergyService } from '../../../core/services/allergy.service';
-import { EHRService } from '../../../core/services/ehr.service';
 import { Subscription } from 'rxjs';
 
 @Component({

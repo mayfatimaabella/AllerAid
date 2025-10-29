@@ -1,4 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { AllergyService } from '../../../core/services/allergy.service';
+import * as L from 'leaflet';
 import { Router } from '@angular/router';
 import { BuddyService } from '../../../core/services/buddy.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,7 +14,81 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./responder-dashboard.page.scss'],
   standalone: false,
 })
-export class ResponderDashboardPage implements OnInit, OnDestroy {
+export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy {
+  emergencyAllergies: any[] = [];
+  address: string = '';
+  private async fetchAddressFromCoords(lat: number, lng: number) {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+      const data = await response.json();
+      this.address = data.display_name || `${lat}, ${lng}`;
+    } catch (e) {
+      this.address = `${lat}, ${lng}`;
+    }
+  }
+  @ViewChild('miniMap', { static: false }) miniMapElement!: ElementRef;
+  private miniMap!: L.Map;
+  private responderMarker!: L.Marker;
+  ngAfterViewInit() {
+    this.loadMiniMap();
+  }
+
+  private loadMiniMap() {
+    setTimeout(() => {
+      if (this.currentEmergency?.location && this.miniMapElement) {
+        const { latitude, longitude } = this.currentEmergency.location;
+        // Remove previous map if exists
+        if (this.miniMap) {
+          this.miniMap.remove();
+        }
+        this.miniMap = L.map(this.miniMapElement.nativeElement, {
+          center: [latitude, longitude],
+          zoom: 15,
+          zoomControl: true,
+          attributionControl: false,
+          dragging: true,
+          scrollWheelZoom: true,
+          doubleClickZoom: true,
+          boxZoom: true,
+          keyboard: true,
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+        }).addTo(this.miniMap);
+        // Patient marker
+        L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
+          .addTo(this.miniMap)
+          .bindPopup('Patient Location');
+
+        // Get responder's current location and show marker
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(position => {
+            const responderLat = position.coords.latitude;
+            const responderLng = position.coords.longitude;
+            this.responderMarker = L.marker([responderLat, responderLng], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon-2x.png', iconSize: [25, 41], iconAnchor: [12, 41], className: 'responder-marker' }) })
+              .addTo(this.miniMap)
+              .bindPopup('Your Location');
+          });
+
+          // Watch responder location and update marker
+          navigator.geolocation.watchPosition(position => {
+            const responderLat = position.coords.latitude;
+            const responderLng = position.coords.longitude;
+            if (this.responderMarker) {
+              this.responderMarker.setLatLng([responderLat, responderLng]);
+            }
+          });
+        }
+      }
+    }, 200);
+  }
+
+  resetMiniMapView() {
+  if (this.miniMap && this.currentEmergency?.location) {
+    const { latitude, longitude } = this.currentEmergency.location;
+    this.miniMap.setView([latitude, longitude], 15);
+  }
+}
   hasResponded: boolean = false;
   audio: HTMLAudioElement | null = null;
   activeEmergencies: EmergencyAlert[] = [];
@@ -24,7 +100,8 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
     private buddyService: BuddyService,
     private authService: AuthService,
     private userService: UserService,
-    private emergencyService: EmergencyService
+    private emergencyService: EmergencyService,
+    private allergyService: AllergyService
   ) {}
 
   async ngOnInit() {
@@ -35,6 +112,9 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
     if (this.emergencySubscription) {
       this.emergencySubscription.unsubscribe();
     }
+    if (this.miniMap) {
+      this.miniMap.remove();
+    }
   }
 
   private async setupRealTimeListeners() {
@@ -43,17 +123,34 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
       if (user) {
         // Start listening for emergency alerts for this buddy
         this.buddyService.listenForEmergencyAlerts(user.uid);
-        
+
         // Subscribe to emergency alerts
-        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(alerts => {
+        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
           this.activeEmergencies = alerts.filter(alert => alert.status === 'active');
-          
+
           // Set current emergency to the most recent active one
           if (this.activeEmergencies.length > 0) {
             this.currentEmergency = this.activeEmergencies[0];
             this.playEmergencyNotificationSound();
+            this.loadMiniMap(); // Ensure map renders when emergency changes
+            // Fetch address for patient location
+            if (this.currentEmergency.location) {
+              await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
+             // Fetch allergies for patient
+             if (this.currentEmergency.userId) {
+               const allergyDocs = await this.allergyService.getUserAllergies(this.currentEmergency.userId);
+               if (allergyDocs && allergyDocs.length > 0) {
+                 this.emergencyAllergies = allergyDocs[0].allergies.filter((a: any) => a.checked);
+               } else {
+                 this.emergencyAllergies = [];
+               }
+             }
+            }
           } else {
             this.currentEmergency = null;
+            this.address = '';
+            this.emergencyAllergies = [];
+            if (this.miniMap) this.miniMap.remove();
           }
         });
       }
@@ -118,16 +215,23 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
 
   navigate() {
     if (this.currentEmergency && this.currentEmergency.location) {
-      const lat = this.currentEmergency.location.latitude;
-      const lng = this.currentEmergency.location.longitude;
-      
-      // Open navigation with live location coordinates
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-      window.open(mapsUrl, '_blank');
+      // Pass both responder and patient location to the map page
+      this.router.navigate(['/responder-map'], {
+        state: {
+          responder: {
+            responderName: 'You', // or use actual buddy name if available
+            emergencyId: this.currentEmergency.id,
+            responderLocation: null, // will be set by map page
+            patientLocation: this.currentEmergency.location,
+            estimatedArrival: null,
+            distance: null
+          }
+        }
+      });
     } else {
       console.log('No emergency location available');
     }
-    console.log('Navigation opened for emergency:', this.currentEmergency?.id);
+    console.log('Navigation opened for emergency (Leaflet):', this.currentEmergency?.id);
   }
 
   async markResolved() {
@@ -161,22 +265,23 @@ export class ResponderDashboardPage implements OnInit, OnDestroy {
 
     // Build real emergency message from actual data
     let emergencyText = `Emergency alert from ${this.currentEmergency.userName || 'unknown person'}.`;
-    
+
     // Add allergies if available
-    if (this.currentEmergency.allergies && this.currentEmergency.allergies.length > 0) {
-      emergencyText += ` They are allergic to ${this.currentEmergency.allergies.join(', ')}.`;
+    if (this.emergencyAllergies && this.emergencyAllergies.length > 0) {
+      const allergyLabels = this.emergencyAllergies.map(a => a.label || a.name || '').filter(l => !!l);
+      emergencyText += ` They are allergic to ${allergyLabels.join(', ')}.`;
     }
-    
+
     // Add specific instructions if available
     if (this.currentEmergency.instruction) {
       emergencyText += ` Emergency instructions: ${this.currentEmergency.instruction}`;
     }
-    
-    // Add location information
-    if (this.currentEmergency.location) {
-      emergencyText += ` Location: ${this.currentEmergency.location.latitude.toFixed(4)}, ${this.currentEmergency.location.longitude.toFixed(4)}.`;
+
+    // Add location information (reverse geocoded address)
+    if (this.address) {
+      emergencyText += ` Location: ${this.address}.`;
     }
-    
+
     emergencyText += ' Please respond immediately.';
 
     const message = new SpeechSynthesisUtterance(emergencyText);

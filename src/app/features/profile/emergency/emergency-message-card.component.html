@@ -1,0 +1,50 @@
+<div class="emergency-message-title" style="display:flex; align-items:center; gap:8px;">
+  <span>Emergency Message</span>
+  <ion-button size="small" fill="clear" color="primary" (click)="openEditEmergencyMessageModal()" style="margin-left:auto;">
+    <ion-icon name="create-outline" slot="start"></ion-icon>
+    Edit
+  </ion-button>
+</div>
+
+<div class="emergency-instructions-display">
+  <div class="instructions-section-header" style="display:flex; align-items:center; gap:8px;">
+    <span>Emergency Contact Information</span>
+  <ion-button size="small" fill="clear" color="primary" (click)="openEditEmergencyMessageModal()" style="margin-left:auto;">
+      <ion-icon name="create-outline" slot="start"></ion-icon>
+      Edit
+    </ion-button>
+  </div>
+  <div class="instructions-list-scrollable">
+    <div class="emergency-message-card decluttered">
+      <div class="emergency-message-row">
+        <div class="emergency-message-label">Name:</div>
+        <div class="emergency-message-value">{{ emergencyMessage.name || userProfile?.fullName || 'User' }}</div>
+      </div>
+      <div class="emergency-message-row">
+        <div class="emergency-message-label">Allergies:</div>
+        <div class="emergency-message-value">{{ emergencyMessage.allergies }}</div>
+      </div>
+      <div class="emergency-message-row">
+        <div class="emergency-message-label">Instructions:</div>
+        <div class="emergency-message-value">
+          <ng-container *ngIf="isInstructionsEmpty()">
+            <span style="font-style:italic; color:#4a7c7b;">No instructions set</span>
+            <div style="margin-top:8px;">
+              <ion-button size="small" fill="outline" color="primary" (click)="openEditEmergencyMessageModal()">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                Add Instructions
+              </ion-button>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="!isInstructionsEmpty()">
+            {{ emergencyMessage.instructions }}
+          </ng-container>
+        </div>
+      </div>
+      <div class="emergency-message-row">
+        <div class="emergency-message-label">Location:</div>
+        <div class="emergency-message-value">{{ emergencyMessage.location || 'Map Location' }}</div>
+      </div>
+    </div>
+  </div>
+</div>

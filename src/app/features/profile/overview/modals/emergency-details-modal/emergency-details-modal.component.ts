@@ -23,6 +23,7 @@ export class EmergencyDetailsModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() editInstruction = new EventEmitter<{ label: string; text: string }>();
   @Output() testAudio = new EventEmitter<void>();
+  @Output() addInstruction = new EventEmitter<void>();
 
   ngOnInit() {}
 
@@ -33,4 +34,5 @@ export class EmergencyDetailsModalComponent implements OnInit {
   onClose() { this.close.emit(); }
   onEditInstruction(label: string, text: string) { this.editInstruction.emit({ label, text }); }
   onTestAudio() { this.testAudio.emit(); }
+  onAddInstruction() { this.addInstruction.emit(); }
 }

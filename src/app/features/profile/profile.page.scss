@@ -1,37 +1,36 @@
-/* Force dark text color for form controls on Profile page */
-.profile-section,
-.ehr-section-card,
-.add-provider-section {
-  ion-item,
-  ion-label {
-    color: #1a1a1a;
-  }
-
-  ion-input::part(native),
-  ion-textarea::part(native) {
-    color: #1a1a1a;
-  }
-
-  ion-select::part(text),
-  ion-select::part(placeholder) {
-    color: #1a1a1a;
-    opacity: 1;
-  }
+.profile-header {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  background-color: #a19d9d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1;
 }
 
-.add-medication-btn {
-  background: #e6edec !important;
-  border: 1.5px solid #036a5d !important;
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
 }
 
-.add-link {
-  color: #036a5d !important;
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-top: 10px;
 }
 
-// Override Ionic blue for selected segment label
-::ng-deep .medication-filters .segment-button-checked, ::ng-deep .medication-filters .segment-button-checked .label {
-  color: #fff !important;
-}
+.profile-card {
+  background: #fff;
+  border-radius: 16px;
+  background: #ffffff !important;
 // Force selected segment label color to white
 ::ng-deep .medication-filters ion-segment-button[aria-checked="true"] ion-label {
   color: #fff !important;
@@ -464,172 +463,6 @@ ion-modal.instruction-details-modal {
 }
 
 // Components
-.allergy-list-scrollable { 
-  display: flex; 
-  gap: 10px; 
-  overflow-x: auto; 
-  padding: 4px 0 8px; 
-}
-
-.allergy-chip { 
-  background: #a0decb; 
-  color: #222; 
-  border-radius: 16px; 
-  padding: 6px 18px; 
-  font-size: 16px; 
-  font-weight: 500; 
-  white-space: nowrap; 
-}
-
-// Emergency Info Card Styling
-.emergency-info-card {
-  background: #e8f4f1; /* Light mint/teal background from image */
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  margin: 16px 0;
-  border-left: 3px solid #036a5d; /* Teal accent border to match theme */
-  cursor: pointer;
-  position: relative;
-  padding-bottom: 4px;
-  overflow: hidden;
-
-  /* Ensure any Ionic host variables do not reintroduce dark backgrounds */
-  ion-item { --background: #fff; }
-}
-
-.emergency-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  text-align: center;
-  background-color: #e8f4f1; /* Light teal background to match card */
-}
-
-.emergency-icon {
-  color: #036a5d; /* Teal icon color to match theme */
-  font-size: 20px;
-}
-
-.emergency-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #036a5d; /* Teal text color to match theme */
-  margin: 0;
-}
-
-.emergency-info-card ion-card-header {
-  padding: 0;
-  border-bottom: 1px solid rgba(31, 74, 66, 0.1);
-  background-color: transparent;
-}
-
-.emergency-info-card ion-card-content {
-  padding: 16px;
-}
-
-.emergency-section {
-  margin-bottom: 16px;
-  background: #fff; /* unified light row */
-  &:last-of-type { margin-bottom: 16px; }
-}
-
-/* Action buttons removed in new simplified design */
-.action-buttons, .action-button {
-  /* Placeholder for removed styles */
-  display: none;
-}
-
-.emergency-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #036a5d; /* Teal theme */
-  margin-bottom: 4px;
-}
-
-.emergency-value {
-  font-size: 14px;
-  color: #1f4a42;
-  line-height: 1.4;
-  
-  &.instructions {
-    color: #1f4a42;
-    font-size: 13px;
-    line-height: 1.5;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.allergy-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  background-color: #fff !important;
-  background: #fff !important;
-}
-
-.allergy-chip {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 16px;
-  background-color: #036a5d;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.no-data {
-  color: rgba(31, 74, 66, 0.7);
-  font-style: italic;
-  font-size: 13px;
-}
-
-/* Removed instruction item styling for simplified design */
-
-/* Simplified design - removed instruction item styling */
-
-.tap-details {
-  text-align: center;
-  font-size: 10px;
-  color: rgba(31, 74, 66, 0.6);
-  opacity: 0.8;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  
-  ion-icon {
-    font-size: 14px;
-  }
-}
-
-.no-instructions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 16px;
-  border-radius: 8px;
-  font-style: italic;
-  color: #666;
-  gap: 8px;
-  
-  ion-icon {
-    color: #d32f2f;
-    font-size: 20px;
-  }
-}
 
 .allergies-section {
   background: #fff !important;
@@ -2241,6 +2074,6 @@ ion-modal.instruction-details-modal {
         background: #ffffff !important;
       }
     }
-    ion-button::part(native) { color: #ffffff !important; }
-    ion-icon { color: #ffffff !important; }
-  }
+  ion-button::part(native) { color: #ffffff !important; }
+  ion-icon { color: #ffffff !important; }
+}}

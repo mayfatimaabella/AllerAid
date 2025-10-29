@@ -34,4 +34,11 @@
     </ion-button>
     <ion-toggle [(ngModel)]="emergencySettings.audioInstructions" (ionChange)="saveEmergencySettings()"></ion-toggle>
   </div>
+  <!-- Add Emergency Instructions Button (if instructions are empty) -->
+  <div style="margin-top:12px; text-align:center;" *ngIf="isEmergencyInstructionsEmpty()">
+    <ion-button size="default" fill="solid" color="primary" (click)="openEditEmergencyMessageModal()">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Add Emergency Instructions
+    </ion-button>
+  </div>
 </div>

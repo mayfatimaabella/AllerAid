@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
-import { EHRService, DoctorVisit } from '../../../../core/services/ehr.service';
-import { UserService } from '../../../../core/services/user.service';
+import { EHRService, DoctorVisit } from '../../../../../core/services/ehr.service';
+import { UserService } from '../../../../../core/services/user.service';
 
 @Component({
   selector: 'app-add-doctor-visit',

@@ -28,8 +28,8 @@
             <!-- Patient Info -->
             <div class="patient-info">
               <ion-item lines="none" class="patient-item">
-                <ion-avatar slot="start" class="patient-avatar">
-                  <ion-icon name="person" color="primary"></ion-icon>
+                <ion-avatar slot="start">
+                  <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
                 </ion-avatar>
                 <ion-label>
                   <h2 class="patient-name">{{ currentEmergency.userName || 'Patient' }}</h2>
@@ -37,6 +37,19 @@
                 </ion-label>
                 <ion-badge color="danger" class="critical-badge">CRITICAL</ion-badge>
               </ion-item>
+              <!-- Allergies Section -->
+              <div class="info-section" style="margin-top:8px;">
+                <h3 class="section-title" style="font-size:1rem;margin-bottom:4px;">
+                  <ion-icon name="alert-outline"></ion-icon>
+                  Allergies
+                </h3>
+                <div class="allergy-chips">
+                  <ion-chip *ngFor="let allergy of emergencyAllergies">
+                    <ion-label>{{ allergy.label || allergy.name }}<span *ngIf="allergy.value"> - {{ allergy.value }}</span></ion-label>
+                  </ion-chip>
+                  <span *ngIf="!emergencyAllergies.length">None</span>
+                </div>
+              </div>
             </div>
 
             <!-- Location Section -->
@@ -46,11 +59,25 @@
                 Patient Location
               </h3>
               <div class="location-content">
-                <div class="map-container"></div>
+                <div class="map-container" style="height:120px;width:100%;border-radius:12px;overflow:hidden;margin-bottom:8px;background:#222;position:relative;">
+                  <div #miniMap id="miniMap" style="height:100%;width:100%;"></div>
+                  <ion-button size="small" (click)="resetMiniMapView()" style="position:absolute;top:8px;right:8px;z-index:1000;--background:#fff;--color:#3880ff;opacity:0.9;border-radius:50%;min-width:36px;min-height:36px;padding:0;">
+                    <ion-icon name="locate"></ion-icon>
+                  </ion-button>
+                </div>
                 <div class="location-text">
-                  <ion-chip color="primary" outline="true">
+                  <ion-chip color="primary" outline="true" title="This location is synced with the map views">
                     <ion-icon name="location"></ion-icon>
-                    <ion-label>{{ currentEmergency.location ? (currentEmergency.location.latitude + ', ' + currentEmergency.location.longitude) : 'Location updating...' }}</ion-label>
+                    <ion-label>
+                      <!-- Show reverse geocoded address if available, always from currentEmergency.location -->
+                      <ng-container *ngIf="currentEmergency.location">
+                        {{ address && address !== (currentEmergency.location.latitude + ', ' + currentEmergency.location.longitude) ? address : (currentEmergency.location.latitude + ', ' + currentEmergency.location.longitude) }}
+                        <span style="font-style:italic;color:#888;font-size:0.9em;"></span>
+                      </ng-container>
+                      <ng-container *ngIf="!currentEmergency.location">
+                        Location updating...
+                      </ng-container>
+                    </ion-label>
                   </ion-chip>
                 </div>
               </div>
@@ -62,7 +89,7 @@
                 <ion-icon name="medical-outline"></ion-icon>
                 Emergency Instructions
               </h3>
-              <div class="instruction-box">{{ currentEmergency.instruction || 'Bring inhaler, allergic to nuts' }}</div>
+                <div class="instruction-box">{{ currentEmergency.emergencyInstruction || currentEmergency.instruction || 'No instructions available' }}</div>
               
               <!-- Voice Message Available -->
               <div class="voice-available" *ngIf="currentEmergency.instruction">
@@ -76,7 +103,9 @@
             <!-- Primary Response Actions -->
             <div class="primary-actions">
               <ion-grid>
+
                 <ion-row>
+
                   <ion-col size="6">
                     <ion-button 
                       expand="block" 
@@ -85,9 +114,10 @@
                       [disabled]="hasResponded"
                       class="response-button">
                       <ion-icon slot="start" name="checkmark-circle"></ion-icon>
-                      RESPONDED
+                      RESPOND
                     </ion-button>
                   </ion-col>
+
                   <ion-col size="6">
                     <ion-button 
                       expand="block" 
@@ -98,7 +128,9 @@
                       CANNOT RESPOND
                     </ion-button>
                   </ion-col>
+
                 </ion-row>
+
               </ion-grid>
             </div>
 

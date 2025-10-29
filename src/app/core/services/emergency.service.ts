@@ -38,6 +38,7 @@ export interface EmergencyAlert {
   };
   allergies?: string[];
   instruction?: string;
+  emergencyInstruction?: string;
   status: 'active' | 'responding' | 'resolved';
   buddyIds: string[]; // IDs of buddies to notify
   responderId?: string; // ID of the buddy who is responding

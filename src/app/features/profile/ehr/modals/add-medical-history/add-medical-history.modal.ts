@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
-import { EHRService, MedicalHistory } from '../../../../core/services/ehr.service';
+import { EHRService, MedicalHistory } from '../../../../../core/services/ehr.service';
 
 @Component({
   selector: 'app-add-medical-history',

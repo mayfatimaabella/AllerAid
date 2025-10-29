@@ -186,14 +186,7 @@
           No medications recorded
         </ng-template>
       </p>
-      <ion-button 
-        *ngIf="!medicationSearchTerm || !medicationSearchTerm.trim()"
-        fill="outline" 
-        size="small" 
-        (click)="add.emit()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Add Medication
-      </ion-button>
+
       <ion-button 
         *ngIf="medicationSearchTerm && medicationSearchTerm.trim()"
         fill="outline" 

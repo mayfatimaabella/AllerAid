@@ -42,6 +42,10 @@
   <ng-template #noInstructions>
     <div class="modal-info-card">
       <p class="value no-data">No instructions set</p>
+      <ion-button color="primary" fill="outline" size="small" (click)="onAddInstruction()">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Add Instructions
+      </ion-button>
     </div>
   </ng-template>
 
@@ -58,5 +62,5 @@
       Test Audio
     </ion-button>
   </div>
-  </div> <!-- end of content-wrapper -->
+  </div>
 </ion-content>
