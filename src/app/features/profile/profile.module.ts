@@ -13,12 +13,14 @@ import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit/add-doctor-vi
 import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history/add-medical-history.modal';
 import { DoctorProfileComponent } from './components/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './overview/modals/emergency-details-modal/emergency-details-modal.component';
+import { EmergencySpecificInstructionsModalComponent } from './overview/modals/emergency-specific-instructions-modal/emergency-specific-instructions-modal.component';
 import { ImageViewerModal } from './modal/image-viewer.modal';
 import { OverviewSectionComponent } from './overview/overview-section.component';
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EmergencyMessageCardComponent } from './emergency/emergency-message-card.component';
+import { EmergencyMessageCardComponent } from './emergency/emergency-message-card/emergency-message-card.component';
+import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-modal.component';
 
 @NgModule({
   imports: [
@@ -33,19 +35,19 @@ import { EmergencyMessageCardComponent } from './emergency/emergency-message-car
     MedicationDetailsModal, // Standalone modal
     EHRSectionCardsComponent, // Import EHR section cards standalone component
     EmergencySettingsCardComponent,
-    EmergencyMessageCardComponent
-  
-   // Standalone component
+    EmergencyMessageCardComponent, // Standalone component
+    EmergencySpecificInstructionsModalComponent,
+    EmergencyExamplesModalComponent
   ],
 
 
   declarations: [
-  ProfilePage,
-  AddMedicationModal,
-  AddDoctorVisitModal,
-  AddMedicalHistoryModal,
-  ImageViewerModal,
-],
+    ProfilePage,
+    AddMedicationModal,
+    AddDoctorVisitModal,
+    AddMedicalHistoryModal,
+    ImageViewerModal
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProfilePageModule {}

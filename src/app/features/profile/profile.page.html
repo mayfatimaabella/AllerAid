@@ -189,6 +189,7 @@
         <!-- EMERGENCY!-->
 
       <ng-container *ngIf="selectedTab === 'emergency'">
+
         <app-emergency-settings-card
           [emergencySettings]="emergencySettings"
           [showVoiceSettings]="showVoiceSettings"
@@ -198,138 +199,89 @@
           [saveEmergencySettings]="saveEmergencySettings"
           [isEmergencyInstructionsEmpty]="isEmergencyInstructionsEmpty.bind(this)"
           [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
-        ></app-emergency-settings-card>
-
-
-        <div class="emergency-message-title">
-          <span>Emergency Message</span>
-          <ion-button size="small" fill="clear" color="primary" (click)="openEditEmergencyMessageModal()">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Edit
-          </ion-button>
-        </div>
-
-        <div class="emergency-instructions-display">
-    <div class="instructions-section-header">
-            <span>Emergency Contact Information</span>
-            <ion-button size="small" fill="clear" color="primary" (click)="openEditEmergencyMessageModal()">
-              <ion-icon name="create-outline" slot="start"></ion-icon>
-              Edit
-            </ion-button>
+          [testEmergencyAlert]="testEmergencyAlert.bind(this)"
+          [testShakeDetection]="testShakeDetection.bind(this)"
+          [testPowerButtonDetection]="testPowerButtonDetection.bind(this)"
+          [testAudioInstructions]="testAudioInstructions.bind(this)"
+          [requestMotionPermissions]="requestMotionPermissions.bind(this)"
+          [showEmergencyExamples]="showEmergencyExamples.bind(this)"
+        >
+          <div class="emergency-instructions-display">
+            <div class="instructions-section-header">
+              <span>Emergency Contact Information</span>
+              <ion-button size="small" fill="clear" color="primary" (click)="openEditEmergencyMessageModal()">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                Edit
+              </ion-button>
+              <!-- Button to open Emergency Specific Instructions Modal -->
+              <div style="text-align: right; margin-top: 8px;">
+                <ion-button size="small" fill="outline" color="secondary" (click)="showManageInstructionsModal = true">
+                  <ion-icon name="list-outline" slot="start"></ion-icon>
+                  Manage Emergency Instructions
+                </ion-button>
+              </div>
+            </div>
+            <div class="instructions-list-scrollable">
+              <app-emergency-message-card 
+                [emergencyMessage]="emergencyMessage" 
+                [userProfile]="userProfile"
+                [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
+              ></app-emergency-message-card>
+            </div>
+            <!-- Emergency Specific Instructions Modal -->
+            <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="showManageInstructionsModal = false">
+              <ng-template>
+                <app-emergency-specific-instructions-modal
+                  [emergencyInstructions]="emergencyInstructions"
+                  [userAllergies]="userAllergies"
+                  [selectedAllergyForInstruction]="selectedAllergyForInstruction"
+                  [newInstructionText]="newInstructionText"
+                  [editingInstruction]="editingInstruction"
+                  [selectedInstructionDetails]="selectedInstructionDetails"
+                  [showInstructionDetailsModal]="showInstructionDetailsModal"
+                  (addInstruction)="onAddInstruction()"
+                  (updateInstruction)="onUpdateInstruction()"
+                  (removeInstruction)="onRemoveInstruction($event)"
+                  (editInstruction)="onEditInstruction($event)"
+                  (cancelEdit)="onCancelEdit()"
+                  (showDetails)="onShowDetails($event)"
+                  (close)="showManageInstructionsModal = false"
+                ></app-emergency-specific-instructions-modal>
+              </ng-template>
+            </ion-modal>
           </div>
-          <div class="instructions-list-scrollable">
-            <app-emergency-message-card 
-              [emergencyMessage]="emergencyMessage" 
-              [userProfile]="userProfile"
-              [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
-            ></app-emergency-message-card>
-          </div>
-        </div>
-
-        <div class="emergency-testing-title">Emergency Alert Testing</div>
+        </app-emergency-settings-card>
         
-        <div class="emergency-test-buttons">
-          <ion-button expand="block" fill="outline" color="warning" (click)="testEmergencyAlert()">
-            <ion-icon name="warning-outline" slot="start"></ion-icon>
-            Test Emergency Alert (Manual)
-          </ion-button>
-          
-          <ion-button expand="block" fill="outline" color="primary" (click)="testShakeDetection()">
-            <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
-            Test Shake Detection
-          </ion-button>
+        <div class="emergency-instructions-display">
 
-          <ion-button expand="block" fill="outline" color="secondary" (click)="testPowerButtonDetection()">
-            <ion-icon name="power-outline" slot="start"></ion-icon>
-            Test Power Button Detection
-          </ion-button>
-
-          <ion-button expand="block" fill="outline" color="tertiary" (click)="testAudioInstructions()">
-            <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-            Test Audio Instructions
-          </ion-button>
-
-          <ion-button expand="block" fill="outline" color="medium" (click)="requestMotionPermissions()">
-            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            Request Motion Permissions
-          </ion-button>
-
-          <ion-button expand="block" fill="outline" color="success" (click)="showEmergencyExamples()">
-            <ion-icon name="book-outline" slot="start"></ion-icon>
-            View Examples & Tips
-          </ion-button>
+          <!-- Emergency Specific Instructions Modal -->
+          <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="showManageInstructionsModal = false">
+            <ng-template>
+              <app-emergency-specific-instructions-modal
+                [emergencyInstructions]="emergencyInstructions"
+                [userAllergies]="userAllergies"
+                [selectedAllergyForInstruction]="selectedAllergyForInstruction"
+                [newInstructionText]="newInstructionText"
+                [editingInstruction]="editingInstruction"
+                [selectedInstructionDetails]="selectedInstructionDetails"
+                [showInstructionDetailsModal]="showInstructionDetailsModal"
+                (addInstruction)="onAddInstruction()"
+                (updateInstruction)="onUpdateInstruction()"
+                (removeInstruction)="onRemoveInstruction($event)"
+                (editInstruction)="onEditInstruction($event)"
+                (cancelEdit)="onCancelEdit()"
+                (showDetails)="onShowDetails($event)"
+                (close)="showManageInstructionsModal = false"
+              ></app-emergency-specific-instructions-modal>
+            </ng-template>
+          </ion-modal>
         </div>
 
         <!-- Emergency Examples Modal -->
-        <ion-modal [isOpen]="showExamplesModal" (didDismiss)="showExamplesModal = false">
-          <ng-template>
-            <ion-header>
-              <ion-toolbar>
-                <ion-title>Emergency Instruction Examples</ion-title>
-                <ion-buttons slot="start">
-                  <ion-button (click)="showExamplesModal = false" fill="clear">
-                    <ion-icon name="arrow-back-outline"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-                <ion-buttons slot="end">
-                  <ion-button (click)="showExamplesModal = false" fill="clear">
-                    <ion-icon name="close"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content class="ion-padding">
-              <div class="examples-container">
-                <div class="example-section">
-                  <h3>Simple Examples:</h3>
-                  <div class="example-card">
-                    <p>"I have a severe peanut allergy. Use my EpiPen and call 911 immediately."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                  <div class="example-card">
-                    <p>"Give me an antihistamine (Cetirizine) if I'm having trouble breathing."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                  <div class="example-card">
-                    <p>"I'm allergic to shellfish. If I faint or have hives, use the auto-injector in my bag."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                </div>
-                <div class="example-section">
-                  <h3>Detailed Instructions:</h3>
-                  <div class="example-card">
-                    <p>"This person is allergic to peanuts. If they are having trouble breathing, give them an EpiPen (in left pocket) immediately. Call emergency services (911). Stay with them until help arrives."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                </div>
-                <div class="example-section">
-                  <h3>With Medication Details:</h3>
-                  <div class="example-card">
-                    <p>"I'm allergic to bee stings. If I collapse or stop responding, inject my EpiPen in the thigh and call emergency services. I also carry Benadryl in my pouch."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                </div>
-                <div class="example-section">
-                  <h3>For Children/Elderly:</h3>
-                  <div class="example-card">
-                    <p>"Child has a dairy allergy. If symptoms like vomiting or hives appear, administer antihistamine syrup. If breathing difficulty occurs, use EpiPen and call emergency help."</p>
-                    <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                  </div>
-                </div>
-                <div class="tips-section">
-                  <h3>Tips for Writing Instructions:</h3>
-                  <ul>
-                    <li>Be specific about your allergies</li>
-                    <li>Include medication names and locations</li>
-                    <li>Mention emergency contact numbers</li>
-                    <li>Keep instructions clear and concise</li>
-                    <li>Test audio playback regularly</li>
-                  </ul>
-                </div>
-              </div>
-            </ion-content>
-          </ng-template>
-        </ion-modal>
+        <app-emergency-examples-modal
+          [isOpen]="showExamplesModal"
+          (closeModal)="showExamplesModal = false">
+        </app-emergency-examples-modal>
         <!-- END: Inserted Emergency Instructions / Message / Testing -->
 
         <!-- Voice Recording Settings (Expandable) -->

@@ -42,3 +42,39 @@
     </ion-button>
   </div>
 </div>
+<ng-content select=".emergency-instructions-display"></ng-content>
+
+<div class="emergency-testing-title">Emergency Alert Testing</div>
+
+<div class="emergency-test-buttons">
+  <ion-button expand="block" fill="outline" color="warning" (click)="testEmergencyAlert()">
+    <ion-icon name="warning-outline" slot="start"></ion-icon>
+    Test Emergency Alert (Manual)
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="primary" (click)="testShakeDetection()">
+    <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+    Test Shake Detection
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="secondary" (click)="testPowerButtonDetection()">
+    <ion-icon name="power-outline" slot="start"></ion-icon>
+    Test Power Button Detection
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="tertiary" (click)="testAudioInstructions()">
+    <ion-icon name="volume-high-outline" slot="start"></ion-icon>
+    Test Audio Instructions
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="medium" (click)="requestMotionPermissions()">
+    <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+    Request Motion Permissions
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="success" (click)="showEmergencyExamples()">
+    <ion-icon name="book-outline" slot="start"></ion-icon>
+    View Examples & Tips
+  </ion-button>
+</div>
+

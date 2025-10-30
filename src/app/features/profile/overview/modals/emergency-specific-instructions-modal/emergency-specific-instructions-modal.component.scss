@@ -1,5 +1,112 @@
-/* Styles for EmergencySpecificInstructionsModalComponent */
 
-:host { display:block; }
-ion-content { --background:#ffffff; }
-/* Simplified: reuse existing styles; full copy retained if needed */
+:host {
+	display: block;
+	height: 100%;
+}
+
+ion-content {
+	--background: #f7faf9;
+	background: #f7faf9;
+	height: 100%;
+}
+
+.form-section, .instructions-list-section, .empty-state {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+	padding: 16px;
+	margin-bottom: 16px;
+}
+
+.section-title {
+	margin: 16px 0 12px;
+	color: #333;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.instruction-field {
+	margin-bottom: 12px;
+}
+
+.button-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.instructions-container {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.instruction-item {
+	background: #f7faf9;
+	border-left: 4px solid #036a5d;
+	border-radius: 8px;
+	padding: 12px 16px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.instruction-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #036a5d;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.allergy-icon {
+	color: #036a5d;
+	font-size: 20px;
+}
+
+.allergy-name {
+	font-size: 15px;
+	font-weight: 600;
+	color: #1f4a42;
+	margin: 0;
+}
+
+.instruction-text {
+	color: #333;
+	font-size: 14px;
+	margin: 0;
+	line-height: 1.4;
+}
+
+.instruction-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.empty-state {
+	text-align: center;
+	color: #8ba19c;
+	background: #fff;
+	border-radius: 8px;
+	padding: 24px 12px;
+}
+
+.empty-icon {
+	font-size: 36px;
+	color: #d1e7e0;
+	margin-bottom: 8px;
+}
+
+.empty-message {
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.empty-hint {
+	font-size: 13px;
+	color: #8ba19c;
+}

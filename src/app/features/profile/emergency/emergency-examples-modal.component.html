@@ -1,0 +1,69 @@
+<ion-modal [isOpen]="isOpen" (didDismiss)="closeModal.emit()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Emergency Instruction Examples</ion-title>
+        <ion-buttons slot="start">
+          <ion-button (click)="closeModal.emit()" fill="clear">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModal.emit()" fill="clear">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <div class="examples-container">
+        <div class="example-section">
+          <h3>Simple Examples:</h3>
+          <div class="example-card">
+            <p>"I have a severe peanut allergy. Use my EpiPen and call 911 immediately."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+          <div class="example-card">
+            <p>"Give me an antihistamine (Cetirizine) if I'm having trouble breathing."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+          <div class="example-card">
+            <p>"I'm allergic to shellfish. If I faint or have hives, use the auto-injector in my bag."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+        </div>
+        <div class="example-section">
+          <h3>Detailed Instructions:</h3>
+          <div class="example-card">
+            <p>"This person is allergic to peanuts. If they are having trouble breathing, give them an EpiPen (in left pocket) immediately. Call emergency services (911). Stay with them until help arrives."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+        </div>
+        <div class="example-section">
+          <h3>With Medication Details:</h3>
+          <div class="example-card">
+            <p>"I'm allergic to bee stings. If I collapse or stop responding, inject my EpiPen in the thigh and call emergency services. I also carry Benadryl in my pouch."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+        </div>
+        <div class="example-section">
+          <h3>For Children/Elderly:</h3>
+          <div class="example-card">
+            <p>"Child has a dairy allergy. If symptoms like vomiting or hives appear, administer antihistamine syrup. If breathing difficulty occurs, use EpiPen and call emergency help."</p>
+            <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          </div>
+        </div>
+        <div class="tips-section">
+          <h3>Tips for Writing Instructions:</h3>
+          <ul>
+            <li>Be specific about your allergies</li>
+            <li>Include medication names and locations</li>
+            <li>Mention emergency contact numbers</li>
+            <li>Keep instructions clear and concise</li>
+            <li>Test audio playback regularly</li>
+          </ul>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

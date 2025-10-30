@@ -24,7 +24,7 @@ import { AllergyModalService } from '../../services/allergy-modal.service';
 import { MedicationActionsService } from '../../services/medication-actions.service';
 
 import { MedicalHistoryManagerService } from '../../services/medical-history-manager.service';
-import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message-modal.component';
+import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -649,7 +649,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   selectedInstructionDetails: any = null;
   
   audioSettings: AudioSettings = { useCustomVoice: false, defaultVoice: 'female', speechRate: 1, volume: 1, selectedRecordingId: null };
-  showVoiceSettings: boolean = false;
+  showVoiceSettings: boolean = true;
   isRecording: boolean = false;
   recordingTime: number = 0;
   recordings: any[] = [];
@@ -1678,6 +1678,52 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   showAddInstructionModal: boolean = false;
+
+  // Emergency-specific instructions modal state and handlers
+  showManageInstructionsModal: boolean = false;
+  selectedAllergyForInstruction: any = null;
+  newInstructionText: string = '';
+  editingInstruction: any = null;
+
+  // Modal event handler stubs for compatibility
+  onAddInstruction(): void {
+    // Implement add logic or emit to service
+    this.loadEmergencyInstructions();
+    this.showManageInstructionsModal = false;
+  }
+  onUpdateInstruction(): void {
+    // Implement update logic or emit to service
+    this.loadEmergencyInstructions();
+    this.showManageInstructionsModal = false;
+  }
+  onRemoveInstruction(idOrEvent: any): void {
+    let id: string | undefined;
+    if (typeof idOrEvent === 'string') {
+      id = idOrEvent;
+    } else if (idOrEvent && idOrEvent.target && idOrEvent.target.value) {
+      id = idOrEvent.target.value;
+    }
+    // Implement remove logic or emit to service
+    if (id) {
+      // Call your remove logic here, e.g., this.medicalService.removeInstruction(id)
+    }
+    this.loadEmergencyInstructions();
+    this.showManageInstructionsModal = false;
+  }
+  onEditInstruction(instruction: any): void {
+    this.editingInstruction = instruction;
+    this.selectedAllergyForInstruction = instruction.allergyName || instruction.allergyId || null;
+    this.newInstructionText = instruction.instruction || '';
+  }
+  onCancelEdit(): void {
+    this.editingInstruction = null;
+    this.selectedAllergyForInstruction = null;
+    this.newInstructionText = '';
+  }
+  onShowDetails(instruction: any): void {
+    this.selectedInstructionDetails = instruction;
+    this.showInstructionDetailsModal = true;
+  }
 
   openAddInstructionModal() {
     this.showAddInstructionModal = true;
