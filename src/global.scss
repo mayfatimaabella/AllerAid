@@ -1,8 +1,240 @@
+.ecc-row.allergy-row {
+  margin-top: -6px;
+  margin-bottom: 8px;
+}
+.allergy-pill {
+  background: #20a893 !important;
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  display: inline-block;
+}
+.ecc-header {
+  background: #20a893 !important;
+}
+.ecc-label {
+  color: #20a893 !important;
+}
+.emergency-contact-card-presentable.uniform {
+  background: #eaf7f4;
+  border: 1.5px solid #1ca086;
+  border-radius: 14px;
+  padding: 18px 20px 10px 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(28, 160, 134, 0.08);
+  font-size: 15px;
+}
+.ecc-header {
+  display: flex;
+  align-items: center;
+  background: #1ca086;
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 8px 12px 7px 12px;
+  margin: -18px -20px 16px -20px;
+}
+.ecc-header-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+.ecc-header-title {
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.ecc-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.ecc-label {
+  min-width: 90px;
+  font-weight: 600;
+  color: #1ca086;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+.ecc-value {
+  flex: 1;
+  color: #222;
+  word-break: break-word;
+  font-size: 15px;
+}
+.allergy-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+.allergy-pill {
+  background: #1ca086;
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  display: inline-block;
+}
+.ecc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b2b2b2;
+  font-size: 13px;
+  margin-top: 8px;
+  padding-bottom: 2px;
+}
+.ecc-footer-icon {
+  font-size: 16px;
+  margin-right: 5px;
+}
+.ecc-footer-text {
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+/* Unified Emergency Contact Wrapper */
+.emergency-contact-wrapper-card {
+  background: var(--app-color-primary-bg);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-sm);
+  margin: 8px 0 18px;
+  overflow: hidden;
+}
+.emergency-contact-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--app-color-primary);
+  color: #fff;
+  padding: 10px 14px 9px 14px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .5px;
+}
+.emergency-contact-header-bar ion-icon { font-size: 18px; }
+.emergency-contact-header-bar .header-left { display:flex; align-items:center; gap:8px; }
+.emergency-contact-header-bar .header-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.contact-action-btn { --border-radius: var(--app-radius-sm); }
+.emergency-contact-body { padding: 12px 16px 10px 16px; }
+.emergency-contact-body .ecc-row { margin-bottom:10px; border-bottom:1px solid var(--app-color-border); padding-bottom:6px; }
+.emergency-contact-body .ecc-row:last-of-type { border-bottom:none; }
+.tappable-hint { justify-content:center; border-top:1px dashed var(--app-color-border); margin-top:4px; padding-top:6px; }
+.tappable-hint .ecc-footer-text { font-size:12px; color: var(--app-color-muted); }
+
+/* Emergency Contact Section Enhancements */
+.emergency-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 4px 4px 2px 4px;
+}
+.emergency-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #045d53;
+  font-size: 15px;
+  letter-spacing: .5px;
+}
+.emergency-section-title ion-icon {
+  font-size: 20px;
+  color: #0a8c7a;
+}
+.emergency-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.emergency-section-actions .action-btn {
+  --border-radius: 10px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-weight: 500;
+  letter-spacing: .3px;
+}
+.emergency-contact-card-presentable.elevated {
+  position: relative;
+  border-top: 4px solid #20a893;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.emergency-contact-card-presentable.elevated .ecc-header {
+  border-radius: 0;
+}
+.emergency-contact-card-presentable.uniform .ecc-row:not(.allergy-row) {
+  border-bottom: 1px solid #d3ece7;
+  padding-bottom: 6px;
+}
+.emergency-contact-card-presentable.uniform .ecc-row:last-of-type {
+  border-bottom: none;
+}
+
+.emergency-contact-card-presentable {
+  background: #f4faff;
+  border: 1.5px solid #b3e0ff;
+  border-radius: 12px;
+  padding: 18px 20px 14px 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.06);
+  font-size: 15px;
+}
+.emergency-contact-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.emergency-contact-label {
+  font-weight: 600;
+  min-width: 90px;
+  color: #0077b6;
+  margin-right: 8px;
+}
+.emergency-contact-value {
+  flex: 1;
+  color: #222;
+  word-break: break-word;
+}
 /* White background for profile page to match buddy page */
 .profile-page-bg {
   --background: #fff !important;
   background: #fff !important;
 }
+
+/* Reusable Card Style */
+.app-card {
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-lg);
+  padding: 16px 18px 16px 18px;
+  box-shadow: var(--app-shadow-sm);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.app-card.elevated { box-shadow: var(--app-shadow-md); }
+.app-card .card-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  color: var(--app-color-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.app-card .card-subtext { font-size: 12px; color: var(--app-color-muted); }
+.app-card-divider { height:1px; background: var(--app-color-border); margin:4px 0 6px; }
+
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------

@@ -1,45 +1,119 @@
 .emergency-settings-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #d32f2f;
-  margin-bottom: 18px;
+  color: var(--app-color-primary);
+  margin: 4px 0 16px;
+  letter-spacing: .5px;
 }
 
 .emergency-setting-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  margin-bottom: 18px;
-  border: 1px solid #ececec;
-  padding: 16px 18px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-lg);
+  padding: 14px 16px 14px 16px;
+  box-shadow: var(--app-shadow-sm);
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-.emergency-setting-info {
-  flex: 1;
-}
+.emergency-setting-info { flex: 1; }
 
 .emergency-setting-title {
   font-weight: 600;
-  font-size: 15px;
-  color: #d32f2f;
+  font-size: 14px;
+  letter-spacing: .3px;
+  color: var(--app-color-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.emergency-setting-title ion-icon { font-size:18px; color: var(--app-color-primary-light); }
 
 .emergency-setting-desc {
-  color: #888;
-  font-size: 13px;
+  color: var(--app-color-text-soft);
+  font-size: 12.5px;
+  line-height: 1.35;
+  margin-top: 4px;
 }
 
 .emergency-setting-status {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #1976d2;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--app-color-primary-light);
 }
 
 .emergency-setting-actions {
   display: flex;
   align-items: center;
+  gap: 6px;
+}
+
+/* Wrapper card & header for unified look */
+.emergency-settings-wrapper-card {
+  background: var(--app-color-primary-bg);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-lg);
+  padding: 0 0 16px 0;
+  margin-bottom: 18px;
+  box-shadow: var(--app-shadow-sm);
+  overflow: hidden;
+}
+.emergency-settings-header-bar {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  background: var(--app-color-primary);
+  color: #fff;
+  padding: 10px 14px 9px 14px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .5px;
+}
+.emergency-settings-header-bar ion-icon { font-size: 18px; }
+.settings-group { padding: 12px 14px 4px 14px; }
+
+/* Compact card variant */
+.emergency-setting-card.compact { border-radius: var(--app-radius-md); padding: 12px 14px; margin-bottom: 10px; }
+.emergency-setting-card.compact:last-child { margin-bottom: 14px; }
+
+/* Inline add instructions button */
+.inline-add-instructions { margin-top: 10px; }
+.inline-add-instructions ion-button { --border-radius: var(--app-radius-sm); }
+
+/* Testing grid */
+.emergency-testing-subheader {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--app-color-primary);
+  padding: 4px 14px 0 14px;
+}
+.emergency-test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(110px,1fr));
+  gap: 8px;
+  padding: 10px 14px 4px 14px;
+}
+.emergency-test-grid ion-button {
+  --border-radius: var(--app-radius-md);
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .3px;
+}
+
+/* Toggle & button harmonization */
+ion-toggle { --handle-background: var(--app-color-primary); --background-checked: var(--app-color-primary-light); }
+ion-button.emergency-inline-btn { --background: var(--app-color-primary); --border-radius: var(--app-radius-sm); }
+
+@media (max-width: 480px) {
+  .emergency-setting-card { flex-direction: column; align-items: stretch; }
+  .emergency-setting-actions { justify-content: flex-end; }
 }
