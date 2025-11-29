@@ -144,7 +144,7 @@ export class TabsPage implements OnInit, OnDestroy {
     console.log('New buddy invitation received!');
     
     const toast = await this.toastController.create({
-      message: '🔔 New buddy invitation received!',
+      message: 'New buddy invitation received!',
       duration: 4000,
       position: 'top',
       color: 'primary',

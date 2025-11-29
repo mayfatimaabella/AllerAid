@@ -473,8 +473,6 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.userAllergies = await this.allergyManager.loadUserAllergies();
         this.allergiesCount = this.userAllergies.length;
         // Load user buddies
-        this.userBuddies = await this.buddyService.getUserBuddies(currentUser.uid);
-        this.buddiesCount = this.userBuddies.length;
         // Load medications for user
         await this.loadUserMedications();
         // Load EHR data for user
@@ -582,8 +580,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   newProviderName: string = '';
   newProviderRole: 'doctor' | 'nurse' = 'doctor';
   doctorStats: any = {};
-  protectedPatients: any[] = [];
-  buddyStats: any = {};
   recentActivity: any[] = [];
   professionalCredentials: any[] = [];
   subscriptions: any[] = [];
@@ -636,8 +632,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   
   
   allergiesCount: number = 0;
-  userBuddies: any[] = [];
-  buddiesCount: number = 0;
   medicationsCount: number = 0;
   selectedTab: string = 'overview';
   
@@ -1471,8 +1465,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (!this.userHasSelectedTab) {
       if (this.userProfile?.role === 'doctor') {
         this.selectedTab = 'dashboard';
-      } else if (this.userProfile?.role === 'buddy') {
-        this.selectedTab = 'dashboard';
       } else {
         this.selectedTab = 'overview';
       }
@@ -1506,36 +1498,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Load buddy statistics
-   */
-  async loadBuddyStats() {
-    try {
-      const user = await this.authService.waitForAuthInit();
-      if (user) {
-        // Load actual protected patients
-        const relations = await this.buddyService.getProtectedPatients(user.uid);
-        this.protectedPatients = relations;
-        
-        this.buddyStats = {
-          protectedPatients: relations.length,
-          emergencyResponses: 0,
-          invitations: 0
-        };
-        
-        console.log('Loaded buddy stats:', this.buddyStats);
-        console.log('Protected patients:', this.protectedPatients);
-      }
-    } catch (error) {
-      console.error('Error loading buddy stats:', error);
-      this.buddyStats = {
-        protectedPatients: 0,
-        emergencyResponses: 0,
-        invitations: 0
-      };
-      this.protectedPatients = [];
-    }
-  }
 
   /**
    * Load recent activity for professionals

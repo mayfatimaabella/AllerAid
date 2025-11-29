@@ -1,13 +1,15 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header [translucent]="true">
+  <ion-toolbar class="teal-modal-toolbar">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+
     <ion-title>Profile</ion-title>
+    
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding profile-page-bg">
   <div class="profile-header">
     <ion-avatar class="profile-avatar">
       <img alt="person-avatar" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -26,27 +28,8 @@
         <div class="stat-label">Medications</div>
         <div class="stat-value">{{ medicationsCount }}</div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Buddies</div>
-        <div class="stat-value">{{ buddiesCount }}</div>
-      </div>
     </div>
 
-    <!-- Buddy Profile Stats -->
-    <div class="profile-stats" *ngIf="userProfile?.role === 'buddy'">
-      <div class="stat">
-        <div class="stat-label">Protected Patients</div>
-        <div class="stat-value">{{ buddyStats.protectedPatients }}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Emergency Responses</div>
-        <div class="stat-value">{{ buddyStats.emergencyResponses }}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Invitations</div>
-        <div class="stat-value">{{ buddyStats.invitations }}</div>
-      </div>
-    </div>
 
     <!-- Patient Profile Tabs -->
     <div class="profile-tabs" *ngIf="userProfile?.role === 'user'">
@@ -57,14 +40,6 @@
     </div>
 
     <!-- Doctor Profile Tabs - Managed by DoctorProfileComponent -->
-
-    <!-- Buddy Profile Tabs -->
-    <div class="profile-tabs" *ngIf="userProfile?.role === 'buddy'">
-      <button class="tab" [class.active]="selectedTab === 'dashboard'" (click)="selectTab('dashboard')">Dashboard</button>
-      <button class="tab" [class.active]="selectedTab === 'patients'" (click)="selectTab('patients')">My Patients</button>
-      <button class="tab" [class.active]="selectedTab === 'emergency'" (click)="selectTab('emergency')">Emergency</button>
-      <button class="tab" [class.active]="selectedTab === 'settings'" (click)="selectTab('settings')">Settings</button>
-    </div>
 
 
     <!--PROFILE SECTION | OVERVIEW-->
@@ -447,115 +422,6 @@
       </div>
       <!-- End Doctor Profile Content -->
 
-      <!-- BUDDY PROFILE CONTENT -->
-      <div *ngIf="userProfile?.role === 'buddy'">
-        <ng-container *ngIf="selectedTab === 'dashboard'">
-          <div class="section-title">
-            Buddy Dashboard
-          </div>
-
-          <div class="buddy-dashboard-card">
-            <div class="dashboard-header">
-              <ion-icon name="shield-checkmark-outline" color="tertiary"></ion-icon>
-              <h3>Emergency Responder Dashboard</h3>
-            </div>
-            
-            <div class="dashboard-quick-stats">
-              <div class="quick-stat">
-                <div class="stat-number">{{ buddyStats.protectedPatients }}</div>
-                <div class="stat-label">Protected Patients</div>
-              </div>
-              <div class="quick-stat">
-                <div class="stat-number">{{ buddyStats.emergencyResponses }}</div>
-                <div class="stat-label">Emergency Responses</div>
-              </div>
-              <div class="quick-stat">
-                <div class="stat-number">{{ buddyStats.invitations }}</div>
-                <div class="stat-label">Pending Invitations</div>
-              </div>
-            </div>
-
-            <ion-button 
-              expand="block" 
-              fill="solid" 
-              color="tertiary"
-              (click)="navigateToResponderDashboard()">
-              <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
-              Access Responder Dashboard
-            </ion-button>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="selectedTab === 'patients'">
-          <div class="section-title">
-            My Protected Patients
-          </div>
-          
-          <p class="helper-text">Patients who have added you as their emergency buddy</p>
-          
-          <!-- Show actual patients if we have them -->
-          <div *ngIf="protectedPatients && protectedPatients.length > 0" class="patients-list">
-            <div *ngFor="let patient of protectedPatients" class="patient-card">
-              <h3>{{ patient.firstName }} {{ patient.lastName }}</h3>
-              <p>Email: {{ patient.email }}</p>
-              <p>Accepted: {{ formatDate(patient.acceptedAt) }}</p>
-            </div>
-          </div>
-          
-          <div *ngIf="!protectedPatients || protectedPatients.length === 0" class="no-patients">
-            <ion-icon name="people-outline" color="medium"></ion-icon>
-            <p>No patients currently protected</p>
-            <p class="helper-text">You'll see patients here when they add you as their emergency buddy</p>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="selectedTab === 'emergency'">
-          <div class="section-title">
-            Emergency Response Settings
-          </div>
-          
-          <div class="emergency-settings-card">
-            <div class="card-header">
-              <ion-icon name="warning-outline" color="warning"></ion-icon>
-              <h3>Response Preferences</h3>
-            </div>
-            
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-title">Emergency Notifications</div>
-                <div class="setting-desc">Receive emergency alerts from your patients</div>
-              </div>
-              <ion-toggle [(ngModel)]="buddySettings.emergencyNotifications" (ionChange)="saveBuddySettings()"></ion-toggle>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-title">Location Sharing</div>
-                <div class="setting-desc">Share your location during emergency response</div>
-              </div>
-              <ion-toggle [(ngModel)]="buddySettings.locationSharing" (ionChange)="saveBuddySettings()"></ion-toggle>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="selectedTab === 'settings'">
-          <div class="section-title">
-            Buddy Settings
-          </div>
-          
-          <div class="account-settings-card">
-            <ion-button 
-              expand="block" 
-              fill="outline" 
-              color="danger"
-              (click)="logout()">
-              <ion-icon name="log-out-outline" slot="start"></ion-icon>
-              Logout
-            </ion-button>
-          </div>
-        </ng-container>
-      </div>
-      <!-- End Buddy Profile Content -->
       
     </div>
     <!-- End profile-section -->
