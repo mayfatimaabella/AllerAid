@@ -1,38 +1,87 @@
-/* Doctor Visits styling aligned with health section */
-.doctor-visit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.doctor-visit-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.ehr-section-card.doctor-visits {
+  padding: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 18px;
+  border: 1px solid #ececec;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 
-/* Shared section title style (mirrors health-section component) */
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  .doctor-visits-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 16px 16px 0 16px;
+  }
+  .doctor-visits-title {
   font-weight: 600;
+  font-size: 14px;
   color: #1f4a42;
-  margin: 12px 0 8px;
-  justify-content: space-between;
-}
-.section-title .title-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title ion-icon {
-  font-size: 18px;
-}
-.section-title .add-visit-btn {
-  --padding-start: 8px;
-  --padding-end: 8px;
+    display: flex;
+    align-items: center;
+    .doctor-visits-icon {
+      margin-right: 0.4rem;
+      color: #3a6eea;
+      font-size: 1.2rem;
+    }
+  }
+  .doctor-visits-add-btn {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-weight: 500;
+    cursor: pointer;
   font-size: 13px;
+  }
+  .doctor-visit-card {
+  background: #fafbfc;
+  border-radius: 12px;
+  box-shadow: none;
+  border: 1px solid #eee;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+    .doctor-visit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .doctor-visit-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .doctor-visit-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1f1f1f;
+    }
+    .doctor-visit-date {
+  color: #888;
+  font-size: 13px;
+    }
+    .doctor-visit-type {
+  background: #eaf3fb;
+  color: #3a6eea;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 8px;
+  display: inline-block;
+    }
+    .doctor-visit-menu {
+  font-size: 1.1rem;
+  color: #bdbdbd;
+  cursor: pointer;
+  padding: 0 4px;
+  min-width: 28px;
+  height: 28px;
+    }
+  }
 }
 /* EHR Section Cards styles. Add your styles here. */
 
@@ -98,67 +147,6 @@
   gap: 2px;
   border: 1px solid #ececec;
 }
-
-/* Enhanced Doctor Visit summary card (aligned with medical history styling) */
-.visit-summary-card {
-  margin-bottom: 1.2rem;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(3,106,93,0.08);
-  padding: 0.85rem 1rem 0.75rem;
-  border: 1px solid #d1e7e0;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  outline: none;
-
-  &:hover {
-    box-shadow: 0 4px 14px rgba(3,106,93,0.18);
-    border-color: #036a5d;
-    transform: translateY(-2px);
-  }
-
-  &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(3,106,93,0.25);
-    border-color: #036a5d;
-  }
-}
-
-.visit-summary-header { display: flex; align-items: flex-start; justify-content: space-between; }
-.visit-summary-info { flex: 1; }
-.visit-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.visit-doctor-name { color: #013a32; font-weight: 600; font-size: 1rem; margin: 0; letter-spacing: 0.3px; }
-.visit-date { color: #365852; font-size: 0.8rem; margin: 3px 0 0 0; display: flex; align-items: center; gap: 4px; }
-.visit-date-icon { font-size: 16px; color: #036a5d; }
-
-.visit-status-pill {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  padding: 4px 10px 3px;
-  border-radius: 16px;
-  text-transform: uppercase;
-  background: #eef3f2;
-  color: #365852;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.visit-status-routine { background: #e6f8ee; color: #047857; }
-.visit-status-urgent { background: #fff4e6; color: #b45309; }
-.visit-status-emergency { background: #fde2e2; color: #dc2626; }
-.visit-status-followup { background: #fdf2f8; color: #be185d; }
-.visit-status-specialist { background: #e6f3ff; color: #1d4ed8; }
-.visit-status-specialty { background: #e6f3ff; color: #1d4ed8; }
-.visit-status-other { background: #eef3f2; color: #365852; }
-
-.visit-header-actions ion-button { --padding-start: 4px; --padding-end: 4px; }
-.visit-action-icon { font-size: 18px; }
-
-.visit-click-hint { margin-top: 6px; display: flex; align-items: center; font-size: 12px; color: #036a5d; }
-.visit-eye-icon { font-size: 16px; color: #036a5d; }
-.visit-details-inline { margin-left: 6px; font-weight: 500; letter-spacing: 0.4px; }
 
 .ehr-card-name {
   font-weight: 600;
@@ -365,27 +353,11 @@
 }
 
 .history-summary-card {
-  margin-bottom: 1.2rem;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(3,106,93,0.08);
-  padding: 0.9rem 1rem 0.85rem;
-  border: 1px solid #d1e7e0;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  outline: none;
-
-  &:hover {
-    box-shadow: 0 4px 14px rgba(3,106,93,0.18);
-    border-color: #036a5d;
-    transform: translateY(-2px);
-  }
-
-  &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(3,106,93,0.25);
-    border-color: #036a5d;
-  }
+  margin-bottom: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 1rem;
 }
 
 .history-summary-header {
@@ -399,23 +371,17 @@
 }
 
 .history-condition {
-  color: #013a32;
+  color: #222;
   font-weight: 600;
   font-size: 1rem;
-  margin: 0;
-  letter-spacing: 0.3px;
+  margin-bottom: 0;
 }
 
 .history-date {
-  color: #365852;
-  font-size: 0.8rem;
-  margin: 3px 0 0 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: #222;
+  font-size: 0.95rem;
+  margin-bottom: 0;
 }
-
-.history-date-icon { font-size: 16px; color: #036a5d; }
 
 .history-header-actions {
   display: flex;
@@ -423,34 +389,14 @@
   gap: 8px;
 }
 
-.history-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.history-status-pill {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  padding: 4px 10px 3px;
+.history-status-chip {
+  background: #eafbe7;
+  color: #2db67c;
+  font-weight: 500;
+  font-size: 13px;
   border-radius: 16px;
-  text-transform: uppercase;
-  background: #eef3f2;
-  color: #365852;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
+  padding: 3px 14px;
 }
-
-.history-status-active { background: #e6f8ee; color: #047857; }
-.history-status-resolved { background: #e6f3ff; color: #1d4ed8; }
-.history-status-not-cured { background: #fff4e6; color: #b45309; }
-.history-status-chronic { background: #fdf2f8; color: #be185d; }
-.history-status-other { background: #eef3f2; color: #365852; }
 
 
 .history-menu-icon {
@@ -467,10 +413,6 @@
 
 .history-click-hint {
   margin-top: 8px;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  color: #036a5d;
 }
 
 .history-eye-icon {
@@ -479,12 +421,11 @@
   vertical-align: middle;
 }
 
-.history-details-inline {
-  margin-left: 6px;
+.history-details-link {
+  color: #1976d2;
+  text-decoration: none;
   font-weight: 500;
-  font-size: 12px;
-  letter-spacing: 0.4px;
-  color: #036a5d;
+  font-size: 15px;
+  margin-left: 4px;
+  cursor: pointer;
 }
-
-.history-notes-more { color: #5a6c69; }

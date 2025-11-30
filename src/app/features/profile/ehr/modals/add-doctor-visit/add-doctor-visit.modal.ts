@@ -14,11 +14,23 @@ export class AddDoctorVisitModal implements OnInit {
   
   visitData: Omit<DoctorVisit, 'id' | 'patientId'> = {
     doctorName: '',
-    doctorEmail: '',
+    doctorEmail: '', // Added for email-based matching
     specialty: '',
     visitDate: new Date().toISOString(),
+    visitType: 'routine',
     chiefComplaint: '',
     diagnosis: '',
+    treatment: '',
+    recommendations: '',
+    nextAppointment: '',
+    prescriptions: [],
+    vitalSigns: {
+      bloodPressure: '',
+      heartRate: undefined,
+      temperature: undefined,
+      weight: undefined,
+      height: undefined
+    },
     notes: ''
   };
 
@@ -29,7 +41,12 @@ export class AddDoctorVisitModal implements OnInit {
   manualDoctorName = '';
   manualDoctorEmail = '';
 
-  // visitTypes removed in simplified model
+  visitTypes = [
+    { value: 'routine', label: 'Routine Check-up' },
+    { value: 'emergency', label: 'Emergency' },
+    { value: 'follow-up', label: 'Follow-up' },
+    { value: 'consultation', label: 'Consultation' }
+  ];
 
   specialties = [
     'General Medicine',
@@ -46,6 +63,8 @@ export class AddDoctorVisitModal implements OnInit {
     'Other'
   ];
 
+  newPrescription = '';
+
   constructor(
     private modalCtrl: ModalController,
     private ehrService: EHRService,
@@ -56,19 +75,23 @@ export class AddDoctorVisitModal implements OnInit {
   async ngOnInit() {
     // Load available doctors from the system
     await this.loadAvailableDoctors();
-    // Default input mode based on availability
-    this.doctorInputMode = this.availableDoctors.length > 0 ? 'dropdown' : 'manual';
     
     // If editing an existing visit, populate the form
     if (this.visit) {
       this.isEditMode = true;
       this.visitData = {
         doctorName: this.visit.doctorName,
-        doctorEmail: this.visit.doctorEmail || '',
+        doctorEmail: this.visit.doctorEmail || '', // Include doctor email
         specialty: this.visit.specialty,
         visitDate: this.visit.visitDate,
+        visitType: this.visit.visitType,
         chiefComplaint: this.visit.chiefComplaint,
         diagnosis: this.visit.diagnosis,
+        treatment: this.visit.treatment,
+        recommendations: this.visit.recommendations,
+        nextAppointment: this.visit.nextAppointment,
+        prescriptions: [...(this.visit.prescriptions || [])],
+        vitalSigns: { ...this.visit.vitalSigns },
         notes: this.visit.notes || ''
       };
       
@@ -106,8 +129,6 @@ export class AddDoctorVisitModal implements OnInit {
         specialty: doctor.specialty || 'General Medicine',
         email: doctor.email
       }));
-      // Sort alphabetically for easier selection
-      this.availableDoctors.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Error loading available doctors:', error);
       // If we can't load doctors, default to manual input
@@ -192,7 +213,21 @@ export class AddDoctorVisitModal implements OnInit {
     }
   }
 
-  // Prescriptions removed in simplified model
+  addPrescription() {
+    if (this.newPrescription.trim()) {
+      if (!this.visitData.prescriptions) {
+        this.visitData.prescriptions = [];
+      }
+      this.visitData.prescriptions.push(this.newPrescription.trim());
+      this.newPrescription = '';
+    }
+  }
+
+  removePrescription(index: number) {
+    if (this.visitData.prescriptions) {
+      this.visitData.prescriptions.splice(index, 1);
+    }
+  }
 
   private async presentToast(message: string) {
     const toast = await this.toastController.create({

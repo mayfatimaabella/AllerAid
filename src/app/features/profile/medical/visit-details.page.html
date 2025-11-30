@@ -1,0 +1,161 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Visit Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="visit" class="visit-details-container">
+    
+    <!-- Visit Header -->
+    <div class="visit-header-card">
+      <div class="visit-main-info">
+        <h1>{{ visit.doctorName }}</h1>
+        <p class="specialty" *ngIf="visit.specialty">{{ visit.specialty }}</p>
+        <div class="visit-meta">
+          <div class="visit-date">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ getFormattedVisitDate() }}
+          </div>
+          <ion-chip [color]="getVisitTypeColor(visit.visitType)" class="visit-type-chip">
+            {{ getVisitTypeLabel(visit.visitType) }}
+          </ion-chip>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chief Complaint -->
+    <div class="detail-card" *ngIf="visit.chiefComplaint">
+      <div class="card-header">
+        <ion-icon name="medical-outline"></ion-icon>
+        <h2>Chief Complaint</h2>
+      </div>
+      <div class="card-content">
+        <p>{{ visit.chiefComplaint }}</p>
+      </div>
+    </div>
+
+    <!-- Diagnosis -->
+    <div class="detail-card" *ngIf="visit.diagnosis">
+      <div class="card-header">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <h2>Diagnosis</h2>
+      </div>
+      <div class="card-content">
+        <p>{{ visit.diagnosis }}</p>
+      </div>
+    </div>
+
+    <!-- Treatment -->
+    <div class="detail-card" *ngIf="visit.treatment">
+      <div class="card-header">
+        <ion-icon name="fitness-outline"></ion-icon>
+        <h2>Treatment</h2>
+      </div>
+      <div class="card-content">
+        <p>{{ visit.treatment }}</p>
+      </div>
+    </div>
+
+    <!-- Vital Signs -->
+    <div class="detail-card" *ngIf="hasVitalSigns()">
+      <div class="card-header">
+        <ion-icon name="pulse-outline"></ion-icon>
+        <h2>Vital Signs</h2>
+      </div>
+      <div class="card-content">
+        <div class="vital-signs-grid">
+          <div class="vital-item" *ngIf="visit.vitalSigns?.bloodPressure">
+            <div class="vital-label">Blood Pressure</div>
+            <div class="vital-value">{{ visit.vitalSigns?.bloodPressure }}</div>
+          </div>
+          <div class="vital-item" *ngIf="visit.vitalSigns?.heartRate">
+            <div class="vital-label">Heart Rate</div>
+            <div class="vital-value">{{ visit.vitalSigns?.heartRate }} bpm</div>
+          </div>
+          <div class="vital-item" *ngIf="visit.vitalSigns?.temperature">
+            <div class="vital-label">Temperature</div>
+            <div class="vital-value">{{ visit.vitalSigns?.temperature }}°F</div>
+          </div>
+          <div class="vital-item" *ngIf="visit.vitalSigns?.weight">
+            <div class="vital-label">Weight</div>
+            <div class="vital-value">{{ visit.vitalSigns?.weight }} lbs</div>
+          </div>
+          <div class="vital-item" *ngIf="visit.vitalSigns?.height">
+            <div class="vital-label">Height</div>
+            <div class="vital-value">{{ visit.vitalSigns?.height }} in</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescriptions -->
+    <div class="detail-card" *ngIf="visit.prescriptions && visit.prescriptions.length > 0">
+      <div class="card-header">
+        <ion-icon name="medical-outline"></ion-icon>
+        <h2>Prescriptions</h2>
+      </div>
+      <div class="card-content">
+        <div class="prescriptions-list">
+          <div class="prescription-item" *ngFor="let prescription of visit.prescriptions">
+            <ion-icon name="pill-outline"></ion-icon>
+            <span>{{ prescription }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="detail-card" *ngIf="visit.recommendations">
+      <div class="card-header">
+        <ion-icon name="bulb-outline"></ion-icon>
+        <h2>Recommendations</h2>
+      </div>
+      <div class="card-content">
+        <p>{{ visit.recommendations }}</p>
+      </div>
+    </div>
+
+    <!-- Next Appointment -->
+    <div class="detail-card" *ngIf="visit.nextAppointment">
+      <div class="card-header">
+        <ion-icon name="time-outline"></ion-icon>
+        <h2>Next Appointment</h2>
+      </div>
+      <div class="card-content">
+        <div class="next-appointment">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>{{ getFormattedNextAppointment() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Notes -->
+    <div class="detail-card" *ngIf="visit.notes">
+      <div class="card-header">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <h2>Additional Notes</h2>
+      </div>
+      <div class="card-content">
+        <p>{{ visit.notes }}</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- No visit data fallback -->
+  <div *ngIf="!visit" class="no-visit-data">
+    <ion-icon name="warning-outline"></ion-icon>
+    <h2>No Visit Data</h2>
+    <p>Unable to load visit details. Please try again.</p>
+    <ion-button fill="outline" (click)="goBack()">
+      Go Back
+    </ion-button>
+  </div>
+
+</ion-content>

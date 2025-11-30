@@ -242,6 +242,7 @@
         <ion-card-header>
           <div class="visit-header">
             <ion-card-title>{{ visit.doctorName }}</ion-card-title>
+            <ion-chip color="primary">{{ visit.visitType | titlecase }}</ion-chip>
           </div>
           <ion-card-subtitle>
             {{ visit.specialty }} - {{ formatDate(visit.visitDate) }}
@@ -253,10 +254,31 @@
               <h4>Chief Complaint</h4>
               <p>{{ visit.chiefComplaint }}</p>
             </div>
+            
             <div class="detail-section" *ngIf="visit.diagnosis">
               <h4>Diagnosis</h4>
               <p>{{ visit.diagnosis }}</p>
             </div>
+            
+            <div class="detail-section" *ngIf="visit.treatment">
+              <h4>Treatment</h4>
+              <p>{{ visit.treatment }}</p>
+            </div>
+            
+            <div class="detail-section" *ngIf="visit.prescriptions && visit.prescriptions.length > 0">
+              <h4>Prescriptions</h4>
+              <div class="prescriptions">
+                <ion-chip *ngFor="let prescription of visit.prescriptions" color="primary" size="small">
+                  {{ prescription }}
+                </ion-chip>
+              </div>
+            </div>
+            
+            <div class="detail-section" *ngIf="visit.recommendations">
+              <h4>Recommendations</h4>
+              <p>{{ visit.recommendations }}</p>
+            </div>
+            
             <div class="detail-section" *ngIf="visit.notes">
               <h4>Notes</h4>
               <p>{{ visit.notes }}</p>

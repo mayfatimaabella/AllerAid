@@ -20,7 +20,7 @@
       <h2 class="title">{{ medication.name }}</h2>
       <div class="chips">
         <ion-chip [color]="medication.isActive ? 'success' : 'medium'" outline>
-          <ion-icon [name]="medication.isActive ? 'checkmark-circle' : 'close-circ  le'"></ion-icon>
+          <ion-icon [name]="medication.isActive ? 'checkmark-circle' : 'close-circle'"></ion-icon>
           <ion-label>{{ medication.isActive ? 'Active' : 'Inactive' }}</ion-label>
         </ion-chip>
         <ion-chip color="danger" outline *ngIf="isEmergency()">

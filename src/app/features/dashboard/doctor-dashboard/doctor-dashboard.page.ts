@@ -28,13 +28,14 @@ export class DoctorDashboardPage implements OnInit, OnDestroy {
     totalPatients: 0,
     criticalPatients: 0,
     highRiskPatients: 0,
+    pendingFollowUps: 0,
     recentReactions: 0
   };
 
   // Filters and search
   searchTerm: string = '';
   riskFilter: 'all' | 'critical' | 'high' | 'medium' | 'low' = 'all';
-  sortBy: 'name' | 'risk' | 'lastVisit' = 'risk';
+  sortBy: 'name' | 'risk' | 'lastVisit' | 'nextAppointment' = 'risk';
 
   loading = true;
 
@@ -107,7 +108,12 @@ export class DoctorDashboardPage implements OnInit, OnDestroy {
     this.stats.criticalPatients = this.patients.filter(p => p.riskLevel === 'critical').length;
     this.stats.highRiskPatients = this.patients.filter(p => p.riskLevel === 'high').length;
     
-    // Follow-up appointments removed from simplified model
+    // Count patients with upcoming appointments in next 7 days
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    this.stats.pendingFollowUps = this.patients.filter(p => 
+      p.nextAppointment && new Date(p.nextAppointment) <= nextWeek
+    ).length;
   }
 
   filterPatients() {
@@ -138,6 +144,9 @@ export class DoctorDashboardPage implements OnInit, OnDestroy {
           return riskOrder[a.riskLevel] - riskOrder[b.riskLevel];
         case 'lastVisit':
           return new Date(b.lastVisit || 0).getTime() - new Date(a.lastVisit || 0).getTime();
+        case 'nextAppointment':
+          return new Date(a.nextAppointment || '9999-12-31').getTime() - 
+                 new Date(b.nextAppointment || '9999-12-31').getTime();
         default:
           return 0;
       }
@@ -207,6 +216,11 @@ export class DoctorDashboardPage implements OnInit, OnDestroy {
     }
     // This would open a modal for adding treatment outcomes
     this.presentToast('Treatment outcome feature - to be implemented');
+  }
+
+  async scheduleFollowUp(patient: DoctorPatient) {
+    // Nurses can schedule follow-ups
+    this.presentToast('Follow-up scheduling feature - to be implemented');
   }
 
   getTimeSinceLastVisit(lastVisit?: string): string {

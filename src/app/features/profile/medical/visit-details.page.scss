@@ -10,12 +10,12 @@ ion-content {
 
 // Visit Header Card
 .visit-header-card {
-  background: linear-gradient(135deg, #10b981 0%, #0e9f6e 100%); /* teal/green */
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
   color: white;
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
 
   .visit-main-info {
     h1 {
@@ -79,7 +79,7 @@ ion-content {
 
     ion-icon {
       font-size: 22px;
-      color: #10b981; /* teal/green */
+      color: #007bff;
     }
 
     h2 {
@@ -109,8 +109,8 @@ ion-content {
   gap: 16px;
 
   .vital-item {
-    background: #f2fbf7;
-    border: 1px solid #d7f3e6;
+    background: #f8fbff;
+    border: 1px solid #e3f2fd;
     border-radius: 12px;
     padding: 16px;
     text-align: center;
@@ -125,7 +125,7 @@ ion-content {
     .vital-value {
       font-size: 20px;
       font-weight: 700;
-      color: #10b981;
+      color: #007bff;
     }
   }
 }
@@ -137,8 +137,8 @@ ion-content {
     align-items: center;
     gap: 12px;
     padding: 12px;
-    background: #f2fbf7;
-    border: 1px solid #d7f3e6;
+    background: #f8fbff;
+    border: 1px solid #e3f2fd;
     border-radius: 8px;
     margin-bottom: 8px;
 
@@ -147,7 +147,7 @@ ion-content {
     }
 
     ion-icon {
-      color: #10b981;
+      color: #007bff;
       font-size: 18px;
       flex-shrink: 0;
     }

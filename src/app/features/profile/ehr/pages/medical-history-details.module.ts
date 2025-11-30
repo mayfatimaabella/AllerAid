@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { MedicalHistoryDetailsPageRoutingModule } from './medical-history-details-routing.module';
-import { MedicalHistoryDetailsPage } from '../medical-history/medical-history-details.page';
+import { MedicalHistoryDetailsPage } from './medical-history-details.page';
 
 @NgModule({
 	imports: [

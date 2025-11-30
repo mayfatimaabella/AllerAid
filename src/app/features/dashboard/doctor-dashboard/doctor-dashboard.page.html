@@ -76,9 +76,8 @@
 
     <ion-card class="stat-card pending">
       <ion-card-content>
-        <!-- Pending follow-ups removed with nextAppointment simplification -->
-        <div class="stat-number">0</div>
-        <div class="stat-label">Follow-ups</div>
+        <div class="stat-number">{{ stats.pendingFollowUps }}</div>
+        <div class="stat-label">Pending Follow-ups</div>
       </ion-card-content>
     </ion-card>
   </div>
@@ -175,6 +174,7 @@
         <ion-select-option value="risk">Risk Level</ion-select-option>
         <ion-select-option value="name">Patient Name</ion-select-option>
         <ion-select-option value="lastVisit">Last Visit</ion-select-option>
+        <ion-select-option value="nextAppointment">Next Appointment</ion-select-option>
       </ion-select>
     </div>
   </div>
@@ -216,6 +216,10 @@
             <span>Last visit: {{ getTimeSinceLastVisit(patient.lastVisit) }}</span>
           </div>
           
+          <div class="summary-item" *ngIf="patient.nextAppointment">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Next: {{ getNextAppointmentStatus(patient.nextAppointment) }}</span>
+          </div>
           
           <div class="summary-item">
             <ion-icon name="documents-outline"></ion-icon>
@@ -242,6 +246,14 @@
             {{ isNurse ? 'Add Treatment (Doctor Only)' : 'Add Treatment' }}
           </ion-button>
           
+          <ion-button 
+            fill="outline" 
+            size="small" 
+            (click)="scheduleFollowUp(patient)"
+            *ngIf="!patient.nextAppointment">
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            Schedule Follow-up
+          </ion-button>
         </div>
       </ion-card-content>
     </ion-card>
