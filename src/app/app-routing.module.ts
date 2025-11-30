@@ -76,12 +76,12 @@ const routes: Routes = [
   },
   {
     path: 'visit-details/:id',
-    loadChildren: () => import('./features/profile/medical/visit-details.module').then( m => m.VisitDetailsPageModule),
+    loadChildren: () => import('./features/profile/ehr/pages/visit-details/visit-details.module').then( m => m.VisitDetailsPageModule),
     canActivate: [AuthGuard]
   },
   {
     path: 'medical-history-details/:id',
-    loadChildren: () => import('./features/profile/ehr/pages/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
+    loadChildren: () => import('./features/profile/ehr/pages/medical-history/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
     canActivate: [AuthGuard]
   },
 

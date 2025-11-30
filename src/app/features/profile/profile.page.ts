@@ -11,7 +11,7 @@ import { EmergencyDetectorService } from '../../core/services/emergency-detector
 import { MedicationService, Medication } from '../../core/services/medication.service';
 import { EHRService, DoctorVisit, MedicalHistory, AccessRequest } from '../../core/services/ehr.service';
 import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
-import { ToastController, ModalController, AlertController, PopoverController } from '@ionic/angular';
+import { ToastController, ModalController, AlertController, PopoverController, ActionSheetController } from '@ionic/angular';
 import { MedicationReminderService } from '../../core/services/medication-reminder.service';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit/add-doctor-visit.modal';
@@ -302,9 +302,40 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
   
-  presentVisitActionsPopover(event: any) {
+  async presentVisitActionsPopover(event: any) {
     if (event && event.event && event.visit) {
-      // Use event.event and event.visit as needed
+      const visit: DoctorVisit = event.visit;
+      const header = visit.doctorName ? `Dr. ${visit.doctorName}` : 'Doctor Visit';
+      const actionSheet = await this.actionSheetController.create({
+        header,
+        buttons: [
+          {
+            text: 'Edit Visit',
+            icon: 'create-outline',
+            handler: () => this.openEditDoctorVisitModal(visit)
+          },
+          {
+            text: 'Delete Visit',
+            role: 'destructive',
+            icon: 'trash-outline',
+            handler: async () => {
+              const id = visit.id ?? '';
+              if (!id) { return; }
+              const confirm = await this.alertController.create({
+                header: 'Delete Visit',
+                message: 'Are you sure you want to delete this visit?',
+                buttons: [
+                  { text: 'Cancel', role: 'cancel' },
+                  { text: 'Delete', role: 'destructive', handler: () => this.deleteDoctorVisit(id) }
+                ]
+              });
+              await confirm.present();
+            }
+          },
+          { text: 'Cancel', role: 'cancel', icon: 'close-outline' }
+        ]
+      });
+      await actionSheet.present();
     }
   }
   
@@ -603,6 +634,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     public modalController: ModalController,
     public alertController: AlertController,
     public popoverController: PopoverController,
+    public actionSheetController: ActionSheetController,
     public emergencyAlertService: EmergencyAlertService,
     public emergencyDetectorService: EmergencyDetectorService,
     public voiceRecordingService: VoiceRecordingService,
@@ -1483,12 +1515,8 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.doctorStats.criticalPatients = patients.filter(p => p.riskLevel === 'critical').length;
         this.doctorStats.highRiskPatients = patients.filter(p => p.riskLevel === 'high').length;
         
-        // Count upcoming appointments
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        this.doctorStats.upcomingAppointments = patients.filter(p => 
-          p.nextAppointment && new Date(p.nextAppointment) <= nextWeek
-        ).length;
+        // Upcoming appointments removed from simplified model
+        this.doctorStats.upcomingAppointments = 0;
 
         this.doctorStats.pendingRequests = this.pendingRequests.length;
         this.doctorStats.recentConsultations = Math.floor(Math.random() * 10); // Placeholder

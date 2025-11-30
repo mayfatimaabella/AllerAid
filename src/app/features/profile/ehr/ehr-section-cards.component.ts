@@ -67,6 +67,17 @@ export class EHRSectionCardsComponent {
     }
   }
 
+  getVisitTypeClass(type: string): string {
+    switch (type) {
+      case 'routine': return 'visit-status-routine';
+      case 'urgent': return 'visit-status-urgent';
+      case 'emergency': return 'visit-status-emergency';
+      case 'follow-up': return 'visit-status-followup';
+      case 'specialist': return 'visit-status-specialist';
+      default: return 'visit-status-other';
+    }
+  }
+
   getHistoryStatusColor(status: string): string {
     switch (status) {
       case 'active': return 'danger';
@@ -74,6 +85,15 @@ export class EHRSectionCardsComponent {
       case 'chronic': return 'warning';
       case 'not-cured': return 'danger';
       default: return 'medium';
+    }
+  }
+  getHistoryStatusClass(status: string): string {
+    switch (status) {
+      case 'active': return 'history-status-active';
+      case 'resolved': return 'history-status-resolved';
+      case 'not-cured': return 'history-status-not-cured';
+      case 'chronic': return 'history-status-chronic';
+      default: return 'history-status-other';
     }
   }
   @Input() doctorVisits: DoctorVisit[] = [];
