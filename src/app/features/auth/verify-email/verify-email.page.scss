@@ -1,5 +1,5 @@
 
-@import '../registration/registration.page.scss';
+@use '../registration/registration.page.scss' as *;
 
 .verify-message {
 	font-size: 1.1rem;
