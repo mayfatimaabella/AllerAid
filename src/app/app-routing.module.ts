@@ -10,6 +10,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/auth/verify-email/verify-email.module').then(m => m.VerifyEmailPageModule)
   },
   {
+    path: 'alerts',
+    loadChildren: () => import('./features/buddy/pages/emergencies/emergencies.module').then(m => m.EmergenciesPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'registration',
     loadChildren: () => import('./features/auth/registration/registration.module').then( m => m.RegistrationPageModule)
   },

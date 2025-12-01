@@ -340,8 +340,12 @@ export class HomePage implements OnInit, OnDestroy {
         throw new Error('User not authenticated');
       }
 
-      // Get buddy user IDs (the actual user IDs, not relation IDs)
-      const buddyIds = this.userBuddies.map(buddy => buddy.connectedUserId || buddy.id);
+      // Get unique connected user IDs (actual recipient user IDs), exclude self
+      const buddyIds = Array.from(new Set(
+        this.userBuddies
+          .map(buddy => buddy.connectedUserId)
+          .filter(id => !!id && id !== currentUser.uid)
+      ));
       
       // Get allergy strings
       const allergyStrings = this.userAllergies.map((allergy: any) => 
@@ -364,16 +368,18 @@ export class HomePage implements OnInit, OnDestroy {
       this.emergencyStartTime = new Date();
       this.buddyResponses = {};
       
-      // Initialize buddy response tracking with notification status
+      // Initialize buddy response tracking with notification status keyed by connected user id
       this.userBuddies.forEach(buddy => {
-        this.buddyResponses[buddy.id] = {
+        const key = buddy.connectedUserId || buddy.id;
+        if (!key || key === currentUser.uid) { return; }
+        this.buddyResponses[key] = {
           status: 'sent',
           timestamp: new Date(),
           name: buddy.firstName + ' ' + buddy.lastName
         };
       });
       
-      // Get current location for display
+      // Get current location for display (graceful fallback)
       try {
         const position = await this.emergencyService.getCurrentLocation();
         this.emergencyLocation = {
@@ -381,15 +387,14 @@ export class HomePage implements OnInit, OnDestroy {
           longitude: position.coords.longitude
         };
       } catch (locationError) {
-        console.error('Error getting current location:', locationError);
+        console.warn('Location unavailable, alert sent without precise location.');
       }
       
       await loading.dismiss();
       
       // Show success message with notification info
       await this.presentToast(
-        `Emergency alert sent to ${this.userBuddies.length} buddies! ` +
-        `SMS and push notifications are being delivered.`
+        `Emergency alert sent to ${this.userBuddies.length} connections. Notifications are being delivered.`
       );
       
       console.log('Emergency alert process completed successfully');

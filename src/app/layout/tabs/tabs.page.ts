@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, AlertController } from '@ionic/angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { BuddyService } from '../../core/services/buddy.service';
@@ -33,7 +33,8 @@ export class TabsPage implements OnInit, OnDestroy {
     private buddyService: BuddyService,
     private roleRedirectService: RoleRedirectService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) { }
 
   async ngOnInit() {
@@ -88,16 +89,22 @@ export class TabsPage implements OnInit, OnDestroy {
       if (user && this.userProfile) {
         // Use cached user profile instead of making another API call
         
-        // For buddy users, listen for emergency alerts
-        if (this.userRole === 'buddy') {
-          // Start listening for emergency alerts for this buddy
-          this.buddyService.listenForEmergencyAlerts(user.uid);
-          
-          // Listen for emergency alerts count
-          this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(alerts => {
-            this.emergencyCount = alerts.filter(alert => alert.status === 'active').length;
-          });
-        }
+        // Listen for emergency alerts for ALL users with accepted connections
+        // The backend stores connected user IDs in `buddyIds`, so any connected user
+        // should receive real-time alerts regardless of role.
+        this.buddyService.listenForEmergencyAlerts(user.uid);
+        // Listen for emergency alerts and notify with sound/vibration when new active alerts arrive
+        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
+          const previousCount = this.emergencyCount;
+          const activeAlerts = alerts.filter(alert => alert.status === 'active');
+          this.emergencyCount = activeAlerts.length;
+          if (this.emergencyCount > previousCount) {
+            // Show pop-up like responder-dashboard: quick action to view map
+            const latest = activeAlerts[0];
+            await this.showEmergencyPopup(latest);
+            this.playEmergencyNotificationFeedback();
+          }
+        });
         
         // Set up real-time invitation listener for all users
         if (this.userProfile?.email) {
@@ -136,6 +143,51 @@ export class TabsPage implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error setting up notification listeners:', error);
+    }
+  }
+
+  private playEmergencyNotificationFeedback() {
+    try {
+      // Attempt to play sound
+      const audio = new Audio('assets/sounds/emergency-alert.wav');
+      audio.play().catch(err => console.log('Could not play audio:', err));
+      // Vibrate on supported devices
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+      // Optional: show a toast
+      this.toastController.create({
+        message: 'Emergency alert received!',
+        duration: 3000,
+        position: 'top',
+        color: 'danger'
+      }).then(t => t.present());
+    } catch (e) {
+      console.log('Notification feedback error:', e);
+    }
+  }
+
+  private async showEmergencyPopup(alert: any) {
+    try {
+      const modal = await this.alertController.create({
+        header: 'Emergency Alert',
+        message: `${alert.userName || 'A connection'} needs help.<br/><small>${alert.emergencyInstruction || alert.instruction || ''}</small>`,
+        cssClass: 'emergency-alert-modal',
+        buttons: [
+          {
+            text: 'View Map',
+            handler: () => {
+              this.router.navigate(['/responder-map'], {
+                state: { responder: { emergencyId: alert.id, responderName: this.userProfile?.fullName || 'Responder' } }
+              });
+            }
+          },
+          { text: 'Dismiss', role: 'cancel' }
+        ]
+      });
+      await modal.present();
+    } catch (e) {
+      console.error('Failed to show emergency popup:', e);
     }
   }
 

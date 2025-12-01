@@ -20,6 +20,8 @@ export class EmergenciesPage implements OnInit, OnDestroy {
   allEmergencies: EmergencyAlert[] = [];
   filteredEmergencies: EmergencyAlert[] = [];
   selectedFilter: string = 'all';
+  private dismissedEmergencyIds = new Set<string>();
+  private dismissedHistoryIds = new Set<string>();
   private emergencySubscription: Subscription | null = null;
 
   constructor(
@@ -48,13 +50,35 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         
         // Subscribe to the emergency alerts observable from buddy service
         this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(emergencies => {
-          this.activeEmergencies = emergencies.filter(e => e.status === 'active' || e.status === 'responding');
+          this.activeEmergencies = emergencies
+            .filter(e => (e.status === 'active' || e.status === 'responding'))
+            .filter(e => !this.dismissedEmergencyIds.has(e.id!));
           this.allEmergencies = emergencies;
           this.filterEmergencies();
         });
       }
     } catch (error) {
       console.error('Error setting up emergency listener:', error);
+    }
+  }
+
+  async dismissEmergency(emergency: EmergencyAlert) {
+    try {
+      const user = await this.authService.waitForAuthInit();
+      if (user && emergency.id) {
+        // Persist dismissal so future pop-ups are suppressed
+        this.buddyService.dismissEmergencyForUser(user.uid, emergency.id);
+        // Save a snapshot of the dismissed alert for local history
+        this.buddyService.saveDismissedAlertData(user.uid, emergency);
+        // Update lists immediately without waiting for next snapshot
+        this.dismissedEmergencyIds.add(emergency.id);
+        this.activeEmergencies = this.activeEmergencies.filter(e => e.id !== emergency.id);
+        // Track in local dismissed history ids (no type change)
+        this.dismissedHistoryIds.add(emergency.id);
+        this.filterEmergencies();
+      }
+    } catch (error) {
+      console.error('Error dismissing emergency:', error);
     }
   }
 
@@ -66,8 +90,59 @@ export class EmergenciesPage implements OnInit, OnDestroy {
       case 'responding':
         this.filteredEmergencies = this.allEmergencies.filter(e => e.status === 'responding');
         break;
+      case 'dismissed':
+        this.filteredEmergencies = this.getDismissedAlertsForCurrentUser();
+        break;
       default:
         this.filteredEmergencies = this.allEmergencies;
+    }
+  }
+
+  private getDismissedAlertsForCurrentUser(): EmergencyAlert[] {
+    try {
+      // Prefer auth service for reliable UID
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const uid = user?.uid;
+      if (!uid) {
+        return [];
+      }
+      const key = `dismissedAlerts_${uid}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '[]');
+      // Map stored minimal objects back to EmergencyAlert-like shape where possible,
+      // enrich with known fields from current allEmergencies list
+      return stored.map((a: any) => {
+        const match = this.allEmergencies.find(e => e.id === a.id);
+        return {
+          id: a.id,
+          status: a.status || match?.status || 'resolved',
+          timestamp: match?.timestamp || a.createdAt,
+          location: a.location || match?.location,
+          responderId: a.responderId || match?.responderId,
+          responderName: a.responderName || match?.responderName,
+          userName: match?.userName || a.patientName || 'Unknown',
+          patientId: a.patientId || (match as any)?.patientId,
+          patientName: a.patientName || (match as any)?.patientName
+        } as any;
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  getStatusDisplay(emergency: EmergencyAlert): string {
+    if (emergency.id && this.dismissedHistoryIds.has(emergency.id)) {
+      return 'dismissed';
+    }
+    return emergency.status;
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'resolved': return 'success';
+      case 'responding': return 'warning';
+      case 'active': return 'danger';
+      case 'dismissed': return 'medium';
+      default: return 'medium';
     }
   }
 
@@ -113,15 +188,6 @@ export class EmergenciesPage implements OnInit, OnDestroy {
   viewEmergencyDetails(emergency: EmergencyAlert) {
     // Show detailed emergency information
     this.router.navigate(['/emergency-details', emergency.id]);
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'resolved': return 'success';
-      case 'responding': return 'warning';
-      case 'active': return 'danger';
-      default: return 'medium';
-    }
   }
 
   getLocationDisplay(location: any): string {

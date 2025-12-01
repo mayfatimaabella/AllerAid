@@ -10,6 +10,11 @@
         <ion-icon name="scan-outline"></ion-icon>
         <ion-label>Scan</ion-label>
       </ion-tab-button>
+      <ion-tab-button tab="alerts" [routerLink]="['/tabs/alerts']">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-label>Alerts</ion-label>
+        <ion-badge *ngIf="emergencyCount > 0" color="danger">{{ emergencyCount }}</ion-badge>
+      </ion-tab-button>
       <ion-tab-button tab="buddy" [routerLink]="['/tabs/buddy']">
         <ion-icon name="people-outline"></ion-icon>
         <ion-label>Buddy</ion-label>
@@ -52,6 +57,11 @@
       <ion-tab-button tab="doctor-dashboard" [routerLink]="['/tabs/doctor-dashboard']">
         <ion-icon name="medical-outline"></ion-icon>
         <ion-label>Dashboard</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="alerts" [routerLink]="['/tabs/alerts']">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-label>Alerts</ion-label>
+        <ion-badge *ngIf="emergencyCount > 0" color="danger">{{ emergencyCount }}</ion-badge>
       </ion-tab-button>
       <ion-tab-button tab="profile" [routerLink]="['/tabs/profile']">
         <ion-icon name="person-outline"></ion-icon>

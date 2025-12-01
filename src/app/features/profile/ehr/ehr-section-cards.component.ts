@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, DatePipe, SlicePipe } from '@angular/common';
@@ -139,10 +139,12 @@ export class EHRSectionCardsComponent {
     this.openVisitDetails.emit({ doctorVisit });
   }
 
+  constructor(private navCtrl: NavController) {}
+
   openMedicalHistoryDetailsHandler(medicalHistory: MedicalHistory) {
-    // Navigate to the medical history details page
-    if (medicalHistory && medicalHistory.id) {
-      window.location.href = `/medical-history-details/${medicalHistory.id}`;
+    if (medicalHistory?.id) {
+      // Use Ionic navigation for smooth animated transition instead of full page reload
+      this.navCtrl.navigateForward(`/medical-history-details/${medicalHistory.id}`);
     } else {
       this.openMedicalHistoryDetails.emit({ medicalHistory });
     }

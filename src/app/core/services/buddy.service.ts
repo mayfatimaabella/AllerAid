@@ -84,6 +84,50 @@ export class BuddyService {
     this.db = getFirestore(app);
   }
 
+  // Store a dismissal for a specific user so future pop-ups are suppressed
+  dismissEmergencyForUser(userId: string, emergencyId: string): void {
+    try {
+      const key = `dismissedEmergencies_${userId}`;
+      const list: string[] = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.includes(emergencyId)) {
+        list.push(emergencyId);
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+
+      // Also immediately update the active emergencies stream so badges/UI reflect the dismissal
+      const current = this.activeEmergencyAlertsSubject.value;
+      const updated = current.filter(e => e.id !== emergencyId);
+      this.activeEmergencyAlertsSubject.next(updated);
+    } catch (e) {
+      console.warn('Failed to persist emergency dismissal', e);
+    }
+  }
+
+  // Persist dismissed alert snapshot data for local history (per user)
+  saveDismissedAlertData(userId: string, alert: any): void {
+    try {
+      const key = `dismissedAlerts_${userId}`;
+      const current: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const minimal = {
+        id: alert.id,
+        status: alert.status,
+        createdAt: alert.createdAt || alert.timestamp || new Date().toISOString(),
+        location: alert.location || null,
+        patientId: alert.patientId || null,
+        patientName: alert.patientName || null,
+        responderId: alert.responderId || null,
+        responderName: alert.responderName || null,
+        dismissedAt: new Date().toISOString()
+      };
+      // De-duplicate by id
+      const exists = current.find(a => a.id === minimal.id);
+      const updated = exists ? current.map(a => a.id === minimal.id ? minimal : a) : [...current, minimal];
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to persist dismissed alert data', e);
+    }
+  }
+
   // CREATE buddy
   async addBuddy(buddy: any): Promise<string> {
     const docRef = await addDoc(collection(this.db, 'buddies'), buddy);
@@ -350,8 +394,17 @@ export class BuddyService {
     // Set up real-time listener
     onSnapshot(q, (querySnapshot) => {
       const emergencies: any[] = [];
+      // Load dismissed emergency IDs for this user from localStorage
+      const dismissedKey = `dismissedEmergencies_${buddyId}`;
+      const dismissedList: string[] = JSON.parse(localStorage.getItem(dismissedKey) || '[]');
+      const dismissedSet = new Set(dismissedList);
+
       querySnapshot.forEach((doc) => {
-        emergencies.push({ id: doc.id, ...doc.data() });
+        const emergency = { id: doc.id, ...doc.data() };
+        // Filter out locally dismissed emergencies for this user
+        if (!dismissedSet.has(emergency.id)) {
+          emergencies.push(emergency);
+        }
       });
       this.activeEmergencyAlertsSubject.next(emergencies);
     });

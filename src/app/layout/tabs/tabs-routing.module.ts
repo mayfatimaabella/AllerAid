@@ -59,6 +59,10 @@ const routes: Routes = [
       
       // Shared Routes (Available to multiple roles)
       {
+        path: 'alerts',
+        loadChildren: () => import('../../features/buddy/pages/emergencies/emergencies.module').then(m => m.EmergenciesPageModule)
+      },
+      {
         path: 'buddy',
         loadChildren: () => import('../../features/buddy/buddy.module').then(m => m.BuddyPageModule)  
       },

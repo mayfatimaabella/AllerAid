@@ -84,19 +84,35 @@ export class EmergencyService {
     try {
       console.log('🚨 Starting emergency alert process...');
       
-      // Get current location
-      const position = await this.getCurrentLocation();
+      // Get current location with graceful fallback
+      let position: Position | null = null;
+      try {
+        position = await this.getCurrentLocation();
+      } catch (geoError) {
+        // Geolocation can fail on web if not served over HTTPS or permission denied
+        const code = (geoError as any)?.code;
+        console.warn('Geolocation unavailable, proceeding without precise location.', {
+          code,
+          message: (geoError as any)?.message || String(geoError)
+        });
+      }
       
       // Create the emergency alert
+      // Build location object safely (avoid undefined fields for Firestore)
+      const location = position ? {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        ...(position.coords.accuracy !== undefined ? { accuracy: position.coords.accuracy } : {})
+      } : {
+        latitude: 0,
+        longitude: 0
+      };
+
       const emergencyData: EmergencyAlert = {
         userId,
         userName,
         timestamp: Timestamp.now(),
-        location: {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        },
+        location,
         allergies,
         instruction,
         status: 'active',

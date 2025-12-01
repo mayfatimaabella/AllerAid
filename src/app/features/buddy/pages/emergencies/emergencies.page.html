@@ -47,6 +47,10 @@
             <ion-icon name="map-outline" slot="start"></ion-icon>
             View on Map
           </ion-button>
+          <ion-button expand="block" fill="outline" color="light" (click)="dismissEmergency(emergency)">
+            <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+            Dismiss
+          </ion-button>
           <ion-button expand="block" fill="clear" color="light" (click)="callPatient(emergency)">
             <ion-icon name="call-outline" slot="start"></ion-icon>
             Call {{ emergency.userName }}
@@ -75,6 +79,9 @@
         <ion-segment-button value="responding">
           <ion-label>Responding</ion-label>
         </ion-segment-button>
+        <ion-segment-button value="dismissed">
+          <ion-label>Dismissed</ion-label>
+        </ion-segment-button>
       </ion-segment>
 
       <ion-list *ngIf="filteredEmergencies.length > 0">
@@ -84,8 +91,8 @@
             <p>{{ emergency.location.latitude }}, {{ emergency.location.longitude }}</p>
             <p>{{ emergency.timestamp?.toDate() | date:'short' }}</p>
           </ion-label>
-          <ion-badge slot="end" [color]="getStatusColor(emergency.status)">
-            {{ emergency.status }}
+          <ion-badge slot="end" [color]="getStatusColor(getStatusDisplay(emergency))">
+            {{ getStatusDisplay(emergency) | titlecase }}
           </ion-badge>
         </ion-item>
       </ion-list>
