@@ -20,7 +20,7 @@ import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
 import { EmergencyMessageCardComponent } from './emergency/emergency-message-card/emergency-message-card.component';
-import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-modal.component';
+import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-modal/emergency-examples-modal.component';
 
 @NgModule({
   imports: [

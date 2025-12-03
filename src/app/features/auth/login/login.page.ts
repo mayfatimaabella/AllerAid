@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastController, NavController } from '@ionic/angular';
+import { ToastController, NavController, LoadingController, AlertController } from '@ionic/angular';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RoleRedirectService } from '../../../core/services/role-redirect.service';
@@ -19,7 +19,9 @@ export class LoginPage implements OnInit {
     private navCtrl: NavController,
     private userService: UserService,
     private authService: AuthService,
-    private roleRedirectService: RoleRedirectService
+    private roleRedirectService: RoleRedirectService,
+    private loadingController: LoadingController,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -44,6 +46,11 @@ export class LoginPage implements OnInit {
     }
 
     try {
+      const loading = await this.loadingController.create({
+        message: 'Signing in...',
+        spinner: 'crescent'
+      });
+      await loading.present();
       console.log('Attempting to sign in...');
       const userCredential = await this.authService.signIn(this.email, this.password);
       if (userCredential.user) {
@@ -81,7 +88,7 @@ export class LoginPage implements OnInit {
             role: userProfile.role
           }));
           
-          this.presentToast('Login successful!');
+          this.presentToast('Login successful!', 'success', 2500, 'checkmark-circle-outline');
           
           // Check if user needs to complete allergy onboarding (patients only)
           if (userProfile.role === 'user') {
@@ -101,34 +108,91 @@ export class LoginPage implements OnInit {
           console.error('Failed to create or retrieve user profile');
           this.presentToast('Failed to load user profile. Please contact support.');
         }
-  // No unconditional navigation here — routing is handled above or by RoleRedirectService
+ 
       }
     } catch (error: any) {
       console.error('Login error:', error);
       
       if (error.code === 'auth/email-not-verified') {
-        this.presentToast('Please verify your email address before logging in. Check your inbox for the verification email.');
-      } else if (error.code === 'auth/user-not-found') {
-        this.presentToast('No account found with this email address.');
-      } else if (error.code === 'auth/wrong-password') {
-        this.presentToast('Incorrect password. Please try again.');
-      } else if (error.code === 'auth/invalid-email') {
-        this.presentToast('Invalid email address format.');
-      } else if (error.code === 'auth/too-many-requests') {
-        this.presentToast('Too many failed login attempts. Please try again later.');
+        await this.presentErrorAlert(
+          'Email Not Verified',
+          'Please verify your email address before logging in. Would you like us to resend the verification email?',
+          [
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Resend',
+              handler: async () => {
+                await this.resendVerificationEmail();
+              }
+            }
+          ]
+        );
       } else {
-        this.presentToast(`Login failed: ${error.message || 'Unknown error'}`);
+        const { message, color, icon, duration } = this.getErrorToastConfig(error);
+        this.presentToast(message, color, duration, icon);
+      }
+    }
+    finally {
+      const top = await this.loadingController.getTop();
+      if (top) {
+        await top.dismiss();
       }
     }
   }
 
-  async presentToast(message: string) {
+  async presentToast(message: string, color: string = 'medium', duration: number = 3000, icon?: string) {
     const toast = await this.toastController.create({
       message,
-      duration: 3000,
+      duration,
       position: 'bottom',
-      color: 'medium'
+      color,
+      icon
     });
     await toast.present();
+  }
+
+  private getErrorToastConfig(error: any): { message: string; color: string; icon?: string; duration: number } {
+    const code = error?.code as string | undefined;
+    switch (code) {
+      case 'auth/user-not-found':
+        return { message: 'No account found with this email.', color: 'warning', icon: 'person-circle-outline', duration: 3500 };
+      case 'auth/wrong-password':
+        return { message: 'Incorrect password. Please try again.', color: 'danger', icon: 'key-outline', duration: 3500 };
+      case 'auth/invalid-email':
+        return { message: 'Invalid email format.', color: 'warning', icon: 'mail-outline', duration: 3000 };
+      case 'auth/too-many-requests':
+        return { message: 'Too many attempts. Try again later.', color: 'medium', icon: 'time-outline', duration: 4000 };
+      case 'auth/network-request-failed':
+        return { message: 'Network error. Check your connection.', color: 'warning', icon: 'wifi-outline', duration: 3500 };
+      default:
+        return { message: 'Unable to sign in. Please try again.', color: 'medium', icon: 'alert-circle-outline', duration: 3500 };
+    }
+  }
+
+  async presentErrorAlert(header: string, message: string, buttons: any[] = ['OK']) {
+    const alert = await this.alertController.create({
+      header,
+      message,
+      buttons
+    });
+    await alert.present();
+  }
+
+  private async resendVerificationEmail() {
+    try {
+      // Attempt to trigger a verification email via AuthService, if supported
+      const maybeMethod: any = (this.authService as any);
+      if (typeof maybeMethod.resendVerificationEmail === 'function') {
+        await maybeMethod.resendVerificationEmail(this.email);
+      } else if (typeof maybeMethod.sendEmailVerification === 'function') {
+        await maybeMethod.sendEmailVerification(this.email);
+      }
+      await this.presentToast('Verification email sent. Please check your inbox.');
+    } catch (e: any) {
+      await this.presentToast(`Failed to send verification email: ${e?.message || 'Unknown error'}`);
+    }
   }
 }

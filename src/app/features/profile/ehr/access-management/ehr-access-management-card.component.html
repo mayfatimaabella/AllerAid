@@ -1,9 +1,13 @@
 <div class="ehr-section-card">
-  <div class="card-header">
-    <div class="card-title">
-      <ion-icon name="people-outline" color="tertiary"></ion-icon>
-      <h3>Provider Access</h3>
+  <div class="section-title">
+    <div class="title-left">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Provider Access</span>
     </div>
+    <ion-button class="add-visit-btn" size="small" (click)="sendAccessRequestHandler()" [disabled]="!newProviderEmail || !newProviderName">
+      <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
+      Send Request
+    </ion-button>
   </div>
 
   <div class="card-content">
@@ -52,17 +56,14 @@
           placeholder="e.g., City General Hospital">
         </ion-input>
       </ion-item>
-      <ion-button class="provider-access-btn" (click)="sendAccessRequestHandler()" [disabled]="!newProviderEmail || !newProviderName">
-        <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
-        Send Access Request
-      </ion-button>
+      <!-- Moved action into header as add-visit-btn -->
       <p class="help-text">
         <ion-icon name="information-circle-outline"></ion-icon>
         The provider must be registered in the system and will need to accept your request.
       </p>
     </div>
     <div class="current-access" *ngIf="ehrAccessList.length > 0">
-      <h4>Current Provider Access</h4>
+      <h4 class="current-access-title">Current Provider Access</h4>
       <div class="access-list">
         <div *ngFor="let provider of ehrAccessList" class="access-item">
           <div class="provider-info">
