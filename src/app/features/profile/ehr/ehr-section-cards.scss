@@ -488,3 +488,21 @@
 }
 
 .history-notes-more { color: #5a6c69; }
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f4a42;
+  margin: 0 0 8px 0;
+}
+
+.empty-subtitle {
+  font-size: 14px;
+  color: #8ba19c;
+  margin: 0;
+}
