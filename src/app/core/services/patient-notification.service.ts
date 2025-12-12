@@ -12,6 +12,8 @@ import { Subscription } from 'rxjs';
 export class PatientNotificationService {
   private responseSubscription: Subscription | null = null;
   private currentModal: HTMLIonModalElement | null = null;
+  // Disable the Buddy Response Alert modal; Home page shows a persistent card instead
+  private enableBuddyResponseModal: boolean = false;
 
   constructor(
     private modalController: ModalController,
@@ -69,6 +71,10 @@ export class PatientNotificationService {
    */
   private async showBuddyResponseNotification(response: any): Promise<void> {
     try {
+      // Skip showing the modal when disabled (use Home banner instead)
+      if (!this.enableBuddyResponseModal) {
+        return;
+      }
       // Close any existing modal first
       if (this.currentModal) {
         await this.currentModal.dismiss();

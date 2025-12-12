@@ -1,16 +1,4 @@
-<ion-header translucent>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>BuddyCare Dashboard</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="refreshDashboard()">
-        <ion-icon name="refresh-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+
 
 <ion-content [fullscreen]="true">
   <div class="mobile-container">
@@ -38,16 +26,23 @@
                 <ion-badge color="danger" class="critical-badge">CRITICAL</ion-badge>
               </ion-item>
               <!-- Allergies Section -->
-              <div class="info-section" style="margin-top:8px;">
-                <h3 class="section-title" style="font-size:1rem;margin-bottom:4px;">
+              <div class="info-section info-section-compact">
+                <h3 class="section-title section-title-small">
                   <ion-icon name="alert-outline"></ion-icon>
                   Allergies
                 </h3>
                 <div class="allergy-chips">
-                  <ion-chip *ngFor="let allergy of emergencyAllergies">
-                    <ion-label>{{ allergy.label || allergy.name }}<span *ngIf="allergy.value"> - {{ allergy.value }}</span></ion-label>
-                  </ion-chip>
-                  <span *ngIf="!emergencyAllergies.length">None</span>
+                  <ng-container *ngIf="isAllergiesLoading; else allergiesLoaded">
+                    <ion-chip color="medium" outline="true">
+                      <ion-label>Loading allergies...</ion-label>
+                    </ion-chip>
+                  </ng-container>
+                  <ng-template #allergiesLoaded>
+                    <ion-chip *ngFor="let allergy of emergencyAllergies">
+                      <ion-label>{{ allergy.label || allergy.name }}<span *ngIf="allergy.value"> - {{ allergy.value }}</span></ion-label>
+                    </ion-chip>
+                    <span *ngIf="!emergencyAllergies.length">None</span>
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -59,9 +54,9 @@
                 Patient Location
               </h3>
               <div class="location-content">
-                <div class="map-container" style="height:120px;width:100%;border-radius:12px;overflow:hidden;margin-bottom:8px;background:#222;position:relative;">
-                  <div #miniMap id="miniMap" style="height:100%;width:100%;"></div>
-                  <ion-button size="small" (click)="resetMiniMapView()" style="position:absolute;top:8px;right:8px;z-index:1000;--background:#fff;--color:#3880ff;opacity:0.9;border-radius:50%;min-width:36px;min-height:36px;padding:0;">
+                <div class="map-container">
+                  <div #miniMap id="miniMap" class="mini-map"></div>
+                  <ion-button size="small" (click)="resetMiniMapView()" class="map-reset-btn">
                     <ion-icon name="locate"></ion-icon>
                   </ion-button>
                 </div>
@@ -69,14 +64,25 @@
                   <ion-chip color="primary" outline="true" title="This location is synced with the map views">
                     <ion-icon name="location"></ion-icon>
                     <ion-label>
-                      <!-- Show reverse geocoded address if available, always from currentEmergency.location -->
-                      <ng-container *ngIf="currentEmergency.location">
-                        {{ address && address !== (currentEmergency.location.latitude + ', ' + currentEmergency.location.longitude) ? address : (currentEmergency.location.latitude + ', ' + currentEmergency.location.longitude) }}
-                        <span style="font-style:italic;color:#888;font-size:0.9em;"></span>
-                      </ng-container>
-                      <ng-container *ngIf="!currentEmergency.location">
-                        Location updating...
-                      </ng-container>
+                      <!-- Clear legend: Patient and Responder addresses -->
+                      <div>
+                        <strong>Patient:</strong>
+                        <ng-container *ngIf="isAddressLoading; else patientAddressResolved">
+                          Resolving address...
+                        </ng-container>
+                        <ng-template #patientAddressResolved>
+                          {{ patientAddress || 'Location unavailable' }}
+                        </ng-template>
+                      </div>
+                      <div style="margin-top: 4px;">
+                        <strong>Responder:</strong>
+                        <ng-container *ngIf="isResponderAddressLoading; else responderAddressResolved">
+                          Resolving address...
+                        </ng-container>
+                        <ng-template #responderAddressResolved>
+                          {{ responderAddress || 'Location unavailable' }}
+                        </ng-template>
+                      </div>
                     </ion-label>
                   </ion-chip>
                 </div>

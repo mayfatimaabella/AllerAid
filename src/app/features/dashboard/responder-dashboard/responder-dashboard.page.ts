@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { AllergyService } from '../../../core/services/allergy.service';
 import * as L from 'leaflet';
 import { Router } from '@angular/router';
@@ -15,15 +16,53 @@ import { Subscription } from 'rxjs';
   standalone: false,
 })
 export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy {
+  @Input() responderData: any;
   emergencyAllergies: any[] = [];
+  isAllergiesLoading: boolean = true;
+  isAddressLoading: boolean = true;
+  // Reverse-geocoded addresses
   address: string = '';
+  patientAddress: string = '';
+  responderAddress: string = '';
+  isResponderAddressLoading: boolean = false;
+  // Passive viewing: disable continuous responder updates by default
+  liveUpdateResponder: boolean = false;
   private async fetchAddressFromCoords(lat: number, lng: number) {
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+      this.isAddressLoading = true;
+      // Do not set forbidden headers like User-Agent/Referer in browser.
+      // Provide a contact email via query param per Nominatim policy.
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Reverse geocoding failed: ${response.status}`);
+      }
       const data = await response.json();
-      this.address = data.display_name || `${lat}, ${lng}`;
+      this.address = (data?.display_name || '').trim() || 'Location unavailable';
+      this.patientAddress = this.address;
     } catch (e) {
-      this.address = `${lat}, ${lng}`;
+      // Keep a friendly message rather than raw coordinates
+      this.address = 'Location unavailable';
+      this.patientAddress = this.address;
+    } finally {
+      this.isAddressLoading = false;
+    }
+  }
+
+  private async fetchResponderAddress(lat: number, lng: number) {
+    try {
+      this.isResponderAddressLoading = true;
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Reverse geocoding failed: ${response.status}`);
+      }
+      const data = await response.json();
+      this.responderAddress = (data?.display_name || '').trim() || 'Location unavailable';
+    } catch (e) {
+      this.responderAddress = 'Location unavailable';
+    } finally {
+      this.isResponderAddressLoading = false;
     }
   }
   @ViewChild('miniMap', { static: false }) miniMapElement!: ElementRef;
@@ -55,30 +94,43 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
         }).addTo(this.miniMap);
-        // Patient marker
+        // Patient marker (blue default icon)
         L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
           .addTo(this.miniMap)
-          .bindPopup('Patient Location');
+          .bindPopup('Patient');
 
-        // Get responder's current location and show marker
+        // Get responder's current location and show marker (single fetch for passive viewing)
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(position => {
             const responderLat = position.coords.latitude;
             const responderLng = position.coords.longitude;
             this.responderMarker = L.marker([responderLat, responderLng], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon-2x.png', iconSize: [25, 41], iconAnchor: [12, 41], className: 'responder-marker' }) })
               .addTo(this.miniMap)
-              .bindPopup('Your Location');
+              .bindPopup('Responder');
+            // Reverse geocode responder
+            this.fetchResponderAddress(responderLat, responderLng);
           });
 
-          // Watch responder location and update marker
-          navigator.geolocation.watchPosition(position => {
-            const responderLat = position.coords.latitude;
-            const responderLng = position.coords.longitude;
-            if (this.responderMarker) {
-              this.responderMarker.setLatLng([responderLat, responderLng]);
-            }
-          });
+          // Optional: live updates only when enabled (not for passive viewing)
+          if (this.liveUpdateResponder) {
+            let lastUpdate = 0;
+            navigator.geolocation.watchPosition(position => {
+              const responderLat = position.coords.latitude;
+              const responderLng = position.coords.longitude;
+              if (this.responderMarker) {
+                this.responderMarker.setLatLng([responderLat, responderLng]);
+              }
+              const now = Date.now();
+              if (now - lastUpdate > 30000) { // update at most every 30s
+                lastUpdate = now;
+                this.fetchResponderAddress(responderLat, responderLng);
+              }
+            }, undefined, { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 });
+          }
         }
+
+        // Reverse geocode once using the patient coordinates to avoid drifting
+        this.fetchAddressFromCoords(latitude, longitude);
       }
     }, 200);
   }
@@ -101,10 +153,29 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     private authService: AuthService,
     private userService: UserService,
     private emergencyService: EmergencyService,
-    private allergyService: AllergyService
+    private allergyService: AllergyService,
+    private modalController: ModalController
   ) {}
 
   async ngOnInit() {
+    // If modal provided responderData, seed currentEmergency for immediate interaction
+    if (this.responderData && this.responderData.alert) {
+      // Merge minimal fields to match EmergencyAlert shape
+      this.currentEmergency = {
+        id: this.responderData.emergencyId || this.responderData.alert.id,
+        userId: this.responderData.alert.userId,
+        userName: this.responderData.userName || this.responderData.alert.userName,
+        instruction: this.responderData.instruction || this.responderData.alert.instruction,
+        emergencyInstruction: this.responderData.alert.emergencyInstruction,
+        location: this.responderData.alert.location,
+        status: this.responderData.alert.status,
+        timestamp: this.responderData.alert.timestamp
+      } as EmergencyAlert;
+      // Preload address and allergies if possible
+      if (this.currentEmergency?.location) {
+        await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
+      }
+    }
     await this.setupRealTimeListeners();
   }
 
@@ -138,18 +209,22 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
               await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
              // Fetch allergies for patient
              if (this.currentEmergency.userId) {
+               this.isAllergiesLoading = true;
                const allergyDocs = await this.allergyService.getUserAllergies(this.currentEmergency.userId);
                if (allergyDocs && allergyDocs.length > 0) {
                  this.emergencyAllergies = allergyDocs[0].allergies.filter((a: any) => a.checked);
                } else {
                  this.emergencyAllergies = [];
                }
+               this.isAllergiesLoading = false;
              }
             }
           } else {
             this.currentEmergency = null;
             this.address = '';
             this.emergencyAllergies = [];
+            this.isAllergiesLoading = false;
+            this.isAddressLoading = false;
             if (this.miniMap) this.miniMap.remove();
           }
         });
@@ -193,8 +268,27 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           this.hasResponded = true;
           console.log('Buddy marked as responded with ETA calculation');
           
-          // Navigate to map for directions
-          this.navigate();
+          // Try to navigate to responder-map; if blocked (e.g., role guard), fall back to in-modal routing
+          try {
+            const navResult = await this.router.navigate(['/responder-map'], {
+              state: {
+                responder: {
+                  responderName: buddyName,
+                  emergencyId: this.currentEmergency.id,
+                  patientLocation: this.currentEmergency.location
+                }
+              }
+            });
+            if (navResult) {
+              await this.modalController.dismiss(null, 'respond');
+            } else {
+              console.warn('Navigation to responder-map was blocked; starting in-modal route');
+              this.loadMiniMap();
+            }
+          } catch (navErr) {
+            console.warn('Navigation to responder-map failed; starting in-modal route', navErr);
+            this.loadMiniMap();
+          }
         }
       } catch (error) {
         console.error('Error responding to emergency:', error);
@@ -213,13 +307,28 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  navigate() {
+  async navigate() {
     if (this.currentEmergency && this.currentEmergency.location) {
+      // Resolve responder's display name from user profile for clarity
+      let responderName = 'Responder';
+      try {
+        const user = await this.authService.waitForAuthInit();
+        if (user) {
+          const profile = await this.userService.getUserProfile(user.uid);
+          if (profile) {
+            const first = (profile.firstName || '').trim();
+            const last = (profile.lastName || '').trim();
+            const full = `${first} ${last}`.trim();
+            responderName = full || 'Responder';
+          }
+        }
+      } catch {}
+
       // Pass both responder and patient location to the map page
       this.router.navigate(['/responder-map'], {
         state: {
           responder: {
-            responderName: 'You', // or use actual buddy name if available
+            responderName,
             emergencyId: this.currentEmergency.id,
             responderLocation: null, // will be set by map page
             patientLocation: this.currentEmergency.location,
@@ -228,6 +337,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           }
         }
       });
+      // Dismiss modal if opened as a modal to unblock navigation
+      this.dismissIfModal();
     } else {
       console.log('No emergency location available');
     }
@@ -251,6 +362,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       
       // Show confirmation
       alert('Emergency has been marked as resolved.');
+      // Dismiss modal so user returns to app context
+      this.dismissIfModal();
     } catch (error) {
       console.error('Error marking emergency as resolved:', error);
       alert('Failed to mark emergency as resolved. Please try again.');
@@ -299,10 +412,19 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
   viewPatients() {
     this.router.navigate(['/tabs/patients']);
+    this.dismissIfModal();
   }
 
   viewHistory() {
     this.router.navigate(['/tabs/emergencies']);
+    this.dismissIfModal();
+  }
+
+  private async dismissIfModal() {
+    try {
+      // If presented as a modal, this will close it; otherwise no-op
+      await this.modalController.dismiss(null, 'navigate');
+    } catch {}
   }
 }
 

@@ -7,7 +7,7 @@
 
   <ion-buttons slot="end">
     <ion-button fill="clear" size="small" (click)="openNotifications()">
-      <img src="assets/icon/bell.png" alt="bell" style="width: 24px; height: 24px;" />
+      <img src="assets/icon/bell.png" alt="bell" class="notif-icon" />
     </ion-button>
   </ion-buttons>
 </ion-toolbar>
@@ -29,10 +29,10 @@
     <div class="health-stats-section">
       <div class="smartwatch-card">
         <div class="smartwatch-info">
-          <img src="assets/icon/smartwatch.png" alt="Smart Watch" style="width: 48px; height: 48px; margin-right: 16px;" />
+          <img src="assets/icon/smartwatch.png" alt="Smart Watch" class="smartwatch-icon" />
           <div>
             <div class="smartwatch-title">Smart Watch</div>
-            <div class="smartwatch-link"><a href="#" style="font-weight: 500; text-decoration: underline;">Connect to Smartwatch</a></div>
+            <div class="smartwatch-link"><a href="#" class="smartwatch-connect">Connect to Smartwatch</a></div>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@
     <!-- Emergency Status Card -->
     <ion-card *ngIf="isEmergencyActive" class="emergency-status-card">
       <ion-card-header>
-        <ion-card-title style="color: #d32f2f; display: flex; align-items: center; gap: 8px;">
+        <ion-card-title class="emergency-title-row">
           <ion-icon name="alert-circle" color="danger"></ion-icon>
           EMERGENCY ACTIVE
         </ion-card-title>
@@ -84,11 +84,13 @@
       </ion-card-header>
       <ion-card-content>
         <div class="emergency-info">
-          <p><strong>Location:</strong> 
-            <span *ngIf="emergencyLocation">
+          <p><strong>Location:</strong>
+            <span *ngIf="isEmergencyAddressLoading">Resolving address...</span>
+            <span *ngIf="!isEmergencyAddressLoading && emergencyAddress">{{ emergencyAddress }}</span>
+            <span *ngIf="!isEmergencyAddressLoading && !emergencyAddress && emergencyLocation">
               {{ emergencyLocation.latitude.toFixed(4) }}, {{ emergencyLocation.longitude.toFixed(4) }}
             </span>
-            <span *ngIf="!emergencyLocation">Updating...</span>
+            <span *ngIf="!emergencyLocation && !isEmergencyAddressLoading">Updating...</span>
           </p>
           
           <div class="buddy-responses" *ngIf="hasBuddyResponses()">
@@ -118,7 +120,7 @@
               expand="block" 
               color="success" 
               (click)="resolveEmergency()"
-              style="margin-top: 16px;">
+              class="mt-16">
               <ion-icon name="checkmark-circle" slot="start"></ion-icon>
               Mark as Resolved
             </ion-button>
@@ -149,9 +151,9 @@
         <ion-card-subtitle>Local pollen levels and hotspots</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <div class="pollen-map-preview" style="display:flex; flex-direction:column; gap:12px;">
-          <img src="assets/icon/pollen-map-placeholder.png" alt="Pollen Map" style="width:100%; height:auto; border-radius:8px;" />
-          <p style="margin:0; color:var(--ion-color-medium);">This is a placeholder pollen map. Tap "Open Map" to view an interactive map (coming soon).</p>
+        <div class="pollen-map-preview">
+          <img src="assets/icon/pollen-map-placeholder.png" alt="Pollen Map" class="pollen-map-image" />
+          <p class="pollen-map-note">This is a placeholder pollen map. Tap "Open Map" to view an interactive map (coming soon).</p>
           <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
             <ion-icon name="map" slot="start"></ion-icon>
             Open Map

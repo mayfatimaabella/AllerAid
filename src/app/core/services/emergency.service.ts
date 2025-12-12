@@ -82,9 +82,9 @@ export class EmergencyService {
     instruction: string = ''
   ): Promise<string> {
     try {
-      console.log('🚨 Starting emergency alert process...');
+      console.log('Starting emergency alert process...');
       
-      // Get current location with graceful fallback
+      // 1st Get current location with graceful fallback
       let position: Position | null = null;
       try {
         position = await this.getCurrentLocation();
@@ -119,26 +119,26 @@ export class EmergencyService {
         buddyIds
       };
       
-      // Add to Firestore
+      // 2nd Add to Firestore
       const docRef = await addDoc(collection(this.db, 'emergencies'), emergencyData);
       const emergencyId = docRef.id;
       
-      // Update the emergency data with the ID
+      // 3rd Update the emergency data with the ID
       emergencyData.id = emergencyId;
       
-      console.log('✅ Emergency alert created in Firestore:', emergencyId);
+      console.log('Emergency alert created in Firestore:', emergencyId);
       
-      // Start tracking location updates
+      // 4th Start tracking location updates
       this.startLocationTracking(emergencyId);
       
-      // Set up listener for responses
+      // 5th Set up listener for responses
       this.listenForResponses(emergencyId, userId);
       
-      // 🚨 AUTO EMERGENCY NOTIFICATIONS 🚨
+      // AUTO EMERGENCY NOTIFICATIONS
       // Send SMS and push notifications to all buddies
       if (this.emergencyNotificationService && this.userService) {
         try {
-          console.log('📱 Sending emergency notifications to buddies...');
+          console.log('Sending emergency notifications to buddies...');
           
           // Get user profile for comprehensive emergency info
           const userProfile = await this.userService.getUserProfile(userId);
@@ -149,19 +149,19 @@ export class EmergencyService {
             userProfile
           );
           
-          console.log('✅ Emergency notifications sent successfully');
+          console.log('Emergency notifications sent successfully');
           
         } catch (notificationError) {
-          console.error('⚠️ Emergency notifications failed:', notificationError);
+          console.error('Emergency notifications failed:', notificationError);
           // Don't throw error - emergency alert should still work even if notifications fail
         }
       } else {
-        console.log('⚠️ Emergency notification service not available');
+        console.log('Emergency notification service not available');
       }
       
       return emergencyId;
     } catch (error) {
-      console.error('❌ Error sending emergency alert:', error);
+      console.error(' Error sending emergency alert:', error);
       throw error;
     }
   }

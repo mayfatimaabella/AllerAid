@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { LoadingController } from '@ionic/angular';
 import * as L from 'leaflet';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { LocationPermissionService } from '../../../core/services/location-permission.service';
 
 // Fix for default markers in Leaflet
@@ -24,6 +25,7 @@ L.Icon.Default.mergeOptions({
 export class ResponderMapPage implements OnInit, OnDestroy {
   routingControl: any = null;
   startNavigation: () => void = () => {};
+  openExternalNavigation: () => void = () => {};
   @ViewChild('map', { static: false }) mapElement!: ElementRef;
   private map!: L.Map;
   private responderMarker!: L.Marker;
@@ -45,6 +47,7 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     private emergencyService: EmergencyService,
     private loadingController: LoadingController,
     private authService: AuthService,
+    private userService: UserService,
     private locationPermissionService: LocationPermissionService
   ) {
     // Get emergency info from router state
@@ -62,6 +65,22 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     // Get current user ID
     const user = await this.authService.waitForAuthInit();
     this.currentUserId = user?.uid || null;
+
+    // Resolve responder name from profile if it's generic or missing
+    try {
+      const isGeneric = !this.responderName || ['You', 'Responder', 'Your buddy'].includes(this.responderName.trim());
+      if (isGeneric && this.currentUserId) {
+        const profile = await this.userService.getUserProfile(this.currentUserId);
+        if (profile) {
+          const first = (profile.firstName || '').trim();
+          const last = (profile.lastName || '').trim();
+          const full = `${first} ${last}`.trim();
+          if (full) {
+            this.responderName = full;
+          }
+        }
+      }
+    } catch {}
     
     // Add a longer delay to ensure DOM is ready (especially for ViewChild with static: false)
     setTimeout(async () => {
@@ -295,6 +314,24 @@ export class ResponderMapPage implements OnInit, OnDestroy {
           }).addTo(this.map);
         } else {
           console.warn('Navigation cannot start: missing responder or patient location');
+        }
+      };
+
+      // External navigation via Google Maps
+      this.openExternalNavigation = () => {
+        const hasResponder = typeof responderLat === 'number' && typeof responderLng === 'number';
+        const hasPatient = typeof patientLat === 'number' && typeof patientLng === 'number';
+        if (!hasPatient) {
+          console.warn('Cannot open external navigation: missing patient location');
+          return;
+        }
+        // If we have current responder location, use it as origin; else let Google Maps use current device location
+        if (hasResponder) {
+          const url = `https://www.google.com/maps/dir/?api=1&origin=${responderLat},${responderLng}&destination=${patientLat},${patientLng}&travelmode=driving`;
+          window.open(url, '_blank');
+        } else {
+          const url = `https://www.google.com/maps/dir/?api=1&destination=${patientLat},${patientLng}&travelmode=driving`;
+          window.open(url, '_blank');
         }
       };
 

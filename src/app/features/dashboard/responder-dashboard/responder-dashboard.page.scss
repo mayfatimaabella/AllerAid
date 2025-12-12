@@ -122,6 +122,11 @@ ion-content {
   margin-bottom: 24px;
 }
 
+// Compact variant used in Allergies section
+.info-section-compact {
+  margin-top: 8px;
+}
+
 .section-title {
   display: flex;
   align-items: center;
@@ -136,14 +141,21 @@ ion-content {
   }
 }
 
+// Smaller title variant
+.section-title-small {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
 // Map container responsive
 .map-container {
-  height: 180px;
+  position: relative;
+  height: 120px;
+  width: 100%;
   border-radius: 12px;
-  background-image: url('https://maps.googleapis.com/maps/api/staticmap?center=14.5995,120.9842&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C14.5995,120.9842&key=YOUR_API_KEY');
-  background-size: cover;
-  background-position: center;
-  margin-bottom: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: #222;
   border: 2px solid var(--ion-color-light);
   
   @media (min-width: 768px) {
@@ -151,10 +163,35 @@ ion-content {
   }
 }
 
+.mini-map {
+  height: 100%;
+  width: 100%;
+}
+
+.map-reset-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+  --background: #fff;
+  --color: #3880ff;
+  opacity: 0.9;
+  border-radius: 50%;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+}
+
 .location-content {
   .location-text {
     margin-top: 8px;
   }
+}
+
+.location-note {
+  font-style: italic;
+  color: #888;
+  font-size: 0.9em;
 }
 
 // Instruction box
