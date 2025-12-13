@@ -197,7 +197,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
         // Subscribe to emergency alerts
         this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
-          this.activeEmergencies = alerts.filter(alert => alert.status === 'active');
+          // Include both 'active' and 'responding' so UI persists after response
+          this.activeEmergencies = alerts.filter(alert => alert.status === 'active' || alert.status === 'responding');
 
           // Set current emergency to the most recent active one
           if (this.activeEmergencies.length > 0) {
@@ -220,6 +221,10 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
              }
             }
           } else {
+            // If we have already responded and local status is responding, keep showing it
+            if (this.currentEmergency && this.hasResponded && this.currentEmergency.status === 'responding') {
+              return;
+            }
             this.currentEmergency = null;
             this.address = '';
             this.emergencyAllergies = [];
@@ -266,6 +271,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           );
           
           this.hasResponded = true;
+          // Reflect local status immediately so template shows confirmation
+          this.currentEmergency.status = 'responding';
           console.log('Buddy marked as responded with ETA calculation');
           
           // Try to navigate to responder-map; if blocked (e.g., role guard), fall back to in-modal routing
