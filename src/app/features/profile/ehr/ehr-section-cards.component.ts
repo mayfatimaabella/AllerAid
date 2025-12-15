@@ -29,6 +29,8 @@ export class EHRSectionCardsComponent {
 
 
   visitActionsPopover: DoctorVisit | null = null;
+  historyActionsEvent: any = null;
+  historyActionsPopover: MedicalHistory | null = null;
   selectedTab: string = 'ehr';
 
   deleteDoctorVisitHandler(visit: DoctorVisit) {
@@ -157,6 +159,8 @@ export class EHRSectionCardsComponent {
   }
 
   presentHistoryActionsPopoverHandler(event: any, history: MedicalHistory) {
+    this.historyActionsEvent = event;
+    this.historyActionsPopover = history;
     this.presentHistoryActionsPopover.emit({ event, history });
   }
 }

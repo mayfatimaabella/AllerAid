@@ -53,6 +53,8 @@
           [emergencyMessage]="emergencyMessage"
           [userProfile]="userProfile"
           [emergencyInstructions]="emergencyInstructions"
+          [emergencyMessageName]="emergencyMessage.name || userProfile?.fullName || 'User'"
+          [emergencyInstructionsCombined]="(emergencyMessage.instructions || '')"
           [emergencyLocation]="emergencyMessage.location || 'Map Location'"
 
           (openEditAllergies)="openEditAllergiesModal()"
@@ -60,6 +62,7 @@
           (openEmergencyInfo)="showEmergencyInfoModal = true"
           (testInstructionAudio)="testInstructionAudio($event)"
           >
+          
           </app-profile-overview-section>
         </ng-container>
         
@@ -79,11 +82,12 @@
             <app-emergency-details-modal
             [emergencyMessageName]="emergencyMessage.name || userProfile?.fullName || 'User'"
             [userAllergies]="userAllergies"
-            [instructionEntries]="emergencyInstructions"
+            [instructionEntries]="getEmergencyInstructionEntries()"
             [emergencyLocation]="emergencyMessage.location || 'Map Location'"
             (close)="showEmergencyInfoModal = false"
             (testAudio)="testAudioInstructions()"
             (addInstruction)="openAddInstructionModal()"
+            (editInstruction)="openEditEmergencyMessageModal()"
             >
           </app-emergency-details-modal>
           </ng-template>
@@ -248,8 +252,6 @@
             </ion-modal>
           </div>
         </app-emergency-settings-card>
-        
-        <!-- Duplicate instructions modal block removed for cleanliness -->
 
         <!-- Emergency Examples Modal -->
         <app-emergency-examples-modal

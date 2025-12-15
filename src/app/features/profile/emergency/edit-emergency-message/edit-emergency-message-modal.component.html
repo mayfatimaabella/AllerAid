@@ -17,7 +17,12 @@
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Allergies</ion-label>
-        <ion-input formControlName="allergies"></ion-input>
+        <div class="chips-wrapper">
+          <ion-chip *ngFor="let a of allergyLabels" color="success" size="small">
+            <ion-label>{{ a }}</ion-label>
+          </ion-chip>
+          <p class="value no-data" *ngIf="allergyLabels.length === 0">None</p>
+        </div>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Instructions</ion-label>
