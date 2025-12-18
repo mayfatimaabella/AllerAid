@@ -104,7 +104,7 @@ export class BarcodeService {
       
       if (result.barcodes && result.barcodes.length > 0) {
         const scannedCode = result.barcodes[0].rawValue;
-        console.log('✅ Barcode scanned:', scannedCode);
+        console.log('Barcode scanned:', scannedCode);
         return scannedCode;
       }
       
@@ -147,11 +147,11 @@ export class BarcodeService {
       console.log('Module currently available:', isAvailable);
       
       if (isAvailable) {
-        console.log('✅ Module already installed');
+        console.log('Module already installed');
         return true;
       }
       
-      console.log('📦 Module not available - starting installation...');
+      console.log('Module not available - starting installation...');
       
       // Show installation alert
       const installAlert = await this.alertController.create({
@@ -174,7 +174,7 @@ export class BarcodeService {
       const progressListener = await BarcodeScanner.addListener(
         'googleBarcodeScannerModuleInstallProgress',
         (event) => {
-          console.log('📊 Installation progress:', event.progress, '%');
+          console.log('Installation progress:', event.progress, '%');
         }
       );
       
@@ -185,7 +185,7 @@ export class BarcodeService {
       // Verify installation
       const verifyResult = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
       const isNowAvailable = typeof verifyResult === 'boolean' ? verifyResult : verifyResult.available;
-      console.log('✅ Module installation completed. Available:', isNowAvailable);
+      console.log('Module installation completed. Available:', isNowAvailable);
       
       if (isNowAvailable) {
         await this.showAlert('Installation Complete', 'Barcode scanner module installed successfully! You can now scan barcodes.');
@@ -195,7 +195,7 @@ export class BarcodeService {
       }
       
     } catch (error) {
-      console.error('❌ Module installation failed:', error);
+      console.error('Module installation failed:', error);
       await this.showAlert('Installation Failed', 'Failed to install barcode scanner module. Please check your internet connection and try again.');
       return false;
     }
@@ -250,18 +250,18 @@ export class BarcodeService {
       
       if (result.barcodes && result.barcodes.length > 0) {
         const scannedCode = result.barcodes[0].rawValue;
-        console.log('✅ Barcode successfully scanned:', scannedCode);
+        console.log('Barcode successfully scanned:', scannedCode);
         console.log('Barcode format:', result.barcodes[0].format);
         console.log('=== BARCODE SCAN DEBUG END ===');
         return scannedCode;
       }
       
-      console.log('❌ No barcode detected in scan result');
+      console.log('No barcode detected in scan result');
       console.log('=== BARCODE SCAN DEBUG END ===');
       return null;
 
     } catch (error) {
-      console.error('❌ Barcode scan error occurred:', error);
+      console.error('Barcode scan error occurred:', error);
       console.log('Error type:', typeof error);
       console.log('Error details:', JSON.stringify(error, null, 2));
       
@@ -271,7 +271,7 @@ export class BarcodeService {
         console.log('Error message (lowercase):', errorMessage);
         
         if (errorMessage.includes('cancelled') || errorMessage.includes('canceled') || errorMessage.includes('user_canceled')) {
-          console.log('✅ User cancelled scan - this is normal');
+          console.log('User cancelled scan - this is normal');
           console.log('=== BARCODE SCAN DEBUG END ===');
           return null;
         }
@@ -299,7 +299,7 @@ export class BarcodeService {
         }
       }
       
-      console.log('❌ Unhandled error - showing generic message');
+      console.log('Unhandled error - showing generic message');
       await this.showAlert('Scan Failed', `Barcode scanning failed: ${error}. Please try again or use manual barcode input.`);
       console.log('=== BARCODE SCAN DEBUG END ===');
       return null;
@@ -394,7 +394,7 @@ export class BarcodeService {
 
     switch (status) {
       case 'safe':
-        header = '✅ SAFE TO CONSUME';
+        header = 'SAFE TO CONSUME';
         message = `${productName} appears safe based on your allergy profile. No known allergens detected.`;
         cssClass = 'alert-success';
         break;
@@ -406,7 +406,7 @@ export class BarcodeService {
         break;
 
       case 'contains_allergen':
-        header = '🚨 DANGER - CONTAINS ALLERGENS';
+        header = 'DANGER - CONTAINS ALLERGENS';
         message = `${productName} contains known allergens: ${allergens.join(', ')}. DO NOT CONSUME!`;
         cssClass = 'alert-danger';
         break;

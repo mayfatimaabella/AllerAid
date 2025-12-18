@@ -9,8 +9,7 @@ import {
   getDoc,
   query,
   orderBy,
-  where,
-  Timestamp
+  where
 } from 'firebase/firestore';
 import { FirebaseService } from './firebase.service';
 import { AuthService } from './auth.service';

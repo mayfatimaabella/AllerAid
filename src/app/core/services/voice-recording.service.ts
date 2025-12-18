@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ToastController, AlertController } from '@ionic/angular';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 export interface VoiceRecording {
   id: string;
@@ -49,7 +49,7 @@ export class VoiceRecordingService {
 
   constructor(
     private toastController: ToastController,
-    private alertController: AlertController
+
   ) {
     this.loadRecordings();
     this.loadAudioSettings();

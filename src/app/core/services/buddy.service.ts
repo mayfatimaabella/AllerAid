@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebase.config';
 import { environment } from '../../../environments/environment';
-import { UserService, UserProfile } from './user.service';
+import { UserService } from './user.service';
 
 import {
   getFirestore,
@@ -19,7 +19,7 @@ import {
   setDoc,
   limit
 } from 'firebase/firestore';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject} from 'rxjs';
 
 export interface Buddy {
   id?: string;
@@ -29,7 +29,7 @@ export interface Buddy {
   relationship: string;
   contactNumber: string;
   email?: string;
-  // ...existing code...
+
 }
 
 export interface BuddyInvitation {
@@ -883,7 +883,7 @@ export class BuddyService {
         return [];
       }
       
-      // 🔧 OPTIMIZATION: Batch user profile queries instead of individual calls
+      // OPTIMIZATION: Batch user profile queries instead of individual calls
       const patientIds = querySnapshot.docs.map(doc => doc.data()['user1Id']);
       const uniquePatientIds = [...new Set(patientIds)]; // Remove duplicates
       

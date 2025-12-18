@@ -117,12 +117,6 @@ export class EmergencyAlertService {
       // For now, we'll log the notification
       console.log(`Sending emergency notification to buddy ${buddy.name}:`, alertMessage);
       
-      // TODO: Implement actual notification sending
-      // - SMS via Twilio/Firebase Functions
-      // - Push notification via FCM
-      // - Email notification
-      // - In-app notification
-      
     } catch (error) {
       console.error('Error sending notification to buddy:', buddy.name, error);
     }

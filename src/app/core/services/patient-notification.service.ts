@@ -143,7 +143,7 @@ export class PatientNotificationService {
    * Show route map to patient
    */
   private async showPatientRouteView(response: any, buddyData: BuddyResponseData): Promise<void> {
-    console.log('🗺️ PatientNotificationService: Showing route view for buddy response');
+    console.log('PatientNotificationService: Showing route view for buddy response');
     
     try {
       // Use patient location if available, otherwise use a default location

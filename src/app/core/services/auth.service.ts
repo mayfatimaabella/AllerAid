@@ -1,4 +1,3 @@
-// ...existing imports...
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
