@@ -89,6 +89,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/profile/ehr/pages/medical-history/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'smartwatch',
+    loadChildren: () => import('./features/smartwatch/smartwatch.module').then( m => m.SmartwatchPageModule)
+  },
+
 
 
 ];

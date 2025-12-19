@@ -18,6 +18,10 @@ ion-button [color="accent"] {
 
 ion-content {
   --background: #fff !important;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
 }
 
 .wrapper {
@@ -25,23 +29,23 @@ ion-content {
   width: 100%;
   min-height: 100vh;
   height: auto;
-  background-color: #d1dbd7;
+  background-color: #9dbbb3;
   display: flex;
   flex-direction: column;
   padding: 20px;
   padding-bottom: 25px; /* ensures a larger white gap above tab bar */
   z-index: 1;
   border-radius: 5px;
-  border: 1px solid #198476;
 }
 
 ion-card {
-  background: #e9f5f0;
+  background: #d1dbd7;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(229, 94, 118, 0.10);
   border: 1px solid #198476;
   margin: 12px 0;
   padding: 12px 0 8px 0;
+  max-width: 400px;
 }
 
 ion-card-header {
@@ -67,54 +71,6 @@ ion-card-content p {
   color: #333333;
   font-size: 14px;
   margin: 4px 0;
-}
-
-.emergency-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.circle-button {
-  background-color: #e12826;
-  border-radius: 50%;
-  width: 200px;
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-  margin-bottom: 10px;
-  border: 5px solid rgba(232,242,240,0.9);
-}
-
-.circle-button ion-icon {
-  font-size: 40px;
-  margin-bottom: 8px;
-}
-
-.emergency-title {
-  font-size: 22px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px black;
-  margin-bottom: 4px;
-}
-
-.instruction-text {
-  font-size: 13px;
-  color: #fcfcfc;
-  margin-top: 0;
-}
-
-.bottom-text {
-  font-size: 20px;
-  font-weight: bold;
-  color: #034f45;
 }
 
 .health-stats-section {

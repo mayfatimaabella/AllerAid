@@ -22,6 +22,12 @@ const routes: Routes = [
         canActivate: [RoleGuard],
         data: { roles: ['user'] }
       },
+      {
+        path: 'smartwatch',
+        loadChildren: () => import('../../features/smartwatch/smartwatch.module').then(m => m.SmartwatchPageModule),
+        canActivate: [RoleGuard],
+        data: { roles: ['user'] }
+      },
       
       // Buddy Routes
       {
@@ -41,6 +47,12 @@ const routes: Routes = [
       {
         path: 'doctor-dashboard',
         loadChildren: () => import('../../features/dashboard/doctor-dashboard/doctor-dashboard.module').then(m => m.DoctorDashboardPageModule),
+        canActivate: [RoleGuard],
+        data: { roles: ['doctor', 'nurse'] }
+      },
+      {
+        path: 'smartwatch',
+        loadChildren: () => import('../../features/smartwatch/smartwatch.module').then(m => m.SmartwatchPageModule),
         canActivate: [RoleGuard],
         data: { roles: ['doctor', 'nurse'] }
       },

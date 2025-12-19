@@ -6,6 +6,10 @@
   <ion-title>AllerAid</ion-title>
 
   <ion-buttons slot="end">
+    <ion-button fill="clear" [routerLink]="['/tabs/alerts']">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+    </ion-button>
+
     <ion-button fill="clear" size="small" (click)="openNotifications()">
       <img src="assets/icon/bell.png" alt="bell" style="width: 24px; height: 24px;" />
     </ion-button>
@@ -23,41 +27,6 @@
         <p class="instruction-text">Press the button or shake</p>
       </div>
       <p class="bottom-text">Press the button above in case of emergency</p>
-    </div>
-
-    <!-- Hardcoded Health Stats Section -->
-    <div class="health-stats-section">
-      <div class="smartwatch-card">
-        <div class="smartwatch-info">
-          <img src="assets/icon/smartwatch.png" alt="Smart Watch" style="width: 48px; height: 48px; margin-right: 16px;" />
-          <div>
-            <div class="smartwatch-title">Smart Watch</div>
-            <div class="smartwatch-link"><a href="#" style="font-weight: 500; text-decoration: underline;">Connect to Smartwatch</a></div>
-          </div>
-        </div>
-      </div>
-      <div class="health-stats-grid">
-        <div class="health-stat-card">
-          <div class="stat-title">Heart Rate</div>
-          <div class="stat-value">0</div>
-          <div class="stat-unit">bpm</div>
-        </div>
-        <div class="health-stat-card">
-          <div class="stat-title">Steps</div>
-          <div class="stat-value">0</div>
-          <div class="stat-unit">steps</div>
-        </div>
-        <div class="health-stat-card">
-          <div class="stat-title">SPO₂</div>
-          <div class="stat-value">0%</div>
-          <div class="stat-unit">Blood Oxygen</div>
-        </div>
-        <div class="health-stat-card">
-          <div class="stat-title">Calories</div>
-          <div class="stat-value">0</div>
-          <div class="stat-unit">kcal</div>
-        </div>
-      </div>
     </div>
 
     <!-- Show the emergency response notification when a buddy responds -->

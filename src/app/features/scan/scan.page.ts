@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ProductService } from '../../core/services/product.service';
 import { BarcodeService } from '../../core/services/barcode.service';
-//import { StorageService } from '../../core/services/storage.service'; //  Add this
+import { ScanResultComponent } from './scan-result/scan-result.component';
 
 @Component({
   selector: 'app-scan',
@@ -10,16 +10,20 @@ import { BarcodeService } from '../../core/services/barcode.service';
   standalone: false,
 })
 export class ScanPage {
+  @ViewChild('scanResultModal') scanResultModal!: ScanResultComponent;
+  @ViewChild('recentScansModal') recentScansModal!: any;
+
   manualBarcode: string = '';
   productInfo: any = null;
   allergenStatus: 'safe' | 'warning' | null = null;
   ingredientsToWatch: string[] = [];
-  recentScans: any[] = []; // To display recent scans
+  recentScans: any[] = [];
+  isManualInputModalOpen: boolean = false;
+  isRecentScansModalOpen: boolean = false;
 
   constructor(
     private productService: ProductService,
     private barcodeService: BarcodeService,
-    //private storageService: StorageService
   ) {}
 
   scanAndFetchProduct(barcode: string) {
@@ -93,6 +97,9 @@ export class ScanPage {
         this.recentScans.unshift(scanEntry);
         this.recentScans = this.recentScans.slice(0, 10); // limit to last 10
 
+        // Open the modal with the scan result
+        this.openScanResultModal();
+
         // Debug logs
         console.log('Product:', productName);
         console.log('Matched Allergens:', this.ingredientsToWatch);
@@ -106,6 +113,13 @@ export class ScanPage {
         this.ingredientsToWatch = [];
       }
     });
+  }
+
+  // Open the scan result modal
+  openScanResultModal() {
+    if (this.scanResultModal) {
+      this.scanResultModal.openModal();
+    }
   }
 
   // Camera scanning
@@ -126,18 +140,38 @@ export class ScanPage {
       console.error('=== SCAN PAGE: Error during barcode scan ===', error);
     }
   }
- viewScan(scan: any) {
-  this.productInfo = {
-    product_name: scan.product_name,
-    brands: scan.brand,
-    ingredients_text: 'Ingredients unavailable — viewed from recent scans.',
-    image_url: scan.image_url,
-  };
-  this.allergenStatus = scan.status;
-  this.ingredientsToWatch = scan.allergens || [];
 
-  // Optional: Scroll to top to show product info
-  document.querySelector('ion-content')?.scrollToTop(500);
-  
-}
+  viewScan(scan: any) {
+    this.productInfo = {
+      product_name: scan.product_name,
+      brands: scan.brand,
+      ingredients_text: 'Ingredients unavailable — viewed from recent scans.',
+      image_url: scan.image_url,
+    };
+    this.allergenStatus = scan.status;
+    this.ingredientsToWatch = scan.allergens || [];
+
+    // Open the modal
+    this.openScanResultModal();
+  }
+
+  openManualInputModal() {
+    this.isManualInputModalOpen = true;
+  }
+
+  viewRecentScans() {
+    if (this.recentScansModal) {
+      this.recentScansModal.openModal();
+    }
+  }
+
+  onBarcodeSubmitted(barcode: string) {
+    this.scanAndFetchProduct(barcode);
+    this.isManualInputModalOpen = false;
+  }
+
+  onRecentScanSelected(scan: any) {
+    this.viewScan(scan);
+    this.recentScansModal.onDismiss();
+  }
 }
