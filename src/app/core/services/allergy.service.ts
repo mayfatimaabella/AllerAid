@@ -150,33 +150,10 @@ export class AllergyService {
   // ENSURE all required allergy options exist (without creating duplicates)
   async ensureAllAllergyOptionsExist(): Promise<void> {
     try {
-      // const expectedOptions = [
-      //   { name: 'peanuts', label: 'Peanuts/Nuts', hasInput: false, order: 1 },
-      //   { name: 'dairy', label: 'Dairy/Milk', hasInput: false, order: 2 },
-      //   { name: 'eggs', label: 'Eggs', hasInput: false, order: 3 },
-      //   { name: 'wheat', label: 'Wheat/Gluten', hasInput: false, order: 4 },
-      //   { name: 'fish', label: 'Fish', hasInput: false, order: 5 },
-      //   { name: 'shellfish', label: 'Shellfish', hasInput: false, order: 6 },
-      //   { name: 'soy', label: 'Soy', hasInput: false, order: 7 },
-      //   { name: 'pollen', label: 'Pollen', hasInput: false, order: 8 },
-      //   { name: 'latex', label: 'Latex', hasInput: false, order: 9 },
-      //   { name: 'animalDander', label: 'Animal Dander', hasInput: false, order: 10 },
-      //   { name: 'insectStings', label: 'Insect Stings', hasInput: false, order: 11 },
-      //   { name: 'medication', label: 'Medication', hasInput: true, order: 12 },
-      //   { name: 'others', label: 'Others', hasInput: true, order: 13 }
-      // ];
 
       // Get existing options
       const existingOptions = await getDocs(collection(this.db, 'allergyOptions'));
-      const existingNames = new Set(existingOptions.docs.map(doc => doc.data()['name']));
 
-      // Add missing options
-      // for (const option of expectedOptions) {
-      //   if (!existingNames.has(option.name)) {
-      //     await addDoc(collection(this.db, 'allergyOptions'), option);
-      //     console.log(`Added missing allergy option: ${option.name}`);
-      //   }
-      // }
     } catch (error) {
       console.error('Error ensuring allergy options exist:', error);
       throw error;

@@ -37,7 +37,7 @@ export class BuddyResponseService {
    */
   async handleBuddyResponse(emergency: any, buddyName: string, buddyId: string): Promise<void> {
     try {
-      console.log('🚨 Buddy responding to emergency:', emergency.id);
+      console.log('Buddy responding to emergency:', emergency.id);
       
       // Update emergency status through the emergency service
       // This will trigger the real-time listener that patients are subscribed to
@@ -47,7 +47,7 @@ export class BuddyResponseService {
         buddyName
       );
 
-      console.log('✅ Emergency response recorded, patient will be notified automatically');
+      console.log('Emergency response recorded, patient will be notified automatically');
 
       // Get current buddy location
       const buddyLocation = await this.getCurrentLocation();
@@ -58,7 +58,7 @@ export class BuddyResponseService {
       // Show route map to buddy
       await this.showRouteMapToBuddy(emergency, buddyName, buddyId, buddyLocation);
 
-      console.log('✅ Buddy response handling complete with live tracking started');
+      console.log('Buddy response handling complete with live tracking started');
 
     } catch (error) {
       console.error('Error handling buddy response:', error);
@@ -164,7 +164,7 @@ export class BuddyResponseService {
       options
     );
 
-    console.log('🚀 Live location tracking started for buddy:', buddyId);
+    console.log('Live location tracking started for buddy:', buddyId);
   }
 
   /**
@@ -176,7 +176,7 @@ export class BuddyResponseService {
       this.locationWatchId = null;
     }
     this.isTracking = false;
-    console.log('🛑 Live location tracking stopped');
+    console.log('Live location tracking stopped');
   }
 
   /**

@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -11,7 +11,7 @@ import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit/add-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history/add-medical-history.modal';
-import { DoctorProfileComponent } from './components/doctor-profile.component';
+import { DoctorProfileComponent } from './components-doctor-profile/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './overview/modals/emergency-details-modal/emergency-details-modal.component';
 import { EmergencySpecificInstructionsModalComponent } from './overview/modals/emergency-specific-instructions-modal/emergency-specific-instructions-modal.component';
 import { ImageViewerModal } from './modal/image-viewer.modal';
@@ -21,6 +21,7 @@ import { MedicationDetailsModal } from './health/modals/medication-details.modal
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
 import { EmergencyMessageCardComponent } from './emergency/emergency-message-card/emergency-message-card.component';
 import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-modal/emergency-examples-modal.component';
+import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-
     EmergencyMessageCardComponent, // Standalone component
     EmergencySpecificInstructionsModalComponent,
     EmergencyExamplesModalComponent
+    , EditEmergencyMessageModalComponent
   ],
 
 
@@ -48,7 +50,7 @@ import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-
     AddMedicalHistoryModal,
     ImageViewerModal
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })
 export class ProfilePageModule {}
 

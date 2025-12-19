@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ToastController, AlertController, LoadingController } from '@ionic/angular';
+import { ToastController, AlertController, LoadingController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BuddyService } from '../../../core/services/buddy.service';
@@ -28,6 +28,8 @@ export class HomePage implements OnInit, OnDestroy {
   emergencyStartTime: Date | null = null;
   buddyResponses: { [buddyId: string]: { status: string; timestamp: Date; name: string } } = {};
   emergencyLocation: { latitude: number; longitude: number } | null = null;
+  emergencyAddress: string = '';
+  isEmergencyAddressLoading: boolean = false;
   
   // Notification status tracking
   notificationStatus: { [buddyId: string]: 'sending' | 'sent' | 'failed' | 'pending' } = {};
@@ -38,6 +40,7 @@ export class HomePage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private toastController: ToastController,
     private loadingController: LoadingController,
+    private modalController: ModalController,
     private router: Router,
     private authService: AuthService,
     private buddyService: BuddyService,
@@ -52,11 +55,13 @@ export class HomePage implements OnInit, OnDestroy {
     await this.loadUserData();
     this.listenForEmergencyResponses();
     this.listenForNotificationStatus();
+    this.subscribeToUserEmergency();
   }
 
   async ionViewWillEnter() {
     // Refresh data every time the user comes back to this page
     await this.loadUserData();
+    this.subscribeToUserEmergency();
   }
 
   ngOnDestroy() {
@@ -93,6 +98,9 @@ export class HomePage implements OnInit, OnDestroy {
 
         // Listen for emergency responses
         this.listenForEmergencyResponses();
+
+        // Also subscribe to user's emergency to resolve address
+        this.subscribeToUserEmergency();
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -123,6 +131,61 @@ export class HomePage implements OnInit, OnDestroy {
     });
     
     this.subscriptions.push(responseSubscription);
+  }
+
+  /**
+   * Subscribe to the user's own emergency document and reflect responder status in UI.
+   */
+  private subscribeToUserEmergency() {
+    const sub = this.emergencyService.userEmergency$.subscribe((emergency) => {
+      if (!emergency) {
+        this.respondingBuddy = null;
+        this.emergencyAddress = '';
+        return;
+      }
+
+      // Track current emergency id for resolve actions
+      this.currentEmergencyId = emergency.id || this.currentEmergencyId;
+
+      // Show responding banner when a buddy is en route
+      if (emergency.status === 'responding' && emergency.responderId) {
+        const eta = typeof emergency.estimatedArrival === 'number' ? `${emergency.estimatedArrival} min` : 'Calculating...';
+        const distanceKm = typeof emergency.distance === 'number' ? emergency.distance : 0;
+        this.respondingBuddy = {
+          responderName: emergency.responderName || 'A buddy',
+          estimatedTime: eta,
+          distance: distanceKm,
+          estimatedArrival: emergency.estimatedArrival || 0,
+          emergencyId: emergency.id
+        };
+      } else if (emergency.status === 'resolved') {
+        // Clear banner on resolve
+        this.respondingBuddy = null;
+        this.emergencyAddress = '';
+      }
+
+      // Update emergency location and resolve to human-readable address
+      if (emergency.location && typeof emergency.location.latitude === 'number' && typeof emergency.location.longitude === 'number') {
+        this.emergencyLocation = { latitude: emergency.location.latitude, longitude: emergency.location.longitude };
+        this.reverseGeocodeEmergencyAddress(emergency.location.latitude, emergency.location.longitude);
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private async reverseGeocodeEmergencyAddress(lat: number, lng: number) {
+    try {
+      this.isEmergencyAddressLoading = true;
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      this.emergencyAddress = (data?.display_name || '').trim() || 'Location unavailable';
+    } catch (e) {
+      this.emergencyAddress = 'Location unavailable';
+    } finally {
+      this.isEmergencyAddressLoading = false;
+    }
   }
   
   /**
@@ -242,24 +305,19 @@ export class HomePage implements OnInit, OnDestroy {
   }
   
   async showResponderAlert(response: any) {
-    const alert = await this.alertController.create({
-      header: 'Help is on the way!',
-      message: `${response.responderName || 'A buddy'} is responding to your emergency and is on their way to your location.`,
-      buttons: [
-        {
-          text: 'View Map',
-          handler: () => {
-            this.openResponderMap(response);
-          }
-        },
-        {
-          text: 'OK',
-          role: 'cancel'
-        }
-      ]
-    });
+    await this.openResponderDashboardModal(response);
+  }
 
-    await alert.present();
+  private async openResponderDashboardModal(payload: any) {
+    const modal = await this.modalController.create({
+      component: (await import('../responder-dashboard/responder-dashboard.page')).ResponderDashboardPage,
+      componentProps: {
+        responderData: payload
+      },
+      canDismiss: true,
+      showBackdrop: true
+    });
+    await modal.present();
   }
   
   openResponderMap(response: any) {

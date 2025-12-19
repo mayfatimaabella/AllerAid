@@ -59,6 +59,14 @@ ion-card-title {
   letter-spacing: 1px;
 }
 
+/* Emergency card title row */
+.emergency-title-row {
+  color: #d32f2f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 ion-card-content {
   padding: 12px 20px 16px 20px;
 }
@@ -175,6 +183,13 @@ ion-card-content p {
   align-items: center;
 }
 
+.smartwatch-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 16px;
+  display: inline-block;
+}
+
 .smartwatch-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -188,7 +203,45 @@ ion-card-content p {
   font-size: 1rem;
 }
 
+.smartwatch-connect {
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 ion-tab-bar {
   border-top: 1px solid #e5e5e5;
   margin-top: 0;
 }
+
+/* Notification bell icon */
+.notif-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+/* Optional: add hover feedback on header button */
+ion-toolbar .ion-buttons[slot="end"] ion-button:hover {
+  filter: brightness(1.1);
+}
+
+/* Pollen map preview styles */
+.pollen-map-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pollen-map-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.pollen-map-note {
+  margin: 0;
+  color: var(--ion-color-medium);
+}
+
+/* Spacing utilities */
+.mt-16 { margin-top: 16px; }

@@ -22,7 +22,6 @@ import { MedicationManagerService } from '../../services/medication-manager.serv
 import { AllergyManagerService } from '../../core/services/allergy-manager.service';
 import { AllergyModalService } from '../../services/allergy-modal.service';
 import { MedicationActionsService } from '../../services/medication-actions.service';
-
 import { MedicalHistoryManagerService } from '../../services/medical-history-manager.service';
 import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
 @Component({
@@ -277,7 +276,8 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  async openEditDoctorVisitModal(visit: DoctorVisit) {
+  async openEditDoctorVisitModal(visitOrEvent: any) {
+    const visit: DoctorVisit | undefined = (visitOrEvent && visitOrEvent.doctorVisit) ? visitOrEvent.doctorVisit : visitOrEvent;
     const modal = await this.modalController.create({
       component: AddDoctorVisitModal,
       componentProps: { visit },
@@ -372,17 +372,50 @@ export class ProfilePage implements OnInit, OnDestroy {
     }).then((modal: any) => {
       modal.onDidDismiss().then((result: any) => {
         if (result && result.data) {
-          this.emergencyMessage = result.data;
+          // Persist to backend and refresh UI displays
+            this.saveEditedEmergencyMessage(result.data);
+            this.refreshEmergencyMessageDisplay();
         }
       });
       modal.present();
     });
   }
 
-  saveEditedEmergencyMessage(message: any) {
+  /**
+   * Refresh the emergency message-related UI after edits.
+   * Reloads medical data (including the EmergencyMessage) and
+   * ensures derived instruction entries reflect latest changes.
+   */
+  async refreshEmergencyMessageDisplay() {
+    try {
+      await this.loadMedicalData();
+      await this.loadEmergencyInstructions();
+    } catch (e) {
+      console.error('Error refreshing emergency message display:', e);
+    }
+  }
+
+  async saveEditedEmergencyMessage(message: any) {
+    // Optimistic UI update
     this.emergencyMessage = message;
-    this.showEditEmergencyMessageModal = false;
-    // Optionally, persist the edited message to a backend or service here
+    // Persist to backend (MedicalService + UserService)
+    if (this.userProfile?.uid) {
+      const uid = this.userProfile.uid; // capture to satisfy TS narrow across async
+      try {
+        await this.medicalService.updateEmergencyMessage(uid, this.emergencyMessage);
+        await this.userService.updateUserProfile(uid, { emergencyMessage: this.emergencyMessage });
+        // Refresh local user data from backend to ensure consistency after reload
+        await this.loadMedicalData?.();
+        this.showEditEmergencyMessageModal = false;
+        this.presentToast('Emergency message saved successfully');
+      } catch (err) {
+        console.error('Error saving emergency message:', err);
+        this.presentToast('Error saving emergency message');
+        this.showEditEmergencyMessageModal = false;
+      }
+    } else {
+      this.showEditEmergencyMessageModal = false;
+    }
   }
 
   formatDuration(seconds: number): string {
@@ -410,6 +443,24 @@ export class ProfilePage implements OnInit, OnDestroy {
       return 'Custom Voice';
     }
     return `Text-to-Speech (${this.audioSettings.defaultVoice})`;
+  }
+
+  // Provide normalized instruction entries for Emergency Details modal
+  getEmergencyInstructionEntries(): { label: string; text: string }[] {
+    const entries: { label: string; text: string }[] = [];
+    if (Array.isArray(this.emergencyInstructions) && this.emergencyInstructions.length) {
+      this.emergencyInstructions.forEach((instr: any) => {
+        const label = instr?.allergyName;
+        const text = instr?.instruction;
+        if (label && text) entries.push({ label, text });
+      });
+    }
+    const general = (this.emergencyMessage?.instructions || '').trim();
+    if (general) {
+      const exists = entries.some(e => e.text.toLowerCase() === general.toLowerCase());
+      if (!exists) entries.push({ label: 'General', text: general });
+    }
+    return entries;
   }
 
   // Voice recording modal
@@ -500,7 +551,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         return;
       }
       if (this.userProfile) {
-        // Centralized allergy loading via AllergyManagerService
+        // Allergy loading via AllergyManagerService
         this.userAllergies = await this.allergyManager.loadUserAllergies();
         this.allergiesCount = this.userAllergies.length;
         // Load user buddies
@@ -508,17 +559,25 @@ export class ProfilePage implements OnInit, OnDestroy {
         await this.loadUserMedications();
         // Load EHR data for user
         await this.loadMedicalData();
-        // Load emergency message if exists
+        // Load emergency message, prefer existing component state or profile value
         if (this.userProfile.emergencyMessage) {
           this.emergencyMessage = this.userProfile.emergencyMessage;
         } else {
-          // Set default emergency message values
-          this.emergencyMessage = {
-            name: this.userProfile.fullName || '',
-            allergies: this.userAllergies?.map(a => a.label || a.name).join(', '),
-            instructions: 'Follow the emergency instructions provided by the user or call emergency services (911).',
-            location: 'Map Location'
-          };
+          // Only set defaults if we don't already have a meaningful message loaded
+          const hasExisting = !!(this.emergencyMessage && (
+            this.emergencyMessage.name ||
+            this.emergencyMessage.allergies ||
+            this.emergencyMessage.instructions ||
+            this.emergencyMessage.location
+          ));
+          if (!hasExisting) {
+            this.emergencyMessage = {
+              name: this.userProfile.fullName || '',
+              allergies: this.userAllergies?.map(a => a.label || a.name).join(', '),
+              instructions: '',
+              location: 'Map Location'
+            };
+          }
         }
       }
     } catch (error) {
@@ -1357,7 +1416,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   /**
    * Accept an access request from a patient
    */
-  async acceptAccessRequest(request: AccessRequest) {
+  async acceptAccessRequest(requestOrEvent: any) {
+    const request: AccessRequest = (requestOrEvent && requestOrEvent.request) ? requestOrEvent.request : requestOrEvent;
     const alert = await this.alertController.create({
       header: 'Accept Access Request',
       message: `Accept access to ${request.patientName}'s medical records? You will be able to view their complete EHR including allergies, medications, and visit history.`,
@@ -1395,7 +1455,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   /**
    * Decline an access request from a patient
    */
-  async declineAccessRequest(request: AccessRequest) {
+  async declineAccessRequest(requestOrEvent: any) {
+    const request: AccessRequest = (requestOrEvent && requestOrEvent.request) ? requestOrEvent.request : requestOrEvent;
     const alert = await this.alertController.create({
       header: 'Decline Access Request',
       message: `Decline access request from ${request.patientName}? They will be notified that you declined to access their medical records.`,
@@ -1467,26 +1528,37 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
 
   private async _presentHistoryActionsPopover(eventObj: any, history: MedicalHistory) {
-    const popover = await this.popoverController.create({
-      component: HistoryActionsPopoverComponent,
-      componentProps: {
-        history: history,
-        onEdit: () => {
-          this.editMedicalHistory(history);
-          popover.dismiss();
+    const header = history?.condition ? history.condition : 'Medical History';
+    const actionSheet = await this.actionSheetController.create({
+      header,
+      buttons: [
+        {
+          text: 'Edit History',
+          icon: 'create-outline',
+          handler: () => this.editMedicalHistory(history)
         },
-        onDelete: () => {
-          this.deleteMedicalHistory(history.id!);
-          popover.dismiss();
-        }
-      },
-      event: eventObj,
-      translucent: true,
-      showBackdrop: true,
-      backdropDismiss: true
+        {
+          text: 'Delete History',
+          role: 'destructive',
+          icon: 'trash-outline',
+          handler: async () => {
+            const id = history.id ?? '';
+            if (!id) { return; }
+            const confirm = await this.alertController.create({
+              header: 'Delete History',
+              message: 'Are you sure you want to delete this history?',
+              buttons: [
+                { text: 'Cancel', role: 'cancel' },
+                { text: 'Delete', role: 'destructive', handler: () => this.deleteMedicalHistory(id) }
+              ]
+            });
+            await confirm.present();
+          }
+        },
+        { text: 'Cancel', role: 'cancel', icon: 'close-outline' }
+      ]
     });
-
-    return await popover.present();
+    await actionSheet.present();
   }
 
   /**
@@ -1725,10 +1797,27 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.showAddEmergencyMessageModal = true;
   }
 
-  saveNewEmergencyMessage(message: any) {
+  async saveNewEmergencyMessage(message: any) {
+    // Optimistic UI update
     this.emergencyMessage = message;
-    this.showAddEmergencyMessageModal = false;
-    // Optionally, persist the new message to a backend or service here
+    // Persist to backend (MedicalService + UserService)
+    if (this.userProfile?.uid) {
+      const uid = this.userProfile.uid; // capture to satisfy TS narrow across async
+      try {
+        await this.medicalService.updateEmergencyMessage(uid, this.emergencyMessage);
+        await this.userService.updateUserProfile(uid, { emergencyMessage: this.emergencyMessage });
+        // Refresh local user data from backend to ensure consistency after reload
+        await this.loadMedicalData?.();
+        this.showAddEmergencyMessageModal = false;
+        this.presentToast('Emergency message saved successfully');
+      } catch (err) {
+        console.error('Error saving emergency message:', err);
+        this.presentToast('Error saving emergency message');
+        this.showAddEmergencyMessageModal = false;
+      }
+    } else {
+      this.showAddEmergencyMessageModal = false;
+    }
   }
 }
 

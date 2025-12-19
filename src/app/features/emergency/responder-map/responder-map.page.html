@@ -43,6 +43,17 @@
         <ion-spinner name="dots"></ion-spinner>
         <p>Calculating arrival time...</p>
       </div>
+
+      <div class="nav-actions">
+        <ion-button expand="block" color="primary" (click)="startNavigation()">
+          <ion-icon slot="start" name="navigate-outline"></ion-icon>
+          Start In-App Route
+        </ion-button>
+        <ion-button expand="block" fill="outline" color="dark" (click)="openExternalNavigation()">
+          <ion-icon slot="start" name="open-outline"></ion-icon>
+          Open in Google Maps
+        </ion-button>
+      </div>
     </div>
   </div>
 </ion-content>

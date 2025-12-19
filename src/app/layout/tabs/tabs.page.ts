@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController, AlertController } from '@ionic/angular';
+import { ToastController, AlertController, ModalController } from '@ionic/angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { BuddyService } from '../../core/services/buddy.service';
@@ -18,6 +18,8 @@ export class TabsPage implements OnInit, OnDestroy {
   userProfile: any = null;  // Cache user profile to avoid duplicate API calls
   invitationCount: number = 0;
   emergencyCount: number = 0;
+  // Track which emergency IDs have already shown a modal to avoid repeats
+  private shownEmergencyIds: Set<string> = new Set<string>();
   
   // Initialization guards to prevent duplicate calls
   private isInitialized: boolean = false;
@@ -34,7 +36,8 @@ export class TabsPage implements OnInit, OnDestroy {
     private roleRedirectService: RoleRedirectService,
     private router: Router,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private modalController: ModalController
   ) { }
 
   async ngOnInit() {
@@ -101,7 +104,11 @@ export class TabsPage implements OnInit, OnDestroy {
           if (this.emergencyCount > previousCount) {
             // Show pop-up like responder-dashboard: quick action to view map
             const latest = activeAlerts[0];
-            await this.showEmergencyPopup(latest);
+            // Only show once per emergency ID
+            if (latest?.id && !this.shownEmergencyIds.has(latest.id)) {
+              this.shownEmergencyIds.add(latest.id);
+              await this.showEmergencyPopup(latest);
+            }
             this.playEmergencyNotificationFeedback();
           }
         });
@@ -169,25 +176,49 @@ export class TabsPage implements OnInit, OnDestroy {
 
   private async showEmergencyPopup(alert: any) {
     try {
-      const modal = await this.alertController.create({
-        header: 'Emergency Alert',
-        message: `${alert.userName || 'A connection'} needs help.<br/><small>${alert.emergencyInstruction || alert.instruction || ''}</small>`,
-        cssClass: 'emergency-alert-modal',
-        buttons: [
-          {
-            text: 'View Map',
-            handler: () => {
-              this.router.navigate(['/responder-map'], {
-                state: { responder: { emergencyId: alert.id, responderName: this.userProfile?.fullName || 'Responder' } }
-              });
-            }
-          },
-          { text: 'Dismiss', role: 'cancel' }
-        ]
+      const { ResponderDashboardPage } = await import('../../features/dashboard/responder-dashboard/responder-dashboard.page');
+      const modal = await this.modalController.create({
+        component: ResponderDashboardPage,
+        componentProps: {
+          responderData: {
+            emergencyId: alert.id,
+            userName: alert.userName,
+            instruction: alert.emergencyInstruction || alert.instruction || '',
+            alert
+          }
+        },
+        cssClass: 'responder-dashboard-modal'
       });
       await modal.present();
+      // After dismissal, route only if user cancelled (avoid overriding map navigation)
+      modal.onDidDismiss().then((detail) => {
+        // Ensure future alerts for this same emergency aren't re-shown
+        if (alert?.id) {
+          this.shownEmergencyIds.add(alert.id);
+        }
+        const role = (detail && (detail as any).role) || '';
+        if (!role || role === 'cancel') {
+          this.router.navigate(['/tabs/home']);
+        }
+      });
     } catch (e) {
-      console.error('Failed to show emergency popup:', e);
+      console.error('Failed to show responder dashboard modal:', e);
+      // Fallback to previous alert if modal fails
+      try {
+        const fallback = await this.alertController.create({
+          header: 'Emergency Alert',
+          message: `${alert.userName || 'A connection'} needs help.<br/><small>${alert.emergencyInstruction || alert.instruction || ''}</small>`,
+          cssClass: 'emergency-alert-modal',
+          buttons: [
+            { text: 'Dismiss', role: 'cancel' }
+          ]
+        });
+        await fallback.present();
+        // Navigate back to Home after dismissing fallback
+        fallback.onDidDismiss().then(() => this.router.navigate(['/tabs/home']));
+      } catch (inner) {
+        console.error('Also failed to show fallback alert:', inner);
+      }
     }
   }
 

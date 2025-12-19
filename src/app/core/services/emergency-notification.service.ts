@@ -148,21 +148,7 @@ export class EmergencyNotificationService {
       
       // Simulate SMS sending delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // TODO: Implement actual SMS service integration
-      // Example Twilio integration:
-      /*
-      await this.http.post('https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json', {
-        To: phoneNumber,
-        From: 'YOUR_TWILIO_PHONE_NUMBER',
-        Body: smsMessage
-      }, {
-        headers: {
-          'Authorization': 'Basic ' + btoa('YOUR_ACCOUNT_SID:YOUR_AUTH_TOKEN'),
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }).toPromise();
-      */
+    
       
     } catch (error) {
       console.error('SMS sending failed:', error);
@@ -198,24 +184,6 @@ export class EmergencyNotificationService {
 
       // Simulate push notification delay
       await new Promise(resolve => setTimeout(resolve, 500));
-
-      // TODO: Implement actual push notification service
-      // Example Firebase Cloud Messaging integration:
-      /*
-      await this.http.post('https://fcm.googleapis.com/fcm/send', {
-        to: buddyProfile.fcmToken, // You'd need to store FCM tokens
-        notification: {
-          title: pushMessage.title,
-          body: pushMessage.body
-        },
-        data: pushMessage.data
-      }, {
-        headers: {
-          'Authorization': 'key=YOUR_SERVER_KEY',
-          'Content-Type': 'application/json'
-        }
-      }).toPromise();
-      */
 
     } catch (error) {
       console.error('Push notification failed:', error);

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController, IonicModule, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,7 +18,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   @Output() saveModal = new EventEmitter<any>();
   form!: FormGroup;
 
-  constructor(private modalCtrl: ModalController, private fb: FormBuilder) {}
+  constructor(private modalCtrl: ModalController, private fb: FormBuilder, private alertController: AlertController) {}
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -27,15 +27,50 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       instructions: [this.emergencyMessage?.instructions || ''],
       location: [this.emergencyMessage?.location || '']
     });
+    // Allergies are managed elsewhere; make field read-only in the editor
+    this.form.get('allergies')?.disable({ emitEvent: false });
   }
 
-  close() { this.closeModal.emit(); }
+  close() {
+    this.closeModal.emit();
+    this.modalCtrl.dismiss();
+  }
 
-  save() {
+  async save() {
+    // Confirm before saving changes
+    const alert = await this.alertController.create({
+      header: 'Confirm Save',
+      message: 'Save changes to the emergency message?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Save', role: 'confirm' }
+      ]
+    });
+    await alert.present();
+    const result = await alert.onDidDismiss();
+    if (result.role !== 'confirm') {
+      return;
+    }
+
+    // Use getRawValue to include disabled controls without allowing edits
+    const formValues = this.form.getRawValue();
     const updated = {
       ...this.emergencyMessage,
-      ...this.form.value
+      ...formValues
     };
     this.saveModal.emit(updated);
+    this.modalCtrl.dismiss(updated);
+  }
+
+  get allergyLabels(): string[] {
+    return this.getAllergyLabels();
+  }
+
+  getAllergyLabels(): string[] {
+    const src: string = (this.emergencyMessage?.allergies || '').toString();
+    return src
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
   }
 }

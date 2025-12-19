@@ -366,8 +366,6 @@ export class UserService {
     }
   }
 
-// ...existing code...
-// ...existing code...
 
   // Update user avatar
   async updateUserAvatar(uid: string, avatarUrl: string): Promise<void> {

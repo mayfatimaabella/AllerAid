@@ -15,9 +15,9 @@
           <div class="card-content">
             <!-- Loading state (aligned with Health section) -->
             <div *ngIf="isLoadingDoctorVisits" class="loading-state">
-              <ion-skeleton-text animated style="width: 100%; height: 60px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 80%; height: 40px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 60%; height: 30px;"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-60"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-40"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-30"></ion-skeleton-text>
             </div>
             <div *ngIf="doctorVisits.length > 0">
               <div *ngFor="let visit of doctorVisits"
@@ -73,9 +73,9 @@
           <div class="card-content">
             <!-- Loading state -->
             <div *ngIf="isLoadingMedicalHistory" class="loading-state">
-              <ion-skeleton-text animated style="width: 100%; height: 60px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 80%; height: 40px; margin-bottom: 10px;"></ion-skeleton-text>
-              <ion-skeleton-text animated style="width: 60%; height: 30px;"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-60"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-40"></ion-skeleton-text>
+              <ion-skeleton-text animated class="skeleton-30"></ion-skeleton-text>
             </div>
             
             <!-- Data loaded state -->

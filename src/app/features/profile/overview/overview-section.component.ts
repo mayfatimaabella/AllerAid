@@ -19,9 +19,11 @@ export class OverviewSectionComponent {
     private modalController: ModalController,
     private allergyService: AllergyService
   ) {}
+
+  // Inputs from parent
   @Input() userAllergies: any[] = [];
   @Input() emergencyMessageName = '';
-  @Input() emergencyInstructionsCombined = '';
+  @Input() emergencyInstructionsCombined = ''; //allergy included  
   @Input() emergencyLocation = '';
   @Input() emergencyMessage: any = {};
   @Input() userProfile: UserProfile | null = null;
@@ -126,7 +128,8 @@ export class OverviewSectionComponent {
 
   getEmergencyInstructionsCombined(): string {
     const specific = this.getEmergencyInstructionDisplay();
-    const general = (this.emergencyMessage?.instructions || this.userProfile?.emergencyInstruction || '').trim();
+    // Only use explicit user-provided general instructions; do not pull from profile fallback
+    const general = (this.emergencyMessage?.instructions || '').trim();
     if (specific && general) {
       if (specific.toLowerCase().includes(general.toLowerCase())) {
         return specific;
@@ -167,7 +170,8 @@ export class OverviewSectionComponent {
       const firstInstruction = this.emergencyInstructions[0];
       return firstInstruction.instruction;
     }
-    return this.emergencyMessage.instructions || 'Use EpiPen immediately and call 911';
+      // Do not inject a default here; return empty string if not set
+      return this.emergencyMessage.instructions || '';
   }
 
   getEmergencyMessageLocation(): string {
@@ -187,9 +191,6 @@ export class OverviewSectionComponent {
       if (!alreadyIncluded) {
         entries.push({ label: 'General', text: general });
       }
-    }
-    if (!entries.length) {
-      entries.push({ label: 'None', text: 'No instructions set' });
     }
     return entries;
   }
