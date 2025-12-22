@@ -66,10 +66,20 @@
       </form>
     </div>
 
-    <div class="instructions-list-section" *ngIf="emergencyInstructions.length > 0">
-      <h2 class="section-title">Existing Instructions</h2>
+    <div class="instructions-card" *ngIf="emergencyInstructions.length > 0">
+      <div class="ic-header">
+        <div class="ic-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <div>
+            <div class="ic-label">Emergency Specific</div>
+            <div class="ic-heading">Instructions</div>
+          </div>
+        </div>
+        <div class="ic-meta">{{ emergencyInstructions.length }} saved</div>
+      </div>
+
       <div class="instructions-container">
-        <div *ngFor="let instruction of emergencyInstructions" class="instruction-item">
+        <div *ngFor="let instruction of emergencyInstructions" class="instruction-item clickable" (click)="onShowDetails(instruction)">
           <div class="instruction-content">
             <div class="instruction-header">
               <ion-icon name="alert-circle-outline" class="allergy-icon"></ion-icon>
@@ -82,23 +92,15 @@
               fill="clear" 
               size="small"
               color="primary" 
-              (click)="onEditInstruction(instruction)"
+              (click)="$event.stopPropagation(); onEditInstruction(instruction)"
               title="Edit instruction">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
             </ion-button>
             <ion-button 
               fill="clear" 
               size="small"
-              color="secondary" 
-              (click)="onShowDetails(instruction)"
-              title="View details">
-              <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-            <ion-button 
-              fill="clear" 
-              size="small"
               color="danger" 
-              (click)="onRemoveInstruction(instruction.allergyId || instruction.allergyName)"
+              (click)="$event.stopPropagation(); onRemoveInstruction(instruction.allergyId || instruction.allergyName)"
               title="Delete instruction">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
             </ion-button>
@@ -119,7 +121,7 @@
     <ion-toolbar class="teal-modal-toolbar">
       <ion-title>Instruction Details</ion-title>
       <ion-buttons slot="start">
-        <ion-button (click)="showInstructionDetailsModal = false" fill="clear">
+        <ion-button (click)="onShowDetails(null)" fill="clear">
           <ion-icon name="arrow-back-outline"></ion-icon>
         </ion-button>
       </ion-buttons>
@@ -137,7 +139,7 @@
         <h2>{{ selectedInstructionDetails.allergyName }}</h2>
       </div>
       <div class="details-content">
-        <div class="detail-label">Emergency Instructions</div>
+        <span class="detail-label">Emergency Instructions</span>
         <p class="detail-text">{{ selectedInstructionDetails.instruction }}</p>
       </div>
     </div>

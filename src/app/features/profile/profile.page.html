@@ -173,84 +173,34 @@
           [showVoiceSettings]="showVoiceSettings"
           [getAudioSourceClass]="getAudioSourceClass.bind(this)"
           [getAudioSourceText]="getAudioSourceText.bind(this)"
-          [openVoiceRecordingModal]="openVoiceRecordingModal"
-          [saveEmergencySettings]="saveEmergencySettings"
+          [openVoiceRecordingModal]="openVoiceRecordingModal.bind(this)"
+          [saveEmergencySettings]="saveEmergencySettings.bind(this)"
           [isEmergencyInstructionsEmpty]="isEmergencyInstructionsEmpty.bind(this)"
-          [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
+          [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
           [testEmergencyAlert]="testEmergencyAlert.bind(this)"
           [testShakeDetection]="testShakeDetection.bind(this)"
           [testPowerButtonDetection]="testPowerButtonDetection.bind(this)"
           [testAudioInstructions]="testAudioInstructions.bind(this)"
           [requestMotionPermissions]="requestMotionPermissions.bind(this)"
           [showEmergencyExamples]="showEmergencyExamples.bind(this)"
+          [emergencyMessage]="emergencyMessage"
+          [userProfile]="userProfile"
+          [emergencyInstructions]="emergencyInstructions"
+          [userAllergies]="userAllergies"
+          [showManageInstructionsModal]="showManageInstructionsModal"
+          [editingInstruction]="editingInstruction"
+          [selectedInstructionDetails]="selectedInstructionDetails"
+          [showInstructionDetailsModal]="showInstructionDetailsModal"
+          [openManageInstructionsModal]="openManageInstructionsModal.bind(this)"
+          [onManageInstructionsDismiss]="onManageInstructionsDismiss.bind(this)"
+          [onAddInstruction]="onAddInstruction.bind(this)"
+          [onUpdateInstruction]="onUpdateInstruction.bind(this)"
+          [onRemoveInstruction]="onRemoveInstruction.bind(this)"
+          [onEditInstruction]="onEditInstruction.bind(this)"
+          [onCancelEdit]="onCancelEdit.bind(this)"
+          [onShowDetails]="onShowDetails.bind(this)"
         >
-          <div class="emergency-instructions-display">
-            <div class="emergency-contact-wrapper-card">
-              <div class="emergency-contact-header-bar">
-                <div class="header-left">
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                  <span>Emergency Contact Information</span>
-                </div>
-                <div class="header-actions">
-                  <ion-button size="small" fill="clear" color="light" (click)="openEditEmergencyMessageModal()" class="contact-action-btn">
-                    <ion-icon name="create-outline" slot="start"></ion-icon>
-                    Edit
-                  </ion-button>
-                  <ion-button size="small" fill="outline" color="light" (click)="showManageInstructionsModal = true" class="contact-action-btn">
-                    <ion-icon name="list-outline" slot="start"></ion-icon>
-                    Manage
-                  </ion-button>
-                </div>
-              </div>
-              <div class="emergency-contact-body">
-                <div class="ecc-row">
-                  <div class="ecc-label">Name</div>
-                  <div class="ecc-value">{{ emergencyMessage.name || userProfile?.fullName || 'User' }}</div>
-                </div>
-                <div class="ecc-row">
-                  <div class="ecc-label">Allergies</div>
-                  <div class="ecc-value allergy-badges">
-                    <ng-container *ngFor="let allergy of (emergencyMessage.allergies ? emergencyMessage.allergies.split(',') : [])">
-                      <span class="allergy-pill">{{ allergy.trim() }}</span>
-                    </ng-container>
-                  </div>
-                </div>
-                <div class="ecc-row" *ngIf="emergencyMessage.instructions">
-                  <div class="ecc-label">Instructions</div>
-                  <div class="ecc-value">{{ emergencyMessage.instructions }}</div>
-                </div>
-                <div class="ecc-row">
-                  <div class="ecc-label">Location</div>
-                  <div class="ecc-value">{{ emergencyMessage.location || 'Map Location' }}</div>
-                </div>
-                <div class="ecc-footer tappable-hint">
-                  <ion-icon name="finger-print-outline" class="ecc-footer-icon"></ion-icon>
-                  <span class="ecc-footer-text">Tap for full details</span>
-                </div>
-              </div>
-            </div>
-            <!-- Emergency Specific Instructions Modal -->
-            <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="showManageInstructionsModal = false">
-              <ng-template>
-                <app-emergency-specific-instructions-modal
-                  [emergencyInstructions]="emergencyInstructions"
-                  [userAllergies]="userAllergies"
-                  [selectedAllergyForInstruction]="selectedAllergyForInstruction"
-                  [newInstructionText]="newInstructionText"
-                  [editingInstruction]="editingInstruction"
-                  [selectedInstructionDetails]="selectedInstructionDetails"
-                  [showInstructionDetailsModal]="showInstructionDetailsModal"
-                  (addInstruction)="onAddInstruction()"
-                  (updateInstruction)="onUpdateInstruction()"
-                  (removeInstruction)="onRemoveInstruction($event)"
-                  (editInstruction)="onEditInstruction($event)"
-                  (cancelEdit)="onCancelEdit()"
-                  (showDetails)="onShowDetails($event)"
-                  (close)="showManageInstructionsModal = false"
-                ></app-emergency-specific-instructions-modal>
-              </ng-template>
-            </ion-modal>
-          </div>
+
         </app-emergency-settings-card>
 
         <!-- Emergency Examples Modal -->
@@ -258,8 +208,7 @@
           [isOpen]="showExamplesModal"
           (closeModal)="showExamplesModal = false">
         </app-emergency-examples-modal>
-        <!-- END: Inserted Emergency Instructions / Message / Testing -->
-
+        
         <!-- Voice Recording Settings (Expandable) -->
         <div class="voice-settings-section" *ngIf="emergencySettings.audioInstructions && showVoiceSettings">
           <!-- Recording Controls -->
@@ -395,6 +344,27 @@
             </ion-button>
           </div>
         </div>
+
+        <!-- Emergency Specific Instructions Modal -->
+        <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="onManageInstructionsDismiss()">
+          <ng-template>
+            <app-emergency-specific-instructions-modal
+              #manageInstructionsModal
+              [emergencyInstructions]="emergencyInstructions"
+              [userAllergies]="userAllergies"
+              [editingInstruction]="editingInstruction"
+              [selectedInstructionDetails]="selectedInstructionDetails"
+              [showInstructionDetailsModal]="showInstructionDetailsModal"
+              (addInstruction)="onAddInstruction()"
+              (updateInstruction)="onUpdateInstruction()"
+              (removeInstruction)="onRemoveInstruction($event)"
+              (editInstruction)="onEditInstruction($event)"
+              (cancelEdit)="onCancelEdit()"
+              (showDetails)="onShowDetails($event)"
+              (close)="onManageInstructionsDismiss()">
+            </app-emergency-specific-instructions-modal>
+          </ng-template>
+        </ion-modal>
       </ng-container>
     </div>
     <!-- End Patient Profile Content -->

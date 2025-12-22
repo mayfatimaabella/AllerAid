@@ -53,6 +53,120 @@
   gap: 6px;
 }
 
+/* Emergency Specific Instructions section */
+.emergency-specific-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin: 16px 0;
+  border: 1px solid #e4f0ee;
+}
+
+.es-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.es-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #025449;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.es-title ion-icon {
+  font-size: 24px;
+}
+
+.es-text .es-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #4d7c75;
+}
+
+.es-text .es-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #025449;
+}
+
+.es-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.es-actions ion-button[fill="outline"] {
+  --border-radius: 10px;
+  --border-width: 1.5px;
+  font-weight: 700;
+}
+
+.es-actions ion-button[fill="clear"] {
+  font-weight: 700;
+}
+
+.es-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.es-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e8f2f0;
+  border-radius: 12px;
+  background: #f9fbfb;
+}
+
+.es-pill {
+  background: #e7f5f2;
+  color: #025449;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid #c8e5df;
+}
+
+.es-body {
+  color: #2f4f4b;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.es-instruction {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+}
+
+.es-empty {
+  text-align: center;
+  color: #7a8d8a;
+  padding: 20px 12px;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.es-empty ion-icon {
+  font-size: 32px;
+  color: #c5dcd7;
+}
+
 /* Wrapper card & header for unified look */
 .emergency-settings-wrapper-card {
   background: var(--app-color-primary-bg);

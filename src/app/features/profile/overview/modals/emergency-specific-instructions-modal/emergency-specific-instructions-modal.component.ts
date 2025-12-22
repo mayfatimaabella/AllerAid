@@ -13,11 +13,13 @@ import { FormsModule } from '@angular/forms';
 export class EmergencySpecificInstructionsModalComponent {
   @Input() emergencyInstructions: any[] = [];
   @Input() userAllergies: any[] = [];
-  @Input() selectedAllergyForInstruction: any = null;
-  @Input() newInstructionText: string = '';
   @Input() editingInstruction: any = null;
   @Input() selectedInstructionDetails: any = null;
   @Input() showInstructionDetailsModal: boolean = false;
+
+  // Form state: NOT @Input to allow proper ngModel binding
+  selectedAllergyForInstruction: any = null;
+  newInstructionText: string = '';
 
   @Output() addInstruction = new EventEmitter<void>();
   @Output() updateInstruction = new EventEmitter<void>();
@@ -29,12 +31,11 @@ export class EmergencySpecificInstructionsModalComponent {
 
   constructor(private modalCtrl: ModalController) {}
 
-  onSubmit() { if (this.editingInstruction) { this.updateInstruction.emit(); } else { this.addInstruction.emit(); } this.dismissWithRefresh(); }
+  onSubmit() { if (this.editingInstruction) { this.updateInstruction.emit(); } else { this.addInstruction.emit(); } }
   onCancelEdit() { this.cancelEdit.emit(); }
   onEditInstruction(instruction: any) { this.editInstruction.emit(instruction); }
-  onRemoveInstruction(id: string) { this.removeInstruction.emit(id); this.dismissWithRefresh(); }
+  onRemoveInstruction(id: string) { this.removeInstruction.emit(id); }
   onShowDetails(instruction: any) { this.showDetails.emit(instruction); }
   onClose() { this.dismiss(false); }
   dismiss(refresh: boolean = false) { this.close.emit(); this.modalCtrl.dismiss(refresh ? { refresh: true } : undefined); }
-  dismissWithRefresh() { this.dismiss(true); }
 }

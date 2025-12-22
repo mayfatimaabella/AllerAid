@@ -76,5 +76,86 @@
   </div>
 </div>
 
-<ng-content select=".emergency-instructions-display"></ng-content>
+          <div class="emergency-instructions-display">
+            <div class="emergency-contact-wrapper-card">
+              <div class="emergency-contact-header-bar">
+                <div class="header-left">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                  <span>Emergency Contact Information</span>
+                </div>
+                <div class="header-actions">
+                  <ion-button size="small" fill="clear" color="light" (click)="openEditEmergencyMessageModal()" class="contact-action-btn">
+                    <ion-icon name="create-outline" slot="start"></ion-icon>
+                    Edit
+                  </ion-button>
+
+                </div>
+              </div>
+              <div class="emergency-contact-body">
+                <div class="ecc-row">
+                  <div class="ecc-label">Name</div>
+                  <div class="ecc-value">{{ emergencyMessage.name || userProfile?.fullName || 'User' }}</div>
+                </div>
+                <div class="ecc-row">
+                  <div class="ecc-label">Allergies</div>
+                  <div class="ecc-value allergy-badges">
+                    <ng-container *ngFor="let allergy of (emergencyMessage.allergies ? emergencyMessage.allergies.split(',') : [])">
+                      <span class="allergy-pill">{{ allergy.trim() }}</span>
+                    </ng-container>
+                  </div>
+                </div>
+                <div class="ecc-row" *ngIf="emergencyMessage.instructions">
+                  <div class="ecc-label">Instructions</div>
+                  <div class="ecc-value">{{ emergencyMessage.instructions }}</div>
+                </div>
+                <div class="ecc-row">
+                  <div class="ecc-label">Location</div>
+                  <div class="ecc-value">{{ emergencyMessage.location || 'Map Location' }}</div>
+                </div>
+                <div class="ecc-footer tappable-hint">
+                  <ion-icon name="finger-print-outline" class="ecc-footer-icon"></ion-icon>
+                  <span class="ecc-footer-text">Tap for full details</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+                  <div class="emergency-specific-card">
+          <div class="es-header">
+            <div class="es-title">
+              <ion-icon name="bandage-outline"></ion-icon>
+              <div class="es-text">
+                <div class="es-label">Emergency Specific</div>
+                <div class="es-heading">Instructions</div>
+              </div>
+            </div>
+            <div class="es-actions">
+              <ion-button size="small" fill="outline" color="primary" (click)="openManageInstructionsModal()">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                Add
+              </ion-button>
+            </div>
+          </div>
+
+          <div *ngIf="emergencyInstructions?.length; else esEmpty" class="es-list">
+            <div class="es-item" *ngFor="let instruction of emergencyInstructions" (click)="onShowDetails(instruction)">
+              <div class="es-pill">{{ instruction.allergyName }}</div>
+              <div class="es-body">
+                <div class="es-instruction">{{ instruction.instruction }}</div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #esEmpty>
+            <div class="es-empty">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <div>No emergency-specific instructions yet.</div>
+              <p>Add instructions tailored to each allergy so responders know exactly what to do.</p>
+              <ion-button size="small" color="primary" (click)="openManageInstructionsModal()">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                Add Instruction
+              </ion-button>
+            </div>
+          </ng-template>
+        </div>
 
