@@ -1,9 +1,9 @@
 
 import { Injectable } from '@angular/core';
-import { MedicationService } from '../core/services/medication.service';
-import { MedicationReminderService } from '../core/services/medication-reminder.service';
+import { MedicationService } from '../../../core/services/medication.service';
+import { MedicationReminderService } from '../../../core/services/medication-reminder.service';
 import { ModalController, AlertController } from '@ionic/angular';
-import type { Medication } from '../core/services/medication.service';
+import type { Medication } from '../../../core/services/medication.service';
 
 @Injectable({ providedIn: 'root' })
 export class MedicationManagerService {
@@ -21,7 +21,7 @@ export class MedicationManagerService {
     loadUserMedications: () => Promise<void>
   ) {
     const modal = await this.modalController.create({
-      component: (await import('../features/profile/health/modals/add-medication.modal')).AddMedicationModal,
+      component: (await import('../health/modals/add-medication.modal')).AddMedicationModal,
       componentProps: {
         medication: medication,
         isEditMode: true

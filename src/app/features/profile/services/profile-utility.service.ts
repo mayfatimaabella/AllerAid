@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AllergyManagerService } from '../core/services/allergy-manager.service';
+import { AllergyManagerService } from '../../../core/services/allergy-manager.service';
 
 @Injectable({
   providedIn: 'root'

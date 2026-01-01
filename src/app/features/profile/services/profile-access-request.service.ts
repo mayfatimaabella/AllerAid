@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { EHRService, AccessRequest } from '../core/services/ehr.service';
+import { EHRService, AccessRequest } from '../../../core/services/ehr.service';
 
 @Injectable({
   providedIn: 'root'

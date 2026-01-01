@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { EHRDataService } from '../../services/ehr-data.service';
+import { EHRDataService } from './services/ehr-data.service';
 import { Router } from '@angular/router';
 import { UserService, UserProfile } from '../../core/services/user.service';
 import { AllergyService } from '../../core/services/allergy.service';
@@ -16,21 +16,21 @@ import { MedicationReminderService } from '../../core/services/medication-remind
 import { AddMedicationModal } from './health/modals/add-medication.modal';
 import { environment } from '../../../environments/environment';
 import { AllergyOptionsService } from '../../core/services/allergy-options.service';
-import { MedicationManagerService } from '../../services/medication-manager.service';
+import { MedicationManagerService } from './services/medication-manager.service';
 import { AllergyManagerService } from '../../core/services/allergy-manager.service';
-import { AllergyModalService } from '../../services/allergy-modal.service';
-import { MedicationActionsService } from '../../services/medication-actions.service';
-import { MedicalHistoryManagerService } from '../../services/medical-history-manager.service';
-import { EmergencyInstructionsManagerService } from '../../services/emergency-instructions-manager.service';
-import { VoiceSettingsManagerService } from '../../services/voice-settings-manager.service';
-import { ProfileMedicationManagerService } from '../../services/profile-medication-manager.service';
-import { ProfileEHRManagerService } from '../../services/profile-ehr-manager.service';
-import { ProfileEmergencySettingsService } from '../../services/profile-emergency-settings.service';
-import { ProfileAccessRequestService } from '../../services/profile-access-request.service';
-import { ProfileNavigationService } from '../../services/profile-navigation.service';
-import { ProfileUtilityService } from '../../services/profile-utility.service';
-import { EmergencyTestingService } from '../../services/emergency-testing.service';
-import { ProfileDataLoaderService } from '../../services/profile-data-loader.service';
+import { AllergyModalService } from './services/allergy-modal.service';
+import { MedicationActionsService } from './services/medication-actions.service';
+import { MedicalHistoryManagerService } from './services/medical-history-manager.service';
+import { EmergencyInstructionsManagerService } from './services/emergency-instructions-manager.service';
+import { VoiceSettingsManagerService } from './services/voice-settings-manager.service';
+import { ProfileMedicationManagerService } from './services/profile-medication-manager.service';
+import { ProfileEHRManagerService } from './services/profile-ehr-manager.service';
+import { ProfileEmergencySettingsService } from './services/profile-emergency-settings.service';
+import { ProfileAccessRequestService } from './services/profile-access-request.service';
+import { ProfileNavigationService } from './services/profile-navigation.service';
+import { ProfileUtilityService } from './services/profile-utility.service';
+import { EmergencyTestingService } from './services/emergency-testing.service';
+import { ProfileDataLoaderService } from './services/profile-data-loader.service';
 
 @Component({
   selector: 'app-profile',
@@ -44,7 +44,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     return this.emergencyInstructionsManager.isEmergencyInstructionsEmpty();
   }
 
-  // Minimal single-line property accessors for template binding
   get emergencyInstructions(): any[] { return this.emergencyInstructionsManager.emergencyInstructions; }
   get showManageInstructionsModal(): boolean { return this.emergencyInstructionsManager.showManageInstructionsModal; }
   set showManageInstructionsModal(v: boolean) { this.emergencyInstructionsManager.showManageInstructionsModal = v; }
@@ -127,7 +126,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   get showEditEmergencyMessageModal(): boolean { return this.profileEmergencySettings.showEditEmergencyMessageModal; }
   set showEditEmergencyMessageModal(value: boolean) { this.profileEmergencySettings.showEditEmergencyMessageModal = value; }
 
-  // Component-level state properties (not delegated to services)
   userAllergies: any[] = [];
   emergencyMessage: EmergencyMessage = { name: '', allergies: '', instructions: '', location: '' };
   userProfile: UserProfile | null = null;
@@ -298,7 +296,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.profileEHRManager.presentHistoryActionsPopover(event, () => this.loadMedicalData());
   }
 
-  // --- Missing method stubs for template compatibility ---
   saveEmergencySettings(): void {
     this.profileEmergencySettings.saveEmergencySettings();
   }

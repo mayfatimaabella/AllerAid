@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { MedicationService, Medication } from '../core/services/medication.service';
-import { MedicationReminderService } from '../core/services/medication-reminder.service';
-import { MedicationManagerService } from '../features/profile/services/medication-manager.service';
-import { MedicationActionsService } from '../features/profile/services/medication-actions.service';
+import { MedicationService, Medication } from '../../../core/services/medication.service';
+import { MedicationReminderService } from '../../../core/services/medication-reminder.service';
+import { MedicationManagerService } from './medication-manager.service';
+import { MedicationActionsService } from './medication-actions.service';
 import { AlertController, ToastController } from '@ionic/angular';
 
 @Injectable({

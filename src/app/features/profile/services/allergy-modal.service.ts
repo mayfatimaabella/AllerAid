@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { AuthService } from '../core/services/auth.service';
-import { AllergyService } from '../core/services/allergy.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { AllergyService } from '../../../core/services/allergy.service';
 
 @Injectable({ providedIn: 'root' })
 export class AllergyModalService {
@@ -18,7 +18,7 @@ export class AllergyModalService {
   ) {
     setShowEditAllergiesModal(true);
     const modal = await this.modalController.create({
-      component: (await import('../features/profile/overview/modals/edit-allergies-modal/edit-allergies-modal.component')).EditAllergiesModalComponent,
+      component: (await import('../overview/modals/edit-allergies-modal/edit-allergies-modal.component')).EditAllergiesModalComponent,
       componentProps: {
         allergyOptions: allergyOptions
       },

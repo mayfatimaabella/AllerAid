@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { VoiceRecordingService, AudioSettings } from '../core/services/voice-recording.service';
+import { VoiceRecordingService, AudioSettings } from '../../../core/services/voice-recording.service';
 import { ToastController, AlertController } from '@ionic/angular';
 
 @Injectable({

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { EHRService } from '../core/services/ehr.service';
+import { EHRService } from '../../../core/services/ehr.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })

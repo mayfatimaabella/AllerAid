@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { EHRService, DoctorVisit, MedicalHistory } from '../core/services/ehr.service';
-import { EHRDataService } from '../features/profile/services/ehr-data.service';
-import { MedicalHistoryManagerService } from '../features/profile/services/medical-history-manager.service';
+import { EHRService, DoctorVisit, MedicalHistory } from '../../../core/services/ehr.service';
+import { EHRDataService } from './ehr-data.service';
+import { MedicalHistoryManagerService } from './medical-history-manager.service';
 import { ModalController, AlertController, ActionSheetController, ToastController } from '@ionic/angular';
-import { AddDoctorVisitModal } from '../features/profile/ehr/modals/add-doctor-visit/add-doctor-visit.modal';
-import { environment } from '../../environments/environment';
+import { AddDoctorVisitModal } from '../ehr/modals/add-doctor-visit/add-doctor-visit.modal';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

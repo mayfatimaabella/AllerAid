@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
-import { MedicalService, EmergencyMessage } from '../core/services/medical.service';
-import { UserService, UserProfile } from '../core/services/user.service';
-import { EditEmergencyMessageModalComponent } from '../features/profile/emergency/edit-emergency-message/edit-emergency-message-modal.component';
+import { MedicalService, EmergencyMessage } from '../../../core/services/medical.service';
+import { UserService, UserProfile } from '../../../core/services/user.service';
+import { EditEmergencyMessageModalComponent } from '../emergency/edit-emergency-message/edit-emergency-message-modal.component';
 
 @Injectable({
   providedIn: 'root'

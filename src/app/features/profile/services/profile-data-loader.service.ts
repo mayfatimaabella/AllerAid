@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from '../core/services/auth.service';
-import { UserService, UserProfile } from '../core/services/user.service';
-import { AllergyService } from '../core/services/allergy.service';
-import { MedicalService } from '../core/services/medical.service';
-import { EHRService } from '../core/services/ehr.service';
-import { AllergyManagerService } from '../core/services/allergy-manager.service';
-import { environment } from '../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserService, UserProfile } from '../../../core/services/user.service';
+import { AllergyService } from '../../../core/services/allergy.service';
+import { MedicalService } from '../../../core/services/medical.service';
+import { EHRService } from '../../../core/services/ehr.service';
+import { AllergyManagerService } from '../../../core/services/allergy-manager.service';
 
 @Injectable({
   providedIn: 'root'

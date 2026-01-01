@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { EmergencyAlertService } from '../core/services/emergency-alert.service';
-import { EmergencyDetectorService } from '../core/services/emergency-detector.service';
-import { VoiceRecordingService } from '../core/services/voice-recording.service';
+import { EmergencyAlertService } from '../../../core/services/emergency-alert.service';
+import { EmergencyDetectorService } from '../../../core/services/emergency-detector.service';
+import { VoiceRecordingService } from '../../../core/services/voice-recording.service';
 
 @Injectable({
   providedIn: 'root'

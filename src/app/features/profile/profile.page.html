@@ -10,41 +10,59 @@
 </ion-header>
 
 <ion-content class="ion-padding profile-page-bg">
-  <div class="profile-header">
-    <ion-avatar class="profile-avatar">
-      <img alt="person-avatar" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-    </ion-avatar>
-    <div class="profile-name">{{ emergencyMessage.name || userProfile?.fullName || 'User' }}</div>
-  </div>
 
-  <div class="profile-card">
-    <!-- Patient Profile Stats -->
-    <div class="profile-stats" *ngIf="userProfile?.role === 'user'">
+  <!-- PROFILE HEADER -->
+  <section class="profile-header">
+    <ion-avatar class="profile-avatar">
+      <img alt="person-avatar"
+           src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+    </ion-avatar>
+
+    <div class="profile-name">
+      {{ emergencyMessage.name || userProfile?.fullName || 'User' }}
+    </div>
+  </section>
+
+  <!-- PROFILE CARD -->
+  <section class="profile-card">
+
+    <!-- USER STATS -->
+    <section class="profile-stats"
+             *ngIf="userProfile?.role === 'user'">
+
       <div class="stat">
         <div class="stat-label">Allergies</div>
         <div class="stat-value">{{ allergiesCount }}</div>
       </div>
+
       <div class="stat">
         <div class="stat-label">Medications</div>
         <div class="stat-value">{{ medicationsCount }}</div>
       </div>
-    </div>
+    </section>
 
+    <!-- USER TABS -->
+    <nav class="profile-tabs"
+         *ngIf="userProfile?.role === 'user'">
+      <button class="tab"
+              [class.active]="selectedTab === 'overview'"
+              (click)="selectTab('overview')">Overview</button>
 
-    <!-- Patient Profile Tabs -->
-    <div class="profile-tabs" *ngIf="userProfile?.role === 'user'">
-  <button class="tab" [class.active]="selectedTab === 'overview'" (click)="selectTab('overview')">Overview</button>
-  <button class="tab" [class.active]="selectedTab === 'health'" (click)="selectTab('health')">Health</button>
-  <button class="tab" [class.active]="selectedTab === 'ehr'" (click)="selectTab('ehr')">EHR</button>
-  <button class="tab" [class.active]="selectedTab === 'emergency'" (click)="selectTab('emergency')">Emergency</button>
-    </div>
+      <button class="tab"
+              [class.active]="selectedTab === 'health'"
+              (click)="selectTab('health')">Health</button>
 
-    <!-- Doctor Profile Tabs - Managed by DoctorProfileComponent -->
+      <button class="tab"
+              [class.active]="selectedTab === 'ehr'"
+              (click)="selectTab('ehr')">EHR</button>
 
-    <!--PROFILE SECTION | OVERVIEW-->
-    <div class="profile-section">
-      <!-- PATIENT PROFILE CONTENT -->
-      <div *ngIf="userProfile?.role === 'user'">
+      <button class="tab"
+              [class.active]="selectedTab === 'emergency'"
+              (click)="selectTab('emergency')">Emergency</button>
+    </nav>
+
+    <!-- USER PROFILE CONTENT -->
+    <section *ngIf="userProfile?.role === 'user'">
         
         <ng-container *ngIf="selectedTab === 'overview'">
           <app-profile-overview-section
@@ -366,40 +384,26 @@
           </ng-template>
         </ion-modal>
       </ng-container>
-    </div>
-    <!-- End Patient Profile Content -->
+    </section>
 
-     <!-- Emergency Instructions Modal (separated component)
-       Contract with `app-emergency-specific-instructions-modal`:
-       Inputs: [emergencyInstructions], [userAllergies]
-       Outputs handled here: (addInstruction),(updateInstruction),(removeInstruction),(editInstruction),(cancelEdit),(showDetails),(close)
-       Parent opens this modal by setting `showManageInstructionsModal = true` which binds to [isOpen] on the <ion-modal> wrapper around the component. -->
+    <!-- DOCTOR PROFILE -->
+    <section *ngIf="userProfile?.role === 'doctor'">
+      <app-doctor-profile
+        [userProfile]="userProfile"
+        [doctorStats]="doctorStats"
+        [pendingRequests]="pendingRequests"
+        [professionalSettings]="professionalSettings"
+        [recentActivity]="recentActivity"
+        [professionalCredentials]="professionalCredentials"
+        (navigateToDashboard)="navigateToDoctorDashboard()"
+        (acceptRequest)="acceptAccessRequest($event)"
+        (declineRequest)="declineAccessRequest($event)"
+        (settingsChanged)="saveProfessionalSettings()"
+        (logoutRequested)="logout()">
+      </app-doctor-profile>
+    </section>
 
-      <!-- DOCTOR PROFILE CONTENT -->
-      <div *ngIf="userProfile?.role === 'doctor'">
-        <app-doctor-profile
-          [userProfile]="userProfile"
-          [doctorStats]="doctorStats"
-          [pendingRequests]="pendingRequests"
-          [professionalSettings]="professionalSettings"
-          [recentActivity]="recentActivity"
-          [professionalCredentials]="professionalCredentials"
-          (navigateToDashboard)="navigateToDoctorDashboard()"
-          (acceptRequest)="acceptAccessRequest($event)"
-          (declineRequest)="declineAccessRequest($event)"
-          (settingsChanged)="saveProfessionalSettings()"
-          (logoutRequested)="logout()">
-        </app-doctor-profile>
-      </div>
-      <!-- End Doctor Profile Content -->
-
-      
-    </div>
-    <!-- End profile-section -->
-  </div>
-  <!-- End profile-card -->
-
-
+  </section>
 </ion-content>
 
 <!-- Add Emergency Message Modal -->
