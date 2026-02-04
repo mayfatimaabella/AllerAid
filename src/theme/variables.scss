@@ -1,10 +1,9 @@
-// Global App Theme Variables
-// Centralized color palette for consistent UI styling
 :root {
-	--app-color-primary: #036a5d; /* Deep teal */
+	--ion-font-family: 'Comfortaa', sans-serif;
+	--app-color-primary: #036a5d;
 	--app-color-primary-rgb: 3,106,93;
-	--app-color-primary-light: #0a8c7a; /* Lighter teal for highlights */
-	--app-color-primary-bg: #e8f2f0; /* Pale teal background */
+	--app-color-primary-light: #0a8c7a;
+	--app-color-primary-bg: #e8f2f0;
 	--app-color-surface: #ffffff;
 	--app-color-surface-alt: #f9fbfb;
 	--app-color-border: #d2e7e3;
@@ -20,3 +19,13 @@
 	--app-shadow-lg: 0 6px 18px rgba(0,0,0,0.12);
 }
 
+html,
+body,
+ion-app {
+  font-family: var(--ion-font-family);
+}
+
+html.ios,
+html.md {
+  --ion-font-family: 'Comfortaa', sans-serif;
+}
