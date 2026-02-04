@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
 import { AllergyService } from '../../../core/services/allergy.service';
@@ -11,6 +12,15 @@ import { AllergyManagerService } from '../../../core/services/allergy-manager.se
 })
 export class ProfileDataLoaderService {
 
+  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private userAllergiesSubject = new BehaviorSubject<any[]>([]);
+  private emergencyMessageSubject = new BehaviorSubject<any | null>(null);
+
+  // Public observables
+  userProfile$: Observable<UserProfile | null> = this.userProfileSubject.asObservable();
+  userAllergies$: Observable<any[]> = this.userAllergiesSubject.asObservable();
+  emergencyMessage$: Observable<any | null> = this.emergencyMessageSubject.asObservable();
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -19,6 +29,38 @@ export class ProfileDataLoaderService {
     private medicalService: MedicalService,
     private ehrService: EHRService
   ) {}
+
+  // Current values getters
+  get userProfileValue(): UserProfile | null { return this.userProfileSubject.value; }
+  get userAllergiesValue(): any[] { return this.userAllergiesSubject.value; }
+  get emergencyMessageValue(): any | null { return this.emergencyMessageSubject.value; }
+
+  setEmergencyMessage(message: any): void { this.emergencyMessageSubject.next(message); }
+  setUserAllergies(allergies: any[]): void { this.userAllergiesSubject.next(allergies); }
+
+  /**
+   * Orchestrated loader: loads user profile, allergies, and medical data,
+   * and publishes into subjects with sensible defaults.
+   */
+  async loadAllData(): Promise<void> {
+    const { userProfile, userAllergies } = await this.loadUserProfile();
+    this.userProfileSubject.next(userProfile);
+    this.userAllergiesSubject.next(userAllergies || []);
+
+    const medical = await this.loadMedicalData();
+    let emergencyMessage = medical.emergencyMessage;
+
+    // Default emergency message if missing
+    if (!emergencyMessage && userProfile) {
+      emergencyMessage = {
+        name: userProfile.fullName || '',
+        allergies: (userAllergies || []).map((a: any) => a.label || a.name).join(', '),
+        instructions: '',
+        location: 'Map Location'
+      };
+    }
+    this.emergencyMessageSubject.next(emergencyMessage || null);
+  }
 
   /**
    * Load user profile and allergies
@@ -103,6 +145,15 @@ export class ProfileDataLoaderService {
         }
       });
 
+      // Publish and update emergency message allergies text
+      this.userAllergiesSubject.next(allergies);
+      const currentMsg = this.emergencyMessageSubject.value;
+      if (currentMsg) {
+        this.emergencyMessageSubject.next({
+          ...currentMsg,
+          allergies: allergies.map(a => a.label || a.name).join(', ')
+        });
+      }
       return allergies;
     } catch (error) {
       console.error('Error refreshing allergies:', error);

@@ -13,10 +13,8 @@ export class AllergyModalService {
 
   async openEditAllergiesModal(
     allergyOptions: any[],
-    refreshAllergiesDisplay: () => Promise<void>,
-    setShowEditAllergiesModal: (show: boolean) => void
+    refreshAllergiesDisplay: () => Promise<void>
   ) {
-    setShowEditAllergiesModal(true);
     const modal = await this.modalController.create({
       component: (await import('../overview/modals/edit-allergies-modal/edit-allergies-modal.component')).EditAllergiesModalComponent,
       componentProps: {
@@ -37,7 +35,6 @@ export class AllergyModalService {
         }
         await refreshAllergiesDisplay();
       }
-      setShowEditAllergiesModal(false);
     });
 
     await modal.present();

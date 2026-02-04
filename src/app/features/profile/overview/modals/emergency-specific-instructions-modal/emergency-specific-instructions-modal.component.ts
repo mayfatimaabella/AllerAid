@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 import { ModalController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EmergencyInstructionsManagerService } from '../../../services/emergency-instructions-manager.service';
 
 @Component({
   selector: 'app-emergency-specific-instructions-modal',
@@ -11,31 +12,28 @@ import { FormsModule } from '@angular/forms';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class EmergencySpecificInstructionsModalComponent {
-  @Input() emergencyInstructions: any[] = [];
-  @Input() userAllergies: any[] = [];
-  @Input() editingInstruction: any = null;
-  @Input() selectedInstructionDetails: any = null;
-  @Input() showInstructionDetailsModal: boolean = false;
+  // State is owned by EmergencyInstructionsManagerService; component acts as a view
+  get emergencyInstructions() { return this.emergencyInstructionsManager.emergencyInstructions; }
+  get userAllergies() { return this.emergencyInstructionsManager.userAllergies; }
+  get editingInstruction() { return this.emergencyInstructionsManager.editingInstruction; }
+  get selectedInstructionDetails() { return this.emergencyInstructionsManager.selectedInstructionDetails; }
+  get showInstructionDetailsModal() { return this.emergencyInstructionsManager.showInstructionDetailsModal; }
 
   // Form state: NOT @Input to allow proper ngModel binding
   selectedAllergyForInstruction: any = null;
   newInstructionText: string = '';
+  constructor(
+    private modalCtrl: ModalController,
+    public emergencyInstructionsManager: EmergencyInstructionsManagerService
+  ) {
+    // Share form state with manager so its actions can read/update
+    this.emergencyInstructionsManager.manageInstructionsModal = this;
+  }
 
-  @Output() addInstruction = new EventEmitter<void>();
-  @Output() updateInstruction = new EventEmitter<void>();
-  @Output() removeInstruction = new EventEmitter<string>();
-  @Output() editInstruction = new EventEmitter<any>();
-  @Output() cancelEdit = new EventEmitter<void>();
-  @Output() showDetails = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
-
-  constructor(private modalCtrl: ModalController) {}
-
-  onSubmit() { if (this.editingInstruction) { this.updateInstruction.emit(); } else { this.addInstruction.emit(); } }
-  onCancelEdit() { this.cancelEdit.emit(); }
-  onEditInstruction(instruction: any) { this.editInstruction.emit(instruction); }
-  onRemoveInstruction(id: string) { this.removeInstruction.emit(id); }
-  onShowDetails(instruction: any) { this.showDetails.emit(instruction); }
-  onClose() { this.dismiss(false); }
-  dismiss(refresh: boolean = false) { this.close.emit(); this.modalCtrl.dismiss(refresh ? { refresh: true } : undefined); }
+  onSubmit() { if (this.editingInstruction) { this.emergencyInstructionsManager.onUpdateInstruction(); } else { this.emergencyInstructionsManager.onAddInstruction(); } }
+  onCancelEdit() { this.emergencyInstructionsManager.onCancelEdit(); }
+  onEditInstruction(instruction: any) { this.emergencyInstructionsManager.onEditInstruction(instruction); }
+  onRemoveInstruction(id: string) { this.emergencyInstructionsManager.onRemoveInstruction(id); }
+  onShowDetails(instruction: any) { this.emergencyInstructionsManager.onShowDetails(instruction); }
+  onClose() { this.emergencyInstructionsManager.onManageInstructionsDismiss(); this.modalCtrl.dismiss(); }
 }

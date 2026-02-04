@@ -1,36 +1,59 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { EHRDataService } from './services/ehr-data.service';
+/* =======================
+ * Angular / Ionic
+ * ======================= */
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService, UserProfile } from '../../core/services/user.service';
-import { AllergyService } from '../../core/services/allergy.service';
-import { BuddyService } from '../../core/services/buddy.service';
+import {
+  ToastController,
+  ModalController,
+  AlertController,
+  PopoverController,
+  ActionSheetController
+} from '@ionic/angular';
+
+/* =======================
+ * Core Auth / User
+ * ======================= */
 import { AuthService } from '../../core/services/auth.service';
+import { UserService, UserProfile } from '../../core/services/user.service';
+
+/* =======================
+ * Core Medical Models
+ * ======================= */
 import { MedicalService, EmergencyMessage } from '../../core/services/medical.service';
-import { EmergencyAlertService } from '../../core/services/emergency-alert.service';
-import { EmergencyDetectorService } from '../../core/services/emergency-detector.service';
-import { MedicationService, Medication } from '../../core/services/medication.service';
-import { EHRService, MedicalHistory } from '../../core/services/ehr.service';
-import { VoiceRecordingService, AudioSettings } from '../../core/services/voice-recording.service';
-import { ToastController, ModalController, AlertController, PopoverController, ActionSheetController } from '@ionic/angular';
-import { MedicationReminderService } from '../../core/services/medication-reminder.service';
-import { AddMedicationModal } from './health/modals/add-medication.modal';
-import { environment } from '../../../environments/environment';
-import { AllergyOptionsService } from '../../core/services/allergy-options.service';
-import { MedicationManagerService } from './services/medication-manager.service';
-import { AllergyManagerService } from '../../core/services/allergy-manager.service';
-import { AllergyModalService } from './services/allergy-modal.service';
-import { MedicationActionsService } from './services/medication-actions.service';
-import { MedicalHistoryManagerService } from './services/medical-history-manager.service';
-import { EmergencyInstructionsManagerService } from './services/emergency-instructions-manager.service';
-import { VoiceSettingsManagerService } from './services/voice-settings-manager.service';
+import { Medication } from '../../core/services/medication.service';
+import { MedicalHistory } from '../../core/services/ehr.service';
+
+/* =======================
+ * Profile Feature Services
+ * ======================= */
+import { ProfileDataLoaderService } from './services/profile-data-loader.service';
 import { ProfileMedicationManagerService } from './services/profile-medication-manager.service';
+import { EmergencyInstructionsManagerService } from './services/emergency-instructions-manager.service';
 import { ProfileEHRManagerService } from './services/profile-ehr-manager.service';
 import { ProfileEmergencySettingsService } from './services/profile-emergency-settings.service';
-import { ProfileAccessRequestService } from './services/profile-access-request.service';
 import { ProfileNavigationService } from './services/profile-navigation.service';
 import { ProfileUtilityService } from './services/profile-utility.service';
-import { EmergencyTestingService } from './services/emergency-testing.service';
-import { ProfileDataLoaderService } from './services/profile-data-loader.service';
+import { ProfileAccessRequestService } from './services/profile-access-request.service';
+
+/* =======================
+ * Allergy (single source)
+ * ======================= */
+import { AllergyManagerService } from '../../core/services/allergy-manager.service';
+
+/* =======================
+ * UI / Modals
+ * ======================= */
+import { AddMedicationModal } from './health/modals/add-medication.modal';
+
+/* =======================
+ * Environment
+ * ======================= */
+import { environment } from '../../../environments/environment';
+import { VoiceSettingsManagerService } from './services/voice-settings-manager.service';
+import { VoiceRecordingService } from '../../core/services/voice-recording.service';
+import { AllergyModalService } from './services/allergy-modal.service';
+
 
 @Component({
   selector: 'app-profile',
@@ -44,99 +67,24 @@ export class ProfilePage implements OnInit, OnDestroy {
     return this.emergencyInstructionsManager.isEmergencyInstructionsEmpty();
   }
 
-  get emergencyInstructions(): any[] { return this.emergencyInstructionsManager.emergencyInstructions; }
-  get showManageInstructionsModal(): boolean { return this.emergencyInstructionsManager.showManageInstructionsModal; }
-  set showManageInstructionsModal(v: boolean) { this.emergencyInstructionsManager.showManageInstructionsModal = v; }
-  get showInstructionDetailsModal(): boolean { return this.emergencyInstructionsManager.showInstructionDetailsModal; }
-  set showInstructionDetailsModal(v: boolean) { this.emergencyInstructionsManager.showInstructionDetailsModal = v; }
-  get selectedInstructionDetails(): any { return this.emergencyInstructionsManager.selectedInstructionDetails; }
-  set selectedInstructionDetails(v: any) { this.emergencyInstructionsManager.selectedInstructionDetails = v; }
-  get editingInstruction(): any { return this.emergencyInstructionsManager.editingInstruction; }
-  set editingInstruction(v: any) { this.emergencyInstructionsManager.editingInstruction = v; }
-  get selectedAllergyForInstruction(): any { return this.emergencyInstructionsManager.selectedAllergyForInstruction; }
-  set selectedAllergyForInstruction(v: any) { this.emergencyInstructionsManager.selectedAllergyForInstruction = v; }
-  get newInstructionText(): string { return this.emergencyInstructionsManager.newInstructionText; }
-  set newInstructionText(v: string) { this.emergencyInstructionsManager.newInstructionText = v; }
+  // Voice settings are consumed directly from voiceSettingsManager in the template
 
-  get audioSettings(): AudioSettings { return this.voiceSettingsManager.audioSettings; }
-  set audioSettings(v: AudioSettings) { this.voiceSettingsManager.audioSettings = v; }
-  get isRecording(): boolean { return this.voiceSettingsManager.isRecording; }
-  set isRecording(value: boolean) { this.voiceSettingsManager.isRecording = value; }
-  get recordingTime(): number { return this.voiceSettingsManager.recordingTime; }
-  set recordingTime(value: number) { this.voiceSettingsManager.recordingTime = value; }
-  get recordings(): any[] { return this.voiceSettingsManager.recordings; }
-  set recordings(value: any[]) { this.voiceSettingsManager.recordings = value; }
+  // Medications: rely on service state/observables (no page-level getters/setters)
 
-  get userMedications(): Medication[] { return this.profileMedicationManager.userMedications; }
-  set userMedications(value: Medication[]) { this.profileMedicationManager.userMedications = value; }
-  get filteredMedications(): Medication[] { return this.profileMedicationManager.filteredMedications; }
-  set filteredMedications(value: Medication[]) { this.profileMedicationManager.filteredMedications = value; }
-  get medicationFilter(): string { return this.profileMedicationManager.medicationFilter; }
-  set medicationFilter(value: string) { this.profileMedicationManager.medicationFilter = value; }
-  get medicationSearchTerm(): string { return this.profileMedicationManager.medicationSearchTerm; }
-  set medicationSearchTerm(value: string) { this.profileMedicationManager.medicationSearchTerm = value; }
-  get isLoadingMedications(): boolean { return this.profileMedicationManager.isLoadingMedications; }
-  set isLoadingMedications(value: boolean) { this.profileMedicationManager.isLoadingMedications = value; }
-  get medicationsCount(): number { return this.profileMedicationManager.medicationsCount; }
-  set medicationsCount(value: number) { this.profileMedicationManager.medicationsCount = value; }
-  get medicationFilterCache(): Map<string, Medication[]> { return this.profileMedicationManager.medicationFilterCache; }
-  set medicationFilterCache(value: Map<string, Medication[]>) { this.profileMedicationManager.medicationFilterCache = value; }
-  get expandedMedicationIds(): Set<string> { return this.profileMedicationManager.expandedMedicationIds; }
-  set expandedMedicationIds(value: Set<string>) { this.profileMedicationManager.expandedMedicationIds = value; }
-  get showMedicationDetailsModal(): boolean { return this.profileMedicationManager.showMedicationDetailsModal; }
-  set showMedicationDetailsModal(value: boolean) { this.profileMedicationManager.showMedicationDetailsModal = value; }
-  get selectedMedication(): any { return this.profileMedicationManager.selectedMedication; }
-  set selectedMedication(value: any) { this.profileMedicationManager.selectedMedication = value; }
+  // EHR state consumed directly from profileEHRManager in the template
 
-  get doctorVisits(): any[] { return this.profileEHRManager.doctorVisits; }
-  set doctorVisits(value: any[]) { this.profileEHRManager.doctorVisits = value; }
-  get medicalHistory(): any[] { return this.profileEHRManager.medicalHistory; }
-  set medicalHistory(value: any[]) { this.profileEHRManager.medicalHistory = value; }
-  get ehrAccessList(): any[] { return this.profileEHRManager.ehrAccessList; }
-  set ehrAccessList(value: any[]) { this.profileEHRManager.ehrAccessList = value; }
-  get healthcareProviders(): any[] { return this.profileEHRManager.healthcareProviders; }
-  set healthcareProviders(value: any[]) { this.profileEHRManager.healthcareProviders = value; }
-  get isLoadingDoctorVisits(): boolean { return this.profileEHRManager.isLoadingDoctorVisits; }
-  set isLoadingDoctorVisits(value: boolean) { this.profileEHRManager.isLoadingDoctorVisits = value; }
-  get isLoadingMedicalHistory(): boolean { return this.profileEHRManager.isLoadingMedicalHistory; }
-  set isLoadingMedicalHistory(value: boolean) { this.profileEHRManager.isLoadingMedicalHistory = value; }
-  get isDoctorVisitsExpanded(): boolean { return this.profileEHRManager.isDoctorVisitsExpanded; }
-  set isDoctorVisitsExpanded(value: boolean) { this.profileEHRManager.isDoctorVisitsExpanded = value; }
-  get isMedicalHistoryExpanded(): boolean { return this.profileEHRManager.isMedicalHistoryExpanded; }
-  set isMedicalHistoryExpanded(value: boolean) { this.profileEHRManager.isMedicalHistoryExpanded = value; }
-  get isLoadingEHR(): boolean { return this.profileEHRManager.isLoadingEHR; }
-  set isLoadingEHR(value: boolean) { this.profileEHRManager.isLoadingEHR = value; }
-  get newProviderEmail(): string { return this.profileEHRManager.newProviderEmail; }
-  set newProviderEmail(value: string) { this.profileEHRManager.newProviderEmail = value; }
-  get newProviderName(): string { return this.profileEHRManager.newProviderName; }
-  set newProviderName(value: string) { this.profileEHRManager.newProviderName = value; }
-  get newProviderRole(): 'doctor' | 'nurse' { return this.profileEHRManager.newProviderRole; }
-  set newProviderRole(value: 'doctor' | 'nurse') { this.profileEHRManager.newProviderRole = value; }
-  get newProviderLicense(): string { return this.profileEHRManager.newProviderLicense; }
-  set newProviderLicense(value: string) { this.profileEHRManager.newProviderLicense = value; }
-  get newProviderSpecialty(): string { return this.profileEHRManager.newProviderSpecialty; }
-  set newProviderSpecialty(value: string) { this.profileEHRManager.newProviderSpecialty = value; }
-  get newProviderHospital(): string { return this.profileEHRManager.newProviderHospital; }
-  set newProviderHospital(value: string) { this.profileEHRManager.newProviderHospital = value; }
-
-  get emergencySettings(): any { return this.profileEmergencySettings.emergencySettings; }
-  set emergencySettings(value: any) { this.profileEmergencySettings.emergencySettings = value; }
-  get showVoiceSettings(): boolean { return this.profileEmergencySettings.showVoiceSettings; }
-  set showVoiceSettings(value: boolean) { this.profileEmergencySettings.showVoiceSettings = value; }
-  get showEditEmergencyMessageModal(): boolean { return this.profileEmergencySettings.showEditEmergencyMessageModal; }
-  set showEditEmergencyMessageModal(value: boolean) { this.profileEmergencySettings.showEditEmergencyMessageModal = value; }
+  // Emergency settings consumed directly from profileEmergencySettings in the template
 
   userAllergies: any[] = [];
   emergencyMessage: EmergencyMessage = { name: '', allergies: '', instructions: '', location: '' };
   userProfile: UserProfile | null = null;
-  showEditAllergiesModal: boolean = false;
+  
   showEmergencyInfoModal: boolean = false;
   allergyOptions: any[] = [];
   allergiesCount: number = 0;
   shouldRefreshData: boolean = false;
   isDataInitialized: boolean = false;
   showExamplesModal: boolean = false;
-  selectedInstruction: any = null;
   doctorStats: any = {};
   recentActivity: any[] = [];
   professionalCredentials: any[] = [];
@@ -144,10 +92,16 @@ export class ProfilePage implements OnInit, OnDestroy {
   buddySettings: any = {};
   subscriptions: any[] = [];
 
+  // Alias facade used in template to existing voice settings manager
+  public profileVoiceFacade!: VoiceSettingsManagerService;
+
   async ngOnInit(): Promise<void> {
+    // Initialize alias for template compatibility
+    this.profileVoiceFacade = this.voiceSettingsManager;
     
     await this.loadAllergyOptions(); // Load allergy options first
-    await this.loadUserData();       // Then load user data and merge
+    await this.profileDataLoader.loadAllData(); // Load profile, allergies, emergency message
+    await this.loadUserMedications(); // Load medications for Health tab
     await this.loadEmergencyInstructions(); // Load emergency instructions after user data
     this.setDefaultTabForRole();
   }
@@ -156,19 +110,15 @@ export class ProfilePage implements OnInit, OnDestroy {
   async openEditAllergiesModal() {
     await this.allergyModalService.openEditAllergiesModal(
       this.allergyOptions,
-      () => this.refreshAllergiesDisplay(),
-      (show: boolean) => { this.showEditAllergiesModal = show; }
+      () => this.refreshAllergiesDisplay()
     );
   }
-
-  //Close edit allergies modal
-  closeEditAllergiesModal() { this.showEditAllergiesModal = false; }
   
-    async onAllergiesChanged(updatedAllergies: any[]) {
+    async onAllergiesChanged(_: any): Promise<void> {
     // Reload allergies from Firebase to ensure sync
     await this.refreshAllergiesDisplay();
     // Update emergency message allergies text
-    this.emergencyMessage.allergies = updatedAllergies.map(a => a.label || a.name).join(', ');
+    this.emergencyMessage.allergies = this.userAllergies.map(a => a.label || a.name).join(', ');
   }
 
 
@@ -302,8 +252,8 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   async openEditEmergencyMessageModal(): Promise<void> {
     await this.profileEmergencySettings.openEditEmergencyMessageModal(
-      this.emergencyMessage,
-      this.userProfile,
+      this.profileDataLoader.emergencyMessageValue || { name: '', allergies: '', instructions: '', location: '' },
+      this.profileDataLoader.userProfileValue,
       (message: any) => this.saveEditedEmergencyMessage(message),
       () => this.refreshEmergencyMessageDisplay()
     );
@@ -324,33 +274,19 @@ export class ProfilePage implements OnInit, OnDestroy {
   async saveEditedEmergencyMessage(message: any): Promise<void> {
     await this.profileEmergencySettings.saveEditedEmergencyMessage(
       message,
-      this.userProfile,
-      (msg: EmergencyMessage) => { this.emergencyMessage = msg; },
+      this.profileDataLoader.userProfileValue,
+      (msg: EmergencyMessage) => { this.profileDataLoader.setEmergencyMessage(msg); },
       () => this.loadMedicalData(),
       this.presentToast.bind(this)
     );
   }
 
-  formatDuration(seconds: number): string {
-    return this.voiceSettingsManager.formatDuration(seconds);
-  }
-
-  formatFileSize(bytes: number): string {
-    return this.voiceSettingsManager.formatFileSize(bytes);
-  }
-
-  // Audio source helpers
-  getAudioSourceClass(): string {
-    return this.voiceSettingsManager.getAudioSourceClass();
-  }
-  getAudioSourceText(): string {
-    return this.voiceSettingsManager.getAudioSourceText();
-  }
+  // Voice helpers are called directly on voiceSettingsManager from template
 
   // Provide normalized instruction entries for Emergency Details modal
   getEmergencyInstructionEntries(): { label: string; text: string }[] {
     return this.profileEmergencySettings.getEmergencyInstructionEntries(
-      this.emergencyInstructions,
+      this.emergencyInstructionsManager.emergencyInstructions,
       this.emergencyMessage
     );
   }
@@ -370,72 +306,14 @@ export class ProfilePage implements OnInit, OnDestroy {
       this.presentToast('Unable to load allergy options. Please contact administrator.');
     }
   }
-  async startRecording(): Promise<void> {
-    await this.voiceSettingsManager.startRecording();
-  }
-  async stopRecording(): Promise<void> {
-    await this.voiceSettingsManager.stopRecording();
-  }
-  async playRecording(id: string): Promise<void> {
-    await this.voiceSettingsManager.playRecording(id);
-  }
-  selectRecording(id: string): void {
-    this.voiceSettingsManager.selectRecording(id);
-  }
-  async deleteRecording(recording: any): Promise<void> {
-    await this.voiceSettingsManager.deleteRecording(recording);
-  }
-  isRecordingSelected(id: string): boolean {
-    return this.voiceSettingsManager.isRecordingSelected(id);
-  }
-
-  // Audio settings change
-  onAudioSettingChange(): void {
-    this.voiceSettingsManager.onAudioSettingChange();
-  }
+  // Recording controls are invoked directly on voiceSettingsManager from template
   /**
    * Load user profile, allergies, buddies, medications, and EHR data
    */
   async loadUserData(): Promise<void> {
-    try {
-      const { userProfile, userAllergies } = await this.profileDataLoader.loadUserProfile();
-      
-      if (!userProfile) {
-        this.presentToast('Please log in to view your profile');
-        return;
-      }
-
-      this.userProfile = userProfile;
-      this.userAllergies = userAllergies;
-      this.allergiesCount = userAllergies.length;
-
-      // Load medications and medical data
-      await this.loadUserMedications();
-      await this.loadMedicalData();
-
-      // Load emergency message
-      if (this.userProfile.emergencyMessage) {
-        this.emergencyMessage = this.userProfile.emergencyMessage;
-      } else {
-        const hasExisting = !!(this.emergencyMessage && (
-          this.emergencyMessage.name ||
-          this.emergencyMessage.allergies ||
-          this.emergencyMessage.instructions ||
-          this.emergencyMessage.location
-        ));
-        if (!hasExisting) {
-          this.emergencyMessage = {
-            name: this.userProfile.fullName || '',
-            allergies: userAllergies?.map(a => a.label || a.name).join(', '),
-            instructions: '',
-            location: 'Map Location'
-          };
-        }
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      this.presentToast('Error loading profile data');
-    }
+    await this.profileDataLoader.loadAllData();
+    await this.loadMedicalData();
+    await this.loadEmergencyInstructions();
   }
 
   async refreshAllergiesDisplay(): Promise<void> {
@@ -443,9 +321,8 @@ export class ProfilePage implements OnInit, OnDestroy {
       const currentUser = await this.authService.waitForAuthInit();
       if (!currentUser) return;
 
-      this.userAllergies = await this.profileDataLoader.refreshAllergies(currentUser.uid);
-      this.allergiesCount = this.userAllergies.length;
-      this.emergencyMessage.allergies = this.userAllergies?.map(a => a.label || a.name).join(', ');
+      const updated = await this.profileDataLoader.refreshAllergies(currentUser.uid);
+      this.allergiesCount = updated.length;
     } catch (error) {
       console.error('Error refreshing allergies display:', error);
     }
@@ -467,50 +344,40 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   // Template compatibility stubs
   // Health Section bindings
-  isEmergencyMedicationBind = this.isEmergencyMedication.bind(this);
+  isEmergencyMedicationBind = this.profileMedicationManager.isEmergencyMedication.bind(this.profileMedicationManager);
   isMedicationDetailsExpandedBind = this.isMedicationDetailsExpanded;
-  isExpiringSoonBind = this.isExpiringSoon.bind(this);
+  isExpiringSoonBind = this.profileMedicationManager.isExpiringSoon.bind(this.profileMedicationManager);
   
-  // Template reference to access modal form data
-  @ViewChild('manageInstructionsModal') manageInstructionsModal: any;
+  // Child modal manages its own state via service; no ViewChild needed
 
   // Service dependencies
   constructor(
-    public emergencyInstructionsManager: EmergencyInstructionsManagerService,
-    public voiceSettingsManager: VoiceSettingsManagerService,
-    public profileMedicationManager: ProfileMedicationManagerService,
-    public profileEHRManager: ProfileEHRManagerService,
-    public profileEmergencySettings: ProfileEmergencySettingsService,
-    public profileAccessRequest: ProfileAccessRequestService,
-    public profileNavigation: ProfileNavigationService,
-    public profileUtility: ProfileUtilityService,
-    public emergencyTesting: EmergencyTestingService,
-    public profileDataLoader: ProfileDataLoaderService,
-    public allergyService: AllergyService,
-    public allergyOptionsService: AllergyOptionsService,
-    public allergyManager: AllergyManagerService,
-    public userService: UserService,
-    public buddyService: BuddyService,
-    public authService: AuthService,
-    public medicalService: MedicalService,
-    public medicationService: MedicationService,
-    public reminders: MedicationReminderService,
-    public toastController: ToastController,
-    public modalController: ModalController,
-    public alertController: AlertController,
-    public popoverController: PopoverController,
-    public actionSheetController: ActionSheetController,
-    public emergencyAlertService: EmergencyAlertService,
-    public emergencyDetectorService: EmergencyDetectorService,
-    public voiceRecordingService: VoiceRecordingService,
-    public ehrService: EHRService,
-    public ehrDataService: EHRDataService,
-    public router: Router,
-    public medicationActionsService: MedicationActionsService,
-    public medicationManager: MedicationManagerService,
-    public allergyModalService: AllergyModalService,
-  public medicalHistoryManager: MedicalHistoryManagerService
+ public emergencyInstructionsManager: EmergencyInstructionsManagerService,
+  public voiceSettingsManager: VoiceSettingsManagerService,
+  public profileMedicationManager: ProfileMedicationManagerService,
+  public profileEHRManager: ProfileEHRManagerService,
+  public profileEmergencySettings: ProfileEmergencySettingsService,
+  public profileNavigation: ProfileNavigationService,
+  public profileUtility: ProfileUtilityService,
+  public profileDataLoader: ProfileDataLoaderService,
+  public allergyManager: AllergyManagerService,
+  public allergyModalService: AllergyModalService,
+  public profileAccessRequest: ProfileAccessRequestService,
+  public voiceRecordingService: VoiceRecordingService,
+
+  // UI helpers
+  public toastController: ToastController,
+  public modalController: ModalController,
+  public alertController: AlertController,
+  public popoverController: PopoverController,
+  public actionSheetController: ActionSheetController,
+  public router: Router,
+  public authService: AuthService,
+  public userService: UserService,
+  public medicalService: MedicalService
   ) {}
+
+    
 
     /**
      * Load medical profile and EHR data for the current user
@@ -523,15 +390,15 @@ export class ProfilePage implements OnInit, OnDestroy {
           this.emergencyMessage = data.emergencyMessage;
         }
         if (data.emergencySettings) {
-          this.emergencySettings = {
-            ...this.emergencySettings,
+          this.profileEmergencySettings.emergencySettings = {
+            ...this.profileEmergencySettings.emergencySettings,
             ...data.emergencySettings
           };
         }
-        
-        this.doctorVisits = data.doctorVisits;
-        this.medicalHistory = data.medicalHistory;
-        this.ehrAccessList = data.ehrAccessList;
+
+        this.profileEHRManager.doctorVisits = data.doctorVisits;
+        this.profileEHRManager.medicalHistory = data.medicalHistory;
+        this.profileEHRManager.ehrAccessList = data.ehrAccessList;
       } catch (error) {
         console.error('Error loading medical data:', error);
       }
@@ -573,103 +440,28 @@ export class ProfilePage implements OnInit, OnDestroy {
 
 
   async loadEmergencyInstructions() {
-    await this.emergencyInstructionsManager.loadEmergencyInstructions(this.userProfile);
+    await this.emergencyInstructionsManager.loadEmergencyInstructions(this.profileDataLoader.userProfileValue);
   }
 
   async loadUserMedications(): Promise<void> {
-    if (!this.userProfile) return;
-    await this.profileMedicationManager.loadUserMedications(this.userProfile.uid);
+    const user = this.profileDataLoader.userProfileValue;
+    if (!user) return;
+    await this.profileMedicationManager.loadUserMedications(user.uid);
   }
 
-  //Get active medications count
-  getActiveMedicationsCount(): number {
-    return this.userMedications.filter(med => med.isActive).length;
+  // Medication counts and predicates moved to ProfileMedicationManagerService
+
+  // Centralized emergency test delegation
+  async runEmergencyTest(type: 'alert' | 'shake' | 'power' | 'audio'): Promise<void> {
+    await this.profileEmergencySettings.runTest(type, (message: string) => this.presentToast(message));
   }
 
-  //Get emergency medications count
-
-  getEmergencyMedicationsCount(): number {
-    return this.userMedications.filter(med => 
-      (med as any).emergencyMedication === true || 
-      med.category === 'emergency' || 
-      med.category === 'allergy'
-    ).length;
-  }
-   //Get expiring medications count
-   
-  getExpiringMedicationsCount(): number {
-    return this.userMedications.filter(med => 
-      this.isExpiringSoon(med.expiryDate)
-    ).length;
-  }
-
-  /**
-   * Determine if a medication should be treated as emergency-highlighted.
-   * Supports legacy persisted flag while primarily relying on category.
-   */
-  isEmergencyMedication(med: Medication): boolean {
-    return med.category === 'emergency' ||
-           med.category === 'allergy' ||
-           (med as any).emergencyMedication === true;
-  }
-
-  //Check if medication is expiring soon
-   
-  isExpiringSoon(expiryDate?: string): boolean {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    return expiry <= thirtyDaysFromNow;
-  }
-
-  //Test emergency alert system
-  
-  async testEmergencyAlert(): Promise<void> {
-    await this.emergencyTesting.testEmergencyAlert((message) => this.presentToast(message));
-  }
-
-  //Test shake detection
-   
-  async testShakeDetection(): Promise<void> {
-    await this.emergencyTesting.testShakeDetection(
-      this.emergencySettings.shakeToAlert,
-      (message) => this.presentToast(message)
-    );
-  }
-
-  /**
-   * Test power button detection
-   */
-  async testPowerButtonDetection(): Promise<void> {
-    await this.emergencyTesting.testPowerButtonDetection(
-      this.emergencySettings.powerButtonAlert,
-      (message) => this.presentToast(message)
-    );
-  }
-
-  /**
-   * Test audio instructions
-   */
-  async testAudioInstructions(): Promise<void> {
-    await this.emergencyTesting.testAudioInstructions(
-      this.emergencySettings.audioInstructions,
-      this.userProfile?.fullName || 'User',
-      this.userAllergies?.map(a => a.label || a.name).join(', ') || '',
-      this.emergencyMessage.instructions || 'Use EpiPen immediately and call 911',
-      this.emergencyMessage.location || 'Map Location',
-      (message) => this.presentToast(message)
-    );
-  }
-
-  /**
-   * Request motion permissions for shake detection (iOS)
-   */
-  async requestMotionPermissions(): Promise<void> {
-    await this.emergencyTesting.requestMotionPermissions((granted, message) => {
-      this.presentToast(message);
-    });
-  }
+  // Function properties for child inputs and events
+  testEmergencyAlert = () => this.runEmergencyTest('alert');
+  testShakeDetection = () => this.runEmergencyTest('shake');
+  testPowerButtonDetection = () => this.runEmergencyTest('power');
+  testAudioInstructions = () => this.runEmergencyTest('audio');
+  requestMotionPermissions = () => this.runEmergencyTest('shake');
 
   /**
    * Show emergency examples modal
@@ -679,19 +471,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async confirmDeleteInstruction(instruction?: any) {
-    if (instruction) {
-      this.selectedInstructionDetails = instruction;
-    }
-    if (!this.selectedInstructionDetails) return;
-    const alert = await this.alertController.create({
-      header: 'Delete Instruction',
-      message: 'Are you sure you want to delete this emergency instruction?',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        { text: 'Delete', role: 'destructive', handler: () => this.onRemoveInstruction(this.selectedInstructionDetails) }
-      ]
-    });
-    await alert.present();
+    const id = instruction?.allergyId || instruction?.allergyName;
+    if (!id) return;
+    await this.emergencyInstructionsManager.onRemoveInstruction(id);
   }
 
   // Emergency instructions modal logic is now handled in EmergencyInstructionsModalComponent
@@ -760,7 +542,7 @@ export class ProfilePage implements OnInit, OnDestroy {
    * Toggle expanded view for medical history
    */
   toggleMedicalHistoryExpanded() {
-    this.isMedicalHistoryExpanded = !this.isMedicalHistoryExpanded;
+    this.profileEHRManager.isMedicalHistoryExpanded = !this.profileEHRManager.isMedicalHistoryExpanded;
   }
 
 // Access Request Management - Delegated to ProfileAccessRequestService
@@ -776,38 +558,21 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.profileAccessRequest.declineAccessRequest(requestOrEvent, () => this.loadAccessRequests());
   }
 
-  get pendingRequests(): any[] {
-    return this.profileAccessRequest.pendingRequests;
-  }
-  set pendingRequests(value: any[]) {
-    this.profileAccessRequest.pendingRequests = value;
-  }
+  // Pending requests consumed directly from profileAccessRequest in the template
 
   // Navigation & Settings - Delegated to ProfileNavigationService
   selectTab(tab: string): void {
     this.profileNavigation.selectTab(tab);
   }
 
-  get selectedTab(): string {
-    return this.profileNavigation.selectedTab;
-  }
-  set selectedTab(value: string) {
-    this.profileNavigation.selectedTab = value;
-  }
-
-  get userHasSelectedTab(): boolean {
-    return this.profileNavigation.userHasSelectedTab;
-  }
-  set userHasSelectedTab(value: boolean) {
-    this.profileNavigation.userHasSelectedTab = value;
-  }
+  // Navigation state consumed directly from profileNavigation in the template
 
   setDefaultTabForRole(): void {
-    this.profileNavigation.setDefaultTabForRole(this.userProfile);
+    this.profileNavigation.setDefaultTabForRole(this.profileDataLoader.userProfileValue);
   }
 
   async navigateToDoctorDashboard(): Promise<void> {
-    await this.profileNavigation.navigateToDoctorDashboard(this.userProfile);
+    await this.profileNavigation.navigateToDoctorDashboard(this.profileDataLoader.userProfileValue);
   }
 
   navigateToResponderDashboard(): void {
@@ -850,7 +615,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  showAddInstructionModal: boolean = false;
 
   // Delegate to service
   async onAddInstruction(): Promise<void> {
@@ -882,26 +646,10 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   onShowDetails(instruction: any): void {
-    if (!instruction) {
-      this.emergencyInstructionsManager.showInstructionDetailsModal = false;
-      this.emergencyInstructionsManager.selectedInstructionDetails = null;
-      return;
-    }
-    this.selectedInstructionDetails = instruction;
-    if (!this.showManageInstructionsModal) {
-      this.showManageInstructionsModal = true;
-    }
-    // Force detail view to refresh in the child modal
-    this.showInstructionDetailsModal = false;
-    setTimeout(() => {
-      this.showInstructionDetailsModal = true;
-    });
+    this.emergencyInstructionsManager.onShowDetails(instruction);
   }
 
   async testInstructionAudio(instruction?: any): Promise<void> {
-    if (!instruction) {
-      instruction = this.selectedInstructionDetails || this.selectedInstruction;
-    }
     if (!instruction) return;
     try {
       const text = instruction.instruction || 'No instruction content';
@@ -913,8 +661,11 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
+  // Modal open handled by service
   openAddInstructionModal() {
-    this.showAddInstructionModal = true;
+    // Ensure manager has allergy options for selection within modal
+    this.emergencyInstructionsManager.userAllergies = this.userAllergies;
+    this.emergencyInstructionsManager.openManageInstructionsModal();
   }
   
   showAddEmergencyMessageModal: boolean = false;

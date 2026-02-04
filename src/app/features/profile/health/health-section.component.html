@@ -1,9 +1,5 @@
 <div class="section-title">
   Medications 
-  <ion-button size="small" fill="clear" (click)="add.emit()">
-    <ion-icon name="add-outline" slot="start"></ion-icon>
-    Add Medication
-  </ion-button>
 </div>
 
 <!-- Medication Search -->
@@ -199,3 +195,10 @@
   </div>
   </ng-container>
 </div>
+
+<!-- FAB -->
+<ion-fab class="add-med-fab" horizontal="end" vertical="bottom">
+  <ion-fab-button (click)="add.emit()" aria-label="Add medication">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

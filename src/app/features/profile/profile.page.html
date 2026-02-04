@@ -1,5 +1,5 @@
 <ion-header [translucent]="true">
-  <ion-toolbar class="teal-modal-toolbar">
+  <ion-toolbar class="toolbar--teal">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -19,7 +19,7 @@
     </ion-avatar>
 
     <div class="profile-name">
-      {{ emergencyMessage.name || userProfile?.fullName || 'User' }}
+      {{ ((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User') }}
     </div>
   </section>
 
@@ -28,7 +28,7 @@
 
     <!-- USER STATS -->
     <section class="profile-stats"
-             *ngIf="userProfile?.role === 'user'">
+         *ngIf="(profileDataLoader.userProfile$ | async)?.role === 'user'">
 
       <div class="stat">
         <div class="stat-label">Allergies</div>
@@ -37,46 +37,45 @@
 
       <div class="stat">
         <div class="stat-label">Medications</div>
-        <div class="stat-value">{{ medicationsCount }}</div>
+        <div class="stat-value">{{ profileMedicationManager.medicationsCount }}</div>
       </div>
     </section>
 
     <!-- USER TABS -->
-    <nav class="profile-tabs"
-         *ngIf="userProfile?.role === 'user'">
-      <button class="tab"
-              [class.active]="selectedTab === 'overview'"
+        <nav class="profile-tabs"
+          *ngIf="(profileDataLoader.userProfile$ | async)?.role === 'user'">
+            <button class="tab"
+              [class.active]="profileNavigation.selectedTab === 'overview'"
               (click)="selectTab('overview')">Overview</button>
 
-      <button class="tab"
-              [class.active]="selectedTab === 'health'"
+            <button class="tab"
+              [class.active]="profileNavigation.selectedTab === 'health'"
               (click)="selectTab('health')">Health</button>
 
-      <button class="tab"
-              [class.active]="selectedTab === 'ehr'"
+            <button class="tab"
+              [class.active]="profileNavigation.selectedTab === 'ehr'"
               (click)="selectTab('ehr')">EHR</button>
 
-      <button class="tab"
-              [class.active]="selectedTab === 'emergency'"
+            <button class="tab"
+              [class.active]="profileNavigation.selectedTab === 'emergency'"
               (click)="selectTab('emergency')">Emergency</button>
     </nav>
 
     <!-- USER PROFILE CONTENT -->
-    <section *ngIf="userProfile?.role === 'user'">
+    <section *ngIf="(profileDataLoader.userProfile$ | async)?.role === 'user'">
         
-        <ng-container *ngIf="selectedTab === 'overview'">
+        <ng-container *ngIf="profileNavigation.selectedTab === 'overview'">
           <app-profile-overview-section
 
-          [userAllergies]="userAllergies"
-          [emergencyMessage]="emergencyMessage"
-          [userProfile]="userProfile"
-          [emergencyInstructions]="emergencyInstructions"
-          [emergencyMessageName]="emergencyMessage.name || userProfile?.fullName || 'User'"
-          [emergencyInstructionsCombined]="(emergencyMessage.instructions || '')"
-          [emergencyLocation]="emergencyMessage.location || 'Map Location'"
+          [userAllergies]="(profileDataLoader.userAllergies$ | async) || []"
+          [emergencyMessage]="(profileDataLoader.emergencyMessage$ | async)"
+          [userProfile]="(profileDataLoader.userProfile$ | async)"
+          [emergencyInstructions]="emergencyInstructionsManager.emergencyInstructions"
+          [emergencyMessageName]="((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User')"
+          [emergencyInstructionsCombined]="((profileDataLoader.emergencyMessage$ | async)?.instructions || '')"
+          [emergencyLocation]="((profileDataLoader.emergencyMessage$ | async)?.location || 'Map Location')"
 
           (openEditAllergies)="openEditAllergiesModal()"
-          (allergiesChanged)="onAllergiesChanged($event)"
           (openEmergencyInfo)="showEmergencyInfoModal = true"
           (testInstructionAudio)="testInstructionAudio($event)"
           >
@@ -84,24 +83,15 @@
           </app-profile-overview-section>
         </ng-container>
         
-        <!-- Edit Allergies Modal -->
-           <ion-modal [isOpen]="showEditAllergiesModal" (didDismiss)="closeEditAllergiesModal()">
-            <ng-template>
-               <div class="edit-allergies-modal-content">
-                <h2>Edit Allergies</h2>
-                 <ion-button expand="block" color="primary" (click)="closeEditAllergiesModal()">Close</ion-button>
-                </div>
-              </ng-template>
-            </ion-modal>
-
+        
         <!-- Detailed Emergency Info Modal -->
          <ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="showEmergencyInfoModal = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
           <ng-template>
             <app-emergency-details-modal
-            [emergencyMessageName]="emergencyMessage.name || userProfile?.fullName || 'User'"
-            [userAllergies]="userAllergies"
+            [emergencyMessageName]="((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User')"
+            [userAllergies]="(profileDataLoader.userAllergies$ | async) || []"
             [instructionEntries]="getEmergencyInstructionEntries()"
-            [emergencyLocation]="emergencyMessage.location || 'Map Location'"
+            [emergencyLocation]="((profileDataLoader.emergencyMessage$ | async)?.location || 'Map Location')"
             (close)="showEmergencyInfoModal = false"
             (testAudio)="testAudioInstructions()"
             (addInstruction)="openAddInstructionModal()"
@@ -111,14 +101,14 @@
           </ng-template>
         </ion-modal>
 
-      <ng-container *ngIf="selectedTab === 'health'">
+      <ng-container *ngIf="profileNavigation.selectedTab === 'health'">
         <app-profile-health-section
 
-          [userMedications]="userMedications"
-          [filteredMedications]="filteredMedications"
-          [medicationFilter]="$any(medicationFilter)"
-          [medicationSearchTerm]="medicationSearchTerm"
-          [isLoading]="isLoadingMedications"
+          [userMedications]="$any((profileMedicationManager.userMedications$ | async) || [])"
+          [filteredMedications]="$any((profileMedicationManager.filteredMedications$ | async) || [])"
+          [medicationFilter]="profileMedicationManager.medicationFilter"
+          [medicationSearchTerm]="profileMedicationManager.medicationSearchTerm"
+          [isLoading]="$any(profileMedicationManager.isLoadingMedications$ | async)"
 
           [isEmergencyMedicationFn]="isEmergencyMedicationBind"
           [isMedicationDetailsExpandedFn]="isMedicationDetailsExpandedBind"
@@ -127,7 +117,7 @@
           (add)="openAddMedicationModal()"
           (search)="searchMedications($event)"
           (clearSearch)="clearMedicationSearch()"
-          (medicationFilterChange)="medicationFilter = $event; filterMedications()"
+          (medicationFilterChange)="profileMedicationManager.medicationFilter = $event; filterMedications()"
           (toggleDetails)="toggleMedicationDetails($event)"
           (toggleStatus)="toggleMedicationStatus($event)"
 
@@ -140,7 +130,7 @@
 
       <!-- Medication Details Modal -->
        <ion-modal
-       [isOpen]="showMedicationDetailsModal"
+      [isOpen]="profileMedicationManager.showMedicationDetailsModal"
        (didDismiss)="closeMedicationDetails()"
        cssClass="force-white-modal"
        [initialBreakpoint]="1"
@@ -148,7 +138,7 @@
        
        <ng-template>
         <app-medication-details-modal
-        [medication]="selectedMedication"
+        [medication]="profileMedicationManager.selectedMedication"
         [isEmergencyMedicationFn]="isEmergencyMedicationBind"
         [isExpiringSoonFn]="isExpiringSoonBind"
         (close)="closeMedicationDetails()">
@@ -156,16 +146,16 @@
        </ng-template>
       </ion-modal>
 
-      <ng-container *ngIf="selectedTab === 'ehr'">
+      <ng-container *ngIf="profileNavigation.selectedTab === 'ehr'">
         <app-ehr-section-cards
-          [doctorVisits]="doctorVisits"
-          [medicalHistory]="medicalHistory"
-          [ehrAccessList]="ehrAccessList"
+          [doctorVisits]="profileEHRManager.doctorVisits"
+          [medicalHistory]="profileEHRManager.medicalHistory"
+          [ehrAccessList]="profileEHRManager.ehrAccessList"
 
-          [isLoadingDoctorVisits]="isLoadingDoctorVisits"
-          [isLoadingMedicalHistory]="isLoadingMedicalHistory"
-          [isDoctorVisitsExpanded]="isDoctorVisitsExpanded"
-          [isMedicalHistoryExpanded]="isMedicalHistoryExpanded"
+          [isLoadingDoctorVisits]="profileEHRManager.isLoadingDoctorVisits"
+          [isLoadingMedicalHistory]="profileEHRManager.isLoadingMedicalHistory"
+          [isDoctorVisitsExpanded]="profileEHRManager.isDoctorVisitsExpanded"
+          [isMedicalHistoryExpanded]="profileEHRManager.isMedicalHistoryExpanded"
           
           (addDoctorVisit)="openAddDoctorVisitModal()"
           (addMedicalHistory)="openAddMedicalHistoryModal()"
@@ -184,39 +174,39 @@
       
         <!-- EMERGENCY!-->
 
-      <ng-container *ngIf="selectedTab === 'emergency'">
+      <ng-container *ngIf="profileNavigation.selectedTab === 'emergency'">
 
         <app-emergency-settings-card
-          [emergencySettings]="emergencySettings"
-          [showVoiceSettings]="showVoiceSettings"
-          [getAudioSourceClass]="getAudioSourceClass.bind(this)"
-          [getAudioSourceText]="getAudioSourceText.bind(this)"
+          [emergencySettings]="profileEmergencySettings.emergencySettings"
+          [showVoiceSettings]="profileEmergencySettings.showVoiceSettings"
+          [getAudioSourceClass]="profileVoiceFacade.getAudioSourceClass.bind(profileVoiceFacade)"
+          [getAudioSourceText]="profileVoiceFacade.getAudioSourceText.bind(profileVoiceFacade)"
           [openVoiceRecordingModal]="openVoiceRecordingModal.bind(this)"
           [saveEmergencySettings]="saveEmergencySettings.bind(this)"
           [isEmergencyInstructionsEmpty]="isEmergencyInstructionsEmpty.bind(this)"
           [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
-          [testEmergencyAlert]="testEmergencyAlert.bind(this)"
-          [testShakeDetection]="testShakeDetection.bind(this)"
-          [testPowerButtonDetection]="testPowerButtonDetection.bind(this)"
-          [testAudioInstructions]="testAudioInstructions.bind(this)"
-          [requestMotionPermissions]="requestMotionPermissions.bind(this)"
+          [testEmergencyAlert]="testEmergencyAlert"
+          [testShakeDetection]="testShakeDetection"
+          [testPowerButtonDetection]="testPowerButtonDetection"
+          [testAudioInstructions]="testAudioInstructions"
+          [requestMotionPermissions]="requestMotionPermissions"
           [showEmergencyExamples]="showEmergencyExamples.bind(this)"
-          [emergencyMessage]="emergencyMessage"
-          [userProfile]="userProfile"
-          [emergencyInstructions]="emergencyInstructions"
-          [userAllergies]="userAllergies"
-          [showManageInstructionsModal]="showManageInstructionsModal"
-          [editingInstruction]="editingInstruction"
-          [selectedInstructionDetails]="selectedInstructionDetails"
-          [showInstructionDetailsModal]="showInstructionDetailsModal"
-          [openManageInstructionsModal]="openManageInstructionsModal.bind(this)"
-          [onManageInstructionsDismiss]="onManageInstructionsDismiss.bind(this)"
-          [onAddInstruction]="onAddInstruction.bind(this)"
-          [onUpdateInstruction]="onUpdateInstruction.bind(this)"
-          [onRemoveInstruction]="onRemoveInstruction.bind(this)"
-          [onEditInstruction]="onEditInstruction.bind(this)"
-          [onCancelEdit]="onCancelEdit.bind(this)"
-          [onShowDetails]="onShowDetails.bind(this)"
+          [emergencyMessage]="(profileDataLoader.emergencyMessage$ | async)"
+          [userProfile]="(profileDataLoader.userProfile$ | async)"
+          [emergencyInstructions]="emergencyInstructionsManager.emergencyInstructions"
+          [userAllergies]="(profileDataLoader.userAllergies$ | async) || []"
+          [showManageInstructionsModal]="emergencyInstructionsManager.showManageInstructionsModal"
+          [editingInstruction]="emergencyInstructionsManager.editingInstruction"
+          [selectedInstructionDetails]="emergencyInstructionsManager.selectedInstructionDetails"
+          [showInstructionDetailsModal]="emergencyInstructionsManager.showInstructionDetailsModal"
+          [openManageInstructionsModal]="emergencyInstructionsManager.openManageInstructionsModal.bind(emergencyInstructionsManager)"
+          [onManageInstructionsDismiss]="emergencyInstructionsManager.onManageInstructionsDismiss.bind(emergencyInstructionsManager)"
+          [onAddInstruction]="emergencyInstructionsManager.onAddInstruction.bind(emergencyInstructionsManager)"
+          [onUpdateInstruction]="emergencyInstructionsManager.onUpdateInstruction.bind(emergencyInstructionsManager)"
+          [onRemoveInstruction]="emergencyInstructionsManager.onRemoveInstruction.bind(emergencyInstructionsManager)"
+          [onEditInstruction]="emergencyInstructionsManager.onEditInstruction.bind(emergencyInstructionsManager)"
+          [onCancelEdit]="emergencyInstructionsManager.onCancelEdit.bind(emergencyInstructionsManager)"
+          [onShowDetails]="emergencyInstructionsManager.onShowDetails.bind(emergencyInstructionsManager)"
         >
 
         </app-emergency-settings-card>
@@ -228,30 +218,30 @@
         </app-emergency-examples-modal>
         
         <!-- Voice Recording Settings (Expandable) -->
-        <div class="voice-settings-section" *ngIf="emergencySettings.audioInstructions && showVoiceSettings">
+        <div class="voice-settings-section" *ngIf="profileEmergencySettings.emergencySettings.audioInstructions && profileEmergencySettings.showVoiceSettings">
           <!-- Recording Controls -->
           <div class="voice-recording-controls">
             <h4>Record Custom Voice</h4>
             <p>Record your own voice for emergency instructions</p>
             
-            <div class="recording-zone" [class.recording]="isRecording">
+            <div class="recording-zone" [class.recording]="profileVoiceFacade.isRecording">
               <div class="recording-status">
-                <ion-icon [name]="isRecording ? 'mic' : 'mic-outline'"></ion-icon>
-                <span *ngIf="!isRecording">Ready to Record</span>
-                <span *ngIf="isRecording">Recording... {{ formatDuration(recordingTime) }}</span>
+                <ion-icon [name]="profileVoiceFacade.isRecording ? 'mic' : 'mic-outline'"></ion-icon>
+                <span *ngIf="!profileVoiceFacade.isRecording">Ready to Record</span>
+                <span *ngIf="profileVoiceFacade.isRecording">Recording... {{ profileVoiceFacade.formatDuration(profileVoiceFacade.recordingTime) }}</span>
               </div>
               
               <div class="recording-buttons">
-                <ion-button *ngIf="!isRecording" 
-                            (click)="startRecording()" 
+                <ion-button *ngIf="!profileVoiceFacade.isRecording" 
+                            (click)="profileVoiceFacade.startRecording()" 
                             color="danger" 
                             fill="solid">
                   <ion-icon name="mic" slot="start"></ion-icon>
                   Start Recording
                 </ion-button>
                 
-                <ion-button *ngIf="isRecording" 
-                            (click)="stopRecording()" 
+                <ion-button *ngIf="profileVoiceFacade.isRecording" 
+                            (click)="profileVoiceFacade.stopRecording()" 
                             color="success" 
                             fill="solid">
                   <ion-icon name="stop" slot="start"></ion-icon>
@@ -262,34 +252,34 @@
           </div>
 
           <!-- Recordings List -->
-          <div class="voice-recordings-list" *ngIf="recordings.length > 0">
+          <div class="voice-recordings-list" *ngIf="profileVoiceFacade.recordings.length > 0">
             <h4>Your Recordings</h4>
-            <div class="recording-item" *ngFor="let recording of recordings">
+            <div class="recording-item" *ngFor="let recording of profileVoiceFacade.recordings">
               <div class="recording-info">
                 <div class="recording-name">
                   <span>{{ recording.name }}</span>
-                  <ion-icon *ngIf="isRecordingSelected(recording.id)" 
+                  <ion-icon *ngIf="profileVoiceFacade.isRecordingSelected(recording.id)" 
                             name="checkmark-circle" 
                             color="success"></ion-icon>
                 </div>
                 <div class="recording-details">
-                  <span>{{ formatDuration(recording.duration) }}</span>
-                  <span>{{ formatFileSize(recording.size) }}</span>
+                  <span>{{ profileVoiceFacade.formatDuration(recording.duration) }}</span>
+                  <span>{{ profileVoiceFacade.formatFileSize(recording.size) }}</span>
                 </div>
               </div>
               <div class="recording-actions">
-                <ion-button (click)="playRecording(recording.id)" 
+                <ion-button (click)="profileVoiceFacade.playRecording(recording.id)" 
                             fill="clear" 
                             size="small">
                   <ion-icon name="play" slot="icon-only"></ion-icon>
                 </ion-button>
-                <ion-button (click)="selectRecording(recording.id)" 
+                <ion-button (click)="profileVoiceFacade.selectRecording(recording.id)" 
                             fill="clear" 
                             size="small"
-                            [color]="isRecordingSelected(recording.id) ? 'success' : 'medium'">
+                            [color]="profileVoiceFacade.isRecordingSelected(recording.id) ? 'success' : 'medium'">
                   <ion-icon name="checkmark" slot="icon-only"></ion-icon>
                 </ion-button>
-                <ion-button (click)="deleteRecording(recording)" 
+                <ion-button (click)="profileVoiceFacade.deleteRecording(recording)" 
                             fill="clear" 
                             size="small" 
                             color="danger">
@@ -308,17 +298,17 @@
                 <label>Use Custom Voice</label>
                 <p>Play your recorded message instead of text-to-speech</p>
               </div>
-              <ion-toggle [(ngModel)]="audioSettings.useCustomVoice" 
-                          (ionChange)="onAudioSettingChange()"></ion-toggle>
+              <ion-toggle [(ngModel)]="profileVoiceFacade.audioSettings.useCustomVoice" 
+                          (ionChange)="profileVoiceFacade.onAudioSettingChange()"></ion-toggle>
             </div>
 
-            <div class="setting-item" *ngIf="!audioSettings.useCustomVoice">
+            <div class="setting-item" *ngIf="!profileVoiceFacade.audioSettings.useCustomVoice">
               <div class="setting-info">
                 <label>Default Voice</label>
                 <p>Choose text-to-speech voice type</p>
               </div>
-              <ion-select [(ngModel)]="audioSettings.defaultVoice" 
-                          (ionChange)="onAudioSettingChange()"
+              <ion-select [(ngModel)]="profileVoiceFacade.audioSettings.defaultVoice" 
+                          (ionChange)="profileVoiceFacade.onAudioSettingChange()"
                           interface="popover">
                 <ion-select-option value="female">Female</ion-select-option>
                 <ion-select-option value="male">Male</ion-select-option>
@@ -327,11 +317,11 @@
 
             <div class="setting-item">
               <div class="setting-info">
-                <label>Speech Rate ({{ audioSettings.speechRate }}x)</label>
+                <label>Speech Rate ({{ profileVoiceFacade.audioSettings.speechRate }}x)</label>
                 <p>How fast the audio plays</p>
               </div>
-              <ion-range [(ngModel)]="audioSettings.speechRate"
-                         (ionChange)="onAudioSettingChange()"
+              <ion-range [(ngModel)]="profileVoiceFacade.audioSettings.speechRate"
+                         (ionChange)="profileVoiceFacade.onAudioSettingChange()"
                          min="0.5"
                          max="2.0"
                          step="0.1"
@@ -341,11 +331,11 @@
 
             <div class="setting-item">
               <div class="setting-info">
-                <label>Volume ({{ (audioSettings.volume * 100).toFixed(0) }}%)</label>
+                <label>Volume ({{ (profileVoiceFacade.audioSettings.volume * 100).toFixed(0) }}%)</label>
                 <p>Audio playback volume</p>
               </div>
-              <ion-range [(ngModel)]="audioSettings.volume"
-                         (ionChange)="onAudioSettingChange()"
+              <ion-range [(ngModel)]="profileVoiceFacade.audioSettings.volume"
+                         (ionChange)="profileVoiceFacade.onAudioSettingChange()"
                          min="0"
                          max="1"
                          step="0.1"
@@ -353,7 +343,7 @@
               </ion-range>
             </div>
 
-            <ion-button (click)="testAudioInstructions()" 
+            <ion-button (click)="runEmergencyTest('audio')" 
                         expand="block" 
                         fill="outline" 
                         color="secondary">
@@ -364,22 +354,10 @@
         </div>
 
         <!-- Emergency Specific Instructions Modal -->
-        <ion-modal [isOpen]="showManageInstructionsModal" (didDismiss)="onManageInstructionsDismiss()">
+        <ion-modal [isOpen]="emergencyInstructionsManager.showManageInstructionsModal" (didDismiss)="emergencyInstructionsManager.onManageInstructionsDismiss()">
           <ng-template>
             <app-emergency-specific-instructions-modal
-              #manageInstructionsModal
-              [emergencyInstructions]="emergencyInstructions"
-              [userAllergies]="userAllergies"
-              [editingInstruction]="editingInstruction"
-              [selectedInstructionDetails]="selectedInstructionDetails"
-              [showInstructionDetailsModal]="showInstructionDetailsModal"
-              (addInstruction)="onAddInstruction()"
-              (updateInstruction)="onUpdateInstruction()"
-              (removeInstruction)="onRemoveInstruction($event)"
-              (editInstruction)="onEditInstruction($event)"
-              (cancelEdit)="onCancelEdit()"
-              (showDetails)="onShowDetails($event)"
-              (close)="onManageInstructionsDismiss()">
+              >
             </app-emergency-specific-instructions-modal>
           </ng-template>
         </ion-modal>
@@ -387,11 +365,11 @@
     </section>
 
     <!-- DOCTOR PROFILE -->
-    <section *ngIf="userProfile?.role === 'doctor'">
+    <section *ngIf="(profileDataLoader.userProfile$ | async)?.role === 'doctor'">
       <app-doctor-profile
-        [userProfile]="userProfile"
+        [userProfile]="(profileDataLoader.userProfile$ | async)"
         [doctorStats]="doctorStats"
-        [pendingRequests]="pendingRequests"
+        [pendingRequests]="profileAccessRequest.pendingRequests"
         [professionalSettings]="professionalSettings"
         [recentActivity]="recentActivity"
         [professionalCredentials]="professionalCredentials"
@@ -417,11 +395,11 @@
 </ion-modal>
 
 <!-- Edit Emergency Message Modal (if present) -->
-<ion-modal [isOpen]="showEditEmergencyMessageModal" (didDismiss)="showEditEmergencyMessageModal = false">
+<ion-modal [isOpen]="profileEmergencySettings.showEditEmergencyMessageModal" (didDismiss)="profileEmergencySettings.showEditEmergencyMessageModal = false">
   <app-edit-emergency-message-modal
-    [emergencyMessage]="emergencyMessage"
+    [emergencyMessage]="(profileDataLoader.emergencyMessage$ | async)"
     [mode]="'edit'"
     (saveModal)="saveEditedEmergencyMessage($event)"
-    (closeModal)="showEditEmergencyMessageModal = false">
+    (closeModal)="profileEmergencySettings.showEditEmergencyMessageModal = false">
   </app-edit-emergency-message-modal>
 </ion-modal>

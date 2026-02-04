@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { NavController, ModalController, AlertController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { DoctorVisit, EHRService } from '../../../../../core/services/ehr.service';
+import { AddDoctorVisitModal } from '../../modals/add-doctor-visit/add-doctor-visit.modal';
 
 @Component({
   selector: 'app-visit-details',
@@ -16,7 +17,10 @@ export class VisitDetailsPage implements OnInit {
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
-    private ehrService: EHRService
+    private ehrService: EHRService,
+    private modalController: ModalController,
+    private alertController: AlertController,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
@@ -125,4 +129,50 @@ export class VisitDetailsPage implements OnInit {
 
   // Removed next appointment formatting in simplified model
 
+  async openEditVisit() {
+    if (!this.visit) return;
+    const modal = await this.modalController.create({
+      component: AddDoctorVisitModal,
+      cssClass: 'fullscreen-modal',
+      componentProps: { visit: this.visit }
+    });
+    modal.onDidDismiss().then(async (res) => {
+      if (res.data?.saved && this.visit?.id) {
+        this.visit = await this.ehrService.getDoctorVisitById(this.visit.id);
+      }
+    });
+    await modal.present();
+  }
+
+  async confirmDeleteVisit() {
+    if (!this.visit?.id) return;
+    const alert = await this.alertController.create({
+      header: 'Delete Visit',
+      message: 'Are you sure you want to delete this visit? This action cannot be undone.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Delete', role: 'destructive', handler: async () => {
+            try {
+              await this.ehrService.deleteDoctorVisit(this.visit!.id!);
+              const toast = await this.toastController.create({
+                message: 'Visit deleted',
+                duration: 2000,
+                color: 'danger'
+              });
+              await toast.present();
+              this.goBack();
+            } catch (error) {
+              const toast = await this.toastController.create({
+                message: 'Failed to delete visit',
+                duration: 2000,
+                color: 'medium'
+              });
+              await toast.present();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 }

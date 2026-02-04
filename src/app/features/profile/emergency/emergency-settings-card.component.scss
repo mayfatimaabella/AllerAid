@@ -191,9 +191,39 @@
 .emergency-settings-header-bar ion-icon { font-size: 18px; }
 .settings-group { padding: 12px 14px 4px 14px; }
 
+/* Harmonize ion-item host for header and setting rows */
+ion-item.emergency-settings-header-bar {
+  --background: var(--app-color-primary);
+  --color: #fff;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --inner-padding-top: 10px;
+  --inner-padding-bottom: 9px;
+}
+ion-item.emergency-settings-header-bar::part(native) {
+  border-bottom: none;
+}
+ion-item.emergency-setting-card {
+  --background: var(--app-color-surface);
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --inner-padding-top: 12px;
+  --inner-padding-bottom: 12px;
+  --border-radius: var(--app-radius-md);
+}
+ion-item.emergency-setting-card::part(native) {
+  border: 1px solid var(--app-color-border);
+  box-shadow: var(--app-shadow-sm);
+}
+
 /* Compact card variant */
 .emergency-setting-card.compact { border-radius: var(--app-radius-md); padding: 12px 14px; margin-bottom: 10px; }
 .emergency-setting-card.compact:last-child { margin-bottom: 14px; }
+
+/* Label and actions alignment within ion-item */
+ion-label.emergency-setting-info { display: block; }
+.emergency-setting-actions { margin-left: 8px; }
+ion-buttons.emergency-setting-actions ion-toggle { margin-left: 6px; }
 
 /* Inline add instructions button */
 .inline-add-instructions { margin-top: 10px; }

@@ -397,33 +397,7 @@ ion-modal.force-white-modal .inner-scroll {
 }
 
 /* Toolbar is NOT forced to white - it should use teal-modal-toolbar class */
-/* Teal toolbar styling for modals (works with or without force-white-modal) */
-ion-modal ion-toolbar.teal-modal-toolbar,
-ion-modal .teal-modal-toolbar,
-.teal-modal-toolbar {
-  --background: #036a5d !important;
-  background: #036a5d !important;
-  --color: #ffffff !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #004d42;
-}
-
-ion-modal ion-toolbar.teal-modal-toolbar ion-title,
-ion-modal .teal-modal-toolbar ion-title,
-.teal-modal-toolbar ion-title {
-  color: #ffffff !important;
-  font-weight: 700;
-}
-
-ion-modal ion-toolbar.teal-modal-toolbar ion-button,
-ion-modal .teal-modal-toolbar ion-button,
-.teal-modal-toolbar ion-button,
-ion-modal ion-toolbar.teal-modal-toolbar ion-icon,
-ion-modal .teal-modal-toolbar ion-icon,
-.teal-modal-toolbar ion-icon {
-  --color: #ffffff !important;
-  color: #ffffff !important;
-}
+/* Teal toolbar utility (works with or without force-white-modal) */
 
 ion-modal.force-white-modal ion-item,
 ion-modal.force-white-modal ion-item::part(native),
@@ -511,7 +485,8 @@ ion-modal.force-white-modal::part(backdrop) {
   --backdrop-opacity: 0.32;
 }
 
-/* Reusable teal toolbar for white modals */
+/* Reusable teal toolbar utility */
+.toolbar--teal, ion-toolbar.toolbar--teal,
 .teal-modal-toolbar, ion-toolbar.teal-modal-toolbar {
   --background: #036a5d !important;
   background: #036a5d !important;
@@ -520,7 +495,8 @@ ion-modal.force-white-modal::part(backdrop) {
   border-bottom: 1px solid #004d42;
   width: 100%;
 }
-.teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
+.toolbar--teal ion-title, .teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
+.toolbar--teal ion-button, .toolbar--teal ion-icon,
 .teal-modal-toolbar ion-button, .teal-modal-toolbar ion-icon { --color:#ffffff !important; color:#ffffff !important; }
 
 /* Modal styling for better display */

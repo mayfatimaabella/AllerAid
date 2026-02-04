@@ -3,7 +3,7 @@
 	display:flex; 
 	align-items:center; 
 	gap:8px; 
-	font-size: 14px; 
+	font-size: 16px; 
 	font-weight: 600; 
 	color: #1f4a42; 
 	margin: 12px 0 8px;
@@ -14,7 +14,6 @@
 	cursor: pointer;
 }
 
-/* Overview-specific styling copied from Profile to keep appearance */
 .allergy-list-scrollable { 
 	display: flex; 
 	gap: 10px; 
@@ -34,11 +33,11 @@
 }
 
 .emergency-info-card {
-	background: #e8f4f1; /* Light mint/teal background from image */
+	background: #e8f4f1;
 	border-radius: 12px;
 	box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 	margin: 16px 0;
-	border-left: 3px solid #036a5d; /* Teal accent border to match theme */
+	border-left: 3px solid #036a5d;
 	cursor: pointer;
 	position: relative;
 	padding-bottom: 4px;
@@ -55,7 +54,7 @@
 	gap: 8px;
 	padding: 12px;
 	text-align: center;
-	background-color: #e8f4f1; /* Light teal background to match card */
+	background-color: #e8f4f1;
 }
 .emergency-icon { color:#036a5d; font-size:20px; }
 .emergency-title { font-size:16px; font-weight:600; color:#036a5d; margin:0; }

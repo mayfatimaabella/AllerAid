@@ -20,10 +20,10 @@ import { Medication } from '../../../core/services/medication.service';
             <ion-label>All ({{ medications.length }})</ion-label>
           </ion-segment-button>
           <ion-segment-button value="active">
-            <ion-label>Active ({{ getActiveMedicationsCount() }})</ion-label>
+            <ion-label>Active ({{ activeCount ?? getActiveMedicationsCount() }})</ion-label>
           </ion-segment-button>
           <ion-segment-button value="emergency">
-            <ion-label>Emergency ({{ getEmergencyMedicationsCount() }})</ion-label>
+            <ion-label>Emergency ({{ emergencyCount ?? getEmergencyMedicationsCount() }})</ion-label>
           </ion-segment-button>
         </ion-segment>
 
@@ -112,6 +112,8 @@ export class MedicationListComponent {
   @Input() medications: Medication[] = [];
   @Input() filteredMedications: Medication[] = [];
   @Input() currentFilter: string = 'all';
+  @Input() activeCount?: number;
+  @Input() emergencyCount?: number;
 
   @Output() addMedication = new EventEmitter<void>();
   @Output() toggleStatus = new EventEmitter<string>();

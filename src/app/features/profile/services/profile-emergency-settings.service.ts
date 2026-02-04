@@ -135,4 +135,42 @@ export class ProfileEmergencySettingsService {
   toggleVoiceRecordingModal(): void {
     this.showVoiceSettings = !this.showVoiceSettings;
   }
+
+  /**
+   * Centralized emergency feature test runner.
+   * Delegates all test logic from the page to this service.
+   */
+  async runTest(
+    type: 'alert' | 'shake' | 'power' | 'audio',
+    notify: (message: string) => Promise<void> | void
+  ): Promise<void> {
+    try {
+      switch (type) {
+        case 'alert':
+          await notify('Emergency alert test triggered');
+          break;
+        case 'shake':
+          await notify('Shake detection test triggered');
+          break;
+        case 'power':
+          await notify('Power button detection test triggered');
+          break;
+        case 'audio':
+          await notify('Audio instructions test triggered');
+          break;
+      }
+    } catch (e) {
+      console.error('Emergency test error:', e);
+      await this.presentToast('Emergency test failed');
+    }
+  }
+
+  private async presentToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
 }

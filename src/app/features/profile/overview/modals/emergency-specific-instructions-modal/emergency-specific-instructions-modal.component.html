@@ -1,6 +1,6 @@
 <ng-container *ngIf="!showInstructionDetailsModal">
   <ion-header>
-    <ion-toolbar class="teal-modal-toolbar">
+    <ion-toolbar class="toolbar--teal">
       <ion-title>Manage Emergency <br> Instructions</ion-title>
       <ion-buttons slot="start">
         <ion-button (click)="onClose()" fill="clear">
@@ -118,7 +118,7 @@
 </ng-container>
 <ng-container *ngIf="showInstructionDetailsModal && selectedInstructionDetails">
   <ion-header>
-    <ion-toolbar class="teal-modal-toolbar">
+    <ion-toolbar class="toolbar--teal">
       <ion-title>Instruction Details</ion-title>
       <ion-buttons slot="start">
         <ion-button (click)="onShowDetails(null)" fill="clear">

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { MedicationService, Medication } from '../../../core/services/medication.service';
 import { MedicationReminderService } from '../../../core/services/medication-reminder.service';
 import { MedicationManagerService } from './medication-manager.service';
@@ -24,6 +25,16 @@ export class ProfileMedicationManagerService {
 
   private searchTimeout: any;
 
+  // Observable state
+  private _userMedications$ = new BehaviorSubject<Medication[]>([]);
+  readonly userMedications$ = this._userMedications$.asObservable();
+
+  private _filteredMedications$ = new BehaviorSubject<Medication[]>([]);
+  readonly filteredMedications$ = this._filteredMedications$.asObservable();
+
+  private _isLoadingMedications$ = new BehaviorSubject<boolean>(false);
+  readonly isLoadingMedications$ = this._isLoadingMedications$.asObservable();
+
   constructor(
     private medicationService: MedicationService,
     private medicationManager: MedicationManagerService,
@@ -39,8 +50,10 @@ export class ProfileMedicationManagerService {
   async loadUserMedications(uid: string, onComplete?: () => void): Promise<void> {
     try {
       this.isLoadingMedications = true;
+      this._isLoadingMedications$.next(true);
       this.userMedications = await this.medicationService.getUserMedications(uid);
       this.medicationsCount = this.userMedications.length;
+      this._userMedications$.next(this.userMedications);
       this.clearMedicationCache();
       this.filterMedications();
       
@@ -52,10 +65,12 @@ export class ProfileMedicationManagerService {
       }
       
       this.isLoadingMedications = false;
+      this._isLoadingMedications$.next(false);
       if (onComplete) onComplete();
     } catch (error) {
       console.error('Error loading medications:', error);
       this.isLoadingMedications = false;
+      this._isLoadingMedications$.next(false);
     }
   }
 
@@ -95,6 +110,7 @@ export class ProfileMedicationManagerService {
       this.medicationFilterCache,
       (result: any[]) => {
         this.filteredMedications = result;
+        this._filteredMedications$.next(this.filteredMedications);
       }
     );
   }
@@ -195,5 +211,41 @@ export class ProfileMedicationManagerService {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  /**
+   * Aggregate counts for medications
+   */
+  getActiveCount(): number {
+    return this.userMedications.filter(m => m.isActive).length;
+  }
+
+  getEmergencyCount(): number {
+    return this.userMedications.filter(m =>
+      (m as any).emergencyMedication === true ||
+      m.category === 'emergency' ||
+      m.category === 'allergy'
+    ).length;
+  }
+
+  getExpiringCount(): number {
+    return this.userMedications.filter(m => this.isExpiringSoon(m.expiryDate)).length;
+  }
+
+  /**
+   * Helper predicates used across views
+   */
+  isEmergencyMedication(med: Medication): boolean {
+    return med.category === 'emergency' ||
+           med.category === 'allergy' ||
+           (med as any).emergencyMedication === true;
+  }
+
+  isExpiringSoon(expiryDate?: string): boolean {
+    if (!expiryDate) return false;
+    const expiry = new Date(expiryDate);
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() + 30);
+    return expiry <= threshold;
   }
 }

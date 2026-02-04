@@ -48,19 +48,44 @@
   margin: 12px 0 8px;
 }
 
+/* Make the inline Add Medication action more visible */
+.section-title ion-button {
+  --color: #065a4c !important; /* ensure Ionic uses this color */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.section-title ion-button ion-icon { color: #065a4c !important; }
+
 /* Search */
 .medication-search ion-searchbar {
-  --background: #fff;
+  width: 100%;
+  min-width: 100%;
+  --background: transparent;
   --color: #222;
   --placeholder-color: #888;
   --icon-color: #222;
+  --box-shadow: none;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  box-shadow: none;
 }
 
-.medication-search ion-searchbar .searchbar-input { 
-  background: #fff !important; 
+/* Remove container background/shadow to avoid double box */
+.medication-search ion-searchbar::part(container) {
+  background: #ffffff !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 8px !important; 
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+  padding: 0 !important;
+}
+
+.medication-search ion-searchbar .searchbar-input,
+.medication-search ion-searchbar::part(input) { 
+  background: transparent !important; 
   color: #222 !important; 
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
 }
 
 .medication-search ion-searchbar .searchbar-search-icon { 
@@ -78,6 +103,7 @@
 .medication-filters ion-segment-button {
   --background: #e6edec;
   --color: #036a5d;
+  --color-checked: #ffffff;
   --indicator-color: #036a5d;
   font-weight: 600;
   font-size: 15px;
@@ -85,8 +111,8 @@
 }
 
 /* Ensure selected label is white */
-.medication-filters ion-segment-button[aria-checked="true"] ion-label { color: #fff !important; }
-.medication-filters ion-segment-button[aria-checked="false"] ion-label { color: #036a5d !important; }
+.medication-filters ion-segment-button[aria-checked="true"]::part(label) { color: #ffffff !important; }
+.medication-filters ion-segment-button[aria-checked="false"]::part(label) { color: #036a5d !important; }
 
 /* Layout paddings (match Profile) */
 .medications-list, 
@@ -219,4 +245,26 @@
   .medication-summary { font-size: 13px; }
   .medication-actions { justify-content: space-between; }
   .medication-details-expanded { margin-top: 12px; padding-top: 12px; }
+}
+
+/* Mobile FAB visibility and safe-area */
+.add-med-fab { display: none; }
+@media (max-width: 768px) {
+  .add-med-fab {
+    display: block;
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 1000;
+  }
+  .add-med-fab ion-fab-button {
+    --background: #065a4c;
+    --color: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
+}
+
+/* Hide inline add button on mobile to avoid duplicate CTAs */
+@media (max-width: 768px) {
+  .section-title ion-button { display: none; }
 }
