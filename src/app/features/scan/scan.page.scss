@@ -1,6 +1,6 @@
 .scanner-container {
     position: relative;
-    height: 450px;
+    height: 300px;
     overflow: hidden;
     border-radius: 16px;
     background: #737e7c;
@@ -8,18 +8,33 @@
     flex-direction: column;
     justify-content: flex-end;
   }
-  .manual-input-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 20;
+
+  .button-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
   }
-  .recent-scans {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 20;
+
+  .button-row ion-button {
+    flex: 1;
+    max-width: 140px;
   }
+
+  .button-row .recent-scans-btn,
+  .button-row .manual-input-btn {
+    --background: #036a5d !important;
+    --color: #fff !important;
+  }
+
+  .manual-input-btn,
+  .recent-scans-btn {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    z-index: auto !important;; 
+  }
+  
   .scanner-overlay {
     position: absolute;
     width: 100%;
@@ -62,106 +77,21 @@
     --background: #036a5d !important;
     color: #fff !important;
   }
-  ion-button#scanBtn,
-  ion-button#searchBtn {
+  ion-button#scanBtn {
     --background: #036a5d !important; 
     --color: #fff !important;
   }
 
-  // Allergen Status Styling
-  .status-message {
-    padding: 16px;
-    border-radius: 8px;
-    margin-top: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    ion-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    &.safe {
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      color: #155724;
-
-      ion-icon {
-        color: #28a745;
-      }
-    }
-
-    &.warning {
-      background: #fff3cd;
-      border: 1px solid #ffeaa7;
-      color: #856404;
-
-      ion-icon {
-        color: #ffc107;
-      }
-    }
-  }
-
-  .allergen-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 8px;
-    margin-bottom: 12px;
-  }
-
-  .ingredients-section {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e0e0e0;
-
-    .ingredients-text {
-      font-size: 13px;
-      line-height: 1.4;
-      color: #666;
-      margin-top: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 3px solid #036a5d;
-    }
-  }
-
-  .product-image-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 10px;
-  margin-top: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.product-image {
-  width: 100%;
-  max-width: 250px; /* bigger and clearer */
-  height: auto;
-  border-radius: 8px;
-  object-fit: contain;
-}
-
   ion-card {
     background: #d1dbd7;
     border-radius: 10px;
+    height: 425px;
     box-shadow: 0 4px 16px rgba(229, 94, 118, 0.10);
     border: 1px solid #10705f;
     margin: 15px 0;
     padding: 8px 0 8px 0;
   }
+  
 
   ion-content {
     --background: #ffffff !important;
@@ -173,14 +103,3 @@
     font-weight: bold;
   }
 
-  ion-item {
-    --background: #e9eeec !important;
-    // --background-color: #fff !important;
-    --color: #000;
-    border: 0.5px solid #036a5d;
-    border-radius: 8px;
-  }
-
-  ion-list {
-    --background: #d4d4d4 !important;
-  }

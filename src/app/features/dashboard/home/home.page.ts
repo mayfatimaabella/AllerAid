@@ -330,6 +330,10 @@ export class HomePage implements OnInit, OnDestroy {
   openNotifications() {
     this.router.navigate(['/tabs/notification']);
   }
+
+  openPollenMap() {
+    this.router.navigate(['/tabs/pollen-map']);
+  }
   
   getAllergensDisplay(): string {
     return this.userAllergies.map((a: any) => a.label || a.name).join(', ');
@@ -486,23 +490,6 @@ export class HomePage implements OnInit, OnDestroy {
       console.error('Test notification failed:', error);
       await this.presentToast('Test notification failed. Check console for details.');
     }
-  }
-  
-  /**
-   * Open the pollen map (placeholder)
-   */
-  async openPollenMap() {
-    const alert = await this.alertController.create({
-      header: 'Pollen Map',
-      message: 'Interactive pollen map is coming soon. This is a placeholder preview.',
-      buttons: [
-        {
-          text: 'OK',
-          role: 'cancel'
-        }
-      ]
-    });
-    await alert.present();
   }
   
   async presentToast(message: string) {

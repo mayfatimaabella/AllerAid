@@ -254,7 +254,35 @@ ion-buttons.emergency-setting-actions ion-toggle { margin-left: 6px; }
 }
 
 /* Toggle & button harmonization */
-ion-toggle { --handle-background: var(--app-color-primary); --background-checked: var(--app-color-primary-light); }
+// ion-toggle { 
+//   --handle-background: #7fa8a1;
+//   --background: #a2b7b2;
+//   --background-checked: #7d9a93;
+//   --handle-background-checked: #036a5d;
+//   --handle-width: 18px;
+//   --handle-height: 18px;
+// }
+
+:host ::ng-deep ion-toggle::part(track) {
+  background: #e2ecea;          /* OFF track */
+  border: 1px solid #c6dad6;
+  transition: background 0.2s ease;
+}
+
+:host ::ng-deep ion-toggle::part(handle) {
+  background: #7fa8a1;          /* OFF handle */
+}
+
+/* ON state */
+:host ::ng-deep ion-toggle.toggle-checked::part(track) {
+  background: var(--app-color-primary);
+  border-color: var(--app-color-primary);
+}
+
+:host ::ng-deep ion-toggle.toggle-checked::part(handle) {
+  background: #036a5d;
+}
+
 ion-button.emergency-inline-btn { --background: var(--app-color-primary); --border-radius: var(--app-radius-sm); }
 
 @media (max-width: 480px) {
