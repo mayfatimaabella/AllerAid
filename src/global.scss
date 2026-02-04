@@ -1,3 +1,12 @@
+// /* Global font styling */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
+
+body,
+html,
+ion-app {
+  font-family: 'Comfortaa', sans-serif !important;
+}
+
 .ecc-row.allergy-row {
   margin-top: -6px;
   margin-bottom: 8px;
