@@ -17,21 +17,8 @@
 <ion-content class="ion-padding white-content">
   <form (ngSubmit)="saveVisit()">
     <div class="form-fields">
-      <!-- Doctor Selection Mode Toggle -->
-      <ion-item class="medication-field" lines="none">
-        <ion-label position="stacked">Doctor Selection</ion-label>
-        <ion-segment [(ngModel)]="doctorInputMode" name="doctorInputMode">
-          <ion-segment-button value="dropdown">
-            <ion-label>Registered</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="manual">
-            <ion-label>Manual</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </ion-item>
-
       <!-- Registered Doctor Dropdown -->
-      <ion-item class="medication-field" lines="none" *ngIf="doctorInputMode === 'dropdown' && availableDoctors.length > 0">
+      <ion-item class="medication-field" lines="none" *ngIf=availableDoctors.length > 0">
         <ion-label position="stacked">Doctor *</ion-label>
         <ion-select 
           [(ngModel)]="selectedDoctorEmail" 
@@ -46,26 +33,10 @@
       </ion-item>
 
       <!-- Empty state when no registered doctors -->
-      <ion-item class="medication-field" lines="none" *ngIf="doctorInputMode === 'dropdown' && availableDoctors.length === 0">
+      <ion-item class="medication-field" lines="none" *ngIf="availableDoctors.length === 0">
         <ion-label>
           <h3>No registered doctors found</h3>
-          <p>You can enter the doctor details manually.</p>
         </ion-label>
-        <ion-button slot="end" fill="outline" size="small" (click)="switchInputMode('manual')">
-          Enter Manually
-        </ion-button>
-      </ion-item>
-
-      <!-- Manual Doctor Name -->
-      <ion-item class="medication-field" lines="none" *ngIf="doctorInputMode === 'manual'">
-        <ion-label position="stacked">Doctor Name *</ion-label>
-        <ion-input 
-          [(ngModel)]="manualDoctorName" 
-          name="manualDoctorName" 
-          placeholder="e.g., Dr. Smith"
-          (ionInput)="onManualDoctorInput()"
-          required>
-        </ion-input>
       </ion-item>
 
       <!-- Visit Date -->
@@ -89,7 +60,7 @@
 
       <!-- Chief Complaint -->
       <ion-item class="medication-field" lines="none">
-        <ion-label position="stacked">Chief Complaint *</ion-label>
+        <ion-label position="stacked">Reason of Visit *</ion-label>
         <ion-textarea 
           [(ngModel)]="visitData.chiefComplaint" 
           name="chiefComplaint"

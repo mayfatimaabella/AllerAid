@@ -93,6 +93,11 @@ const routes: Routes = [
     path: 'smartwatch',
     loadChildren: () => import('./features/smartwatch/smartwatch.module').then( m => m.SmartwatchPageModule)
   },
+  {
+    path: 'pollen-map',
+    loadChildren: () => import('./features/pollen-map/pollen-map.module').then( m => m.PollenMapPageModule)
+  },
+
 
 
 

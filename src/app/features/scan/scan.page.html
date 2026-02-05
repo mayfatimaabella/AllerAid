@@ -7,22 +7,15 @@
   </ion-toolbar>
 </ion-header>
 
+<!-- Backdrop overlay - positioned outside ion-content -->
+
 <ion-content class="ion-padding">
-  <div class="wrapper">
-    <!-- Scan Section -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>Scan Product Barcode</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <div class="scanner-container">
-          <ion-buttons slot="start" fill="clear" class="recent-scans" style="color: #fff;" (click)="viewRecentScans()">
-            <ion-icon name="time-outline"></ion-icon>
-          </ion-buttons>
-
-          <ion-buttons slot="end" fill="clear" class="manual-input-btn" style="color: #fff;" (click)="openManualInputModal()">
-            <ion-icon name="pencil-outline"></ion-icon>
-          </ion-buttons>
           <div class="scanner-overlay"></div>
           <div class="scanner-frame">
             <ion-icon name="barcode-outline" style="font-size: 50px; color: #b3dfd9;"></ion-icon>
@@ -35,6 +28,20 @@
         <p class="ion-text-center ion-margin-top">
           Align the barcode within the frame to scan
         </p>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="button-row">
+          <ion-button class="recent-scans-btn"  (click)="viewRecentScans()">
+            <ion-icon slot="start" name="time-outline"></ion-icon>
+            Recent
+          </ion-button>
+
+          <ion-button class="manual-input-btn" (click)="openManualInputModal()">
+            <ion-icon slot="start" name="pencil-outline"></ion-icon>
+            Manual
+          </ion-button>
+        </div>
 
         <!-- Manual Barcode Component -->
         <app-manual-barcode 
@@ -53,9 +60,6 @@
           (clearScans)="clearRecentScans()"
           (close)="recentScansModal.onDismiss()">
         </app-recent-scans>
-      </ion-card-content>
-    </ion-card>
-  </div>
 
   <!-- Scan Result Modal -->
   <app-scan-result

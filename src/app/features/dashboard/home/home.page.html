@@ -112,45 +112,5 @@
         <p><strong>Buddies:</strong> {{ getBuddiesCount() }}</p>
       </ion-card-content>
     </ion-card>
-
-    <!-- Pollen Map Section -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Pollen Map</ion-card-title>
-        <ion-card-subtitle>Local pollen levels and hotspots</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="pollen-map-preview">
-          <img src="assets/icon/pollen-map-placeholder.png" alt="Pollen Map" class="pollen-map-image" />
-          <p class="pollen-map-note">This is a placeholder pollen map. Tap "Open Map" to view an interactive map (coming soon).</p>
-          <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
-            <ion-icon name="map" slot="start"></ion-icon>
-            Open Map
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    
-
-    
-
-    <!-- Test Emergency Notifications (Development Mode) -->
-    <ion-card *ngIf="!isEmergencyActive">
-      <ion-card-header>
-        <ion-card-title>Emergency Notification Test</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>Test the emergency notification system (SMS & Push notifications)</p>
-        <ion-button 
-          expand="block" 
-          fill="outline" 
-          color="warning" 
-          (click)="testEmergencyNotifications()">
-          <ion-icon name="flash" slot="start"></ion-icon>
-          Test Notifications
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
   </div>
 </ion-content>

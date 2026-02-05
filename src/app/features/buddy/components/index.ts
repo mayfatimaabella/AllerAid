@@ -6,6 +6,3 @@ export { BuddyDeleteConfirmModalComponent } from './buddy-delete-confirm-modal.c
 
 export { BuddyDetailsModalComponent } from './buddy-details-modal.component';
 
-
-
-

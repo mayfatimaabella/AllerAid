@@ -87,6 +87,10 @@ const routes: Routes = [
         loadChildren: () => import('../../features/notification/notification.module').then(m => m.NotificationPageModule)
       },
       {
+        path: 'pollen-map',
+        loadChildren: () => import('../../features/pollen-map/pollen-map.module').then(m => m.PollenMapPageModule)
+      },
+      {
         path: '',
         redirectTo: '/tabs/home', // Default - will be overridden by role logic
         pathMatch: 'full'

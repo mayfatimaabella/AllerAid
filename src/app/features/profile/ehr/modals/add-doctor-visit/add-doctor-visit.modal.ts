@@ -56,8 +56,8 @@ export class AddDoctorVisitModal implements OnInit {
   async ngOnInit() {
     // Load available doctors from the system
     await this.loadAvailableDoctors();
-    // Default input mode based on availability
-    this.doctorInputMode = this.availableDoctors.length > 0 ? 'dropdown' : 'manual';
+    // Always default to registered doctor selection
+    this.doctorInputMode = 'dropdown';
     
     // If editing an existing visit, populate the form
     if (this.visit) {
