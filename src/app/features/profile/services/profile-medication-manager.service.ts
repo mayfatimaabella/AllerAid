@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { MedicationService, Medication } from '../../../core/services/medication.service';
 import { MedicationReminderService } from '../../../core/services/medication-reminder.service';
 import { MedicationManagerService } from './medication-manager.service';
@@ -18,22 +18,22 @@ export class ProfileMedicationManagerService {
   isLoadingMedications: boolean = false;
   medicationsCount: number = 0;
 
+  // Observable properties for template binding with async pipe
+  private userMedicationsSubject = new BehaviorSubject<Medication[]>([]);
+  userMedications$ = this.userMedicationsSubject.asObservable();
+
+  private filteredMedicationsSubject = new BehaviorSubject<Medication[]>([]);
+  filteredMedications$ = this.filteredMedicationsSubject.asObservable();
+
+  private isLoadingMedicationsSubject = new BehaviorSubject<boolean>(false);
+  isLoadingMedications$ = this.isLoadingMedicationsSubject.asObservable();
+
   medicationFilterCache = new Map<string, Medication[]>();
   expandedMedicationIds: Set<string> = new Set();
   showMedicationDetailsModal: boolean = false;
   selectedMedication: any = null;
 
   private searchTimeout: any;
-
-  // Observable state
-  private _userMedications$ = new BehaviorSubject<Medication[]>([]);
-  readonly userMedications$ = this._userMedications$.asObservable();
-
-  private _filteredMedications$ = new BehaviorSubject<Medication[]>([]);
-  readonly filteredMedications$ = this._filteredMedications$.asObservable();
-
-  private _isLoadingMedications$ = new BehaviorSubject<boolean>(false);
-  readonly isLoadingMedications$ = this._isLoadingMedications$.asObservable();
 
   constructor(
     private medicationService: MedicationService,
@@ -50,12 +50,12 @@ export class ProfileMedicationManagerService {
   async loadUserMedications(uid: string, onComplete?: () => void): Promise<void> {
     try {
       this.isLoadingMedications = true;
-      this._isLoadingMedications$.next(true);
+      this.isLoadingMedicationsSubject.next(true);
       this.userMedications = await this.medicationService.getUserMedications(uid);
       this.medicationsCount = this.userMedications.length;
-      this._userMedications$.next(this.userMedications);
       this.clearMedicationCache();
       this.filterMedications();
+      this.userMedicationsSubject.next(this.userMedications);
       
       // Reschedule notifications based on current meds & intervals
       try {
@@ -65,12 +65,12 @@ export class ProfileMedicationManagerService {
       }
       
       this.isLoadingMedications = false;
-      this._isLoadingMedications$.next(false);
+      this.isLoadingMedicationsSubject.next(false);
       if (onComplete) onComplete();
     } catch (error) {
       console.error('Error loading medications:', error);
       this.isLoadingMedications = false;
-      this._isLoadingMedications$.next(false);
+      this.isLoadingMedicationsSubject.next(false);
     }
   }
 
@@ -110,7 +110,7 @@ export class ProfileMedicationManagerService {
       this.medicationFilterCache,
       (result: any[]) => {
         this.filteredMedications = result;
-        this._filteredMedications$.next(this.filteredMedications);
+        this.filteredMedicationsSubject.next(result);
       }
     );
   }
@@ -202,6 +202,40 @@ export class ProfileMedicationManagerService {
   }
 
   /**
+   * Check if a medication is marked as emergency
+   */
+  isEmergencyMedication(medication: Medication): boolean {
+    return medication.category === 'emergency';
+  }
+
+  /**
+   * Check if a medication is expiring soon (within 7 days)
+   * Can accept either a Medication object or a date string
+   */
+  isExpiringSoon(medicationOrDate: Medication | string | undefined): boolean {
+    let expiryDateStr: string | undefined;
+
+    if (typeof medicationOrDate === 'string') {
+      expiryDateStr = medicationOrDate;
+    } else if (medicationOrDate && typeof medicationOrDate === 'object') {
+      expiryDateStr = (medicationOrDate as Medication).expiryDate;
+    }
+
+    if (!expiryDateStr) {
+      return false;
+    }
+
+    try {
+      const expiryDate = new Date(expiryDateStr);
+      const today = new Date();
+      const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      return expiryDate <= sevenDaysFromNow && expiryDate > today;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Show a toast notification
    */
   private async presentToast(message: string): Promise<void> {
@@ -211,41 +245,5 @@ export class ProfileMedicationManagerService {
       position: 'bottom'
     });
     await toast.present();
-  }
-
-  /**
-   * Aggregate counts for medications
-   */
-  getActiveCount(): number {
-    return this.userMedications.filter(m => m.isActive).length;
-  }
-
-  getEmergencyCount(): number {
-    return this.userMedications.filter(m =>
-      (m as any).emergencyMedication === true ||
-      m.category === 'emergency' ||
-      m.category === 'allergy'
-    ).length;
-  }
-
-  getExpiringCount(): number {
-    return this.userMedications.filter(m => this.isExpiringSoon(m.expiryDate)).length;
-  }
-
-  /**
-   * Helper predicates used across views
-   */
-  isEmergencyMedication(med: Medication): boolean {
-    return med.category === 'emergency' ||
-           med.category === 'allergy' ||
-           (med as any).emergencyMedication === true;
-  }
-
-  isExpiringSoon(expiryDate?: string): boolean {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const threshold = new Date();
-    threshold.setDate(threshold.getDate() + 30);
-    return expiry <= threshold;
   }
 }

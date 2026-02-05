@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,10 +19,17 @@ export class EditAllergiesModalComponent implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    // Clone the input to avoid direct mutations
+    if (this.allergyOptions && this.allergyOptions.length > 0) {
+      this.allergyOptions = JSON.parse(JSON.stringify(this.allergyOptions));
+    }
+    
     // Store original state when modal opens
     this.originalState = JSON.stringify(
       this.allergyOptions.map(a => ({ name: a.name, checked: a.checked, value: a.value }))
@@ -47,7 +54,7 @@ export class EditAllergiesModalComponent implements OnInit {
         icon: 'information-circle-outline'
       });
       await toast.present();
-      this.modalCtrl.dismiss();
+      await this.ngZone.run(() => this.modalCtrl.dismiss());
       return;
     }
 
@@ -63,10 +70,16 @@ export class EditAllergiesModalComponent implements OnInit {
     });
     await toast.present();
     // Dismiss with updated allergyOptions so parent can persist
-    this.modalCtrl.dismiss({ refresh: true, allergyOptions: clonedOptions });
+    await this.ngZone.run(() => this.modalCtrl.dismiss({ refresh: true, allergyOptions: clonedOptions }));
   }
 
-  onClose() {
-    this.modalCtrl.dismiss();
+  async onClose() {
+    try {
+      await this.ngZone.run(() => this.modalCtrl.dismiss());
+    } catch (error) {
+      console.error('Error dismissing modal:', error);
+      // Force dismiss even if there's an error
+      this.ngZone.run(() => this.modalCtrl.dismiss().catch(() => {}));
+    }
   }
 }

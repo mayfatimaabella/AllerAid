@@ -400,7 +400,7 @@ export class BarcodeService {
         break;
 
       case 'warning':
-        header = '⚠️ WARNING - CHECK INGREDIENTS';
+        header = 'WARNING - CHECK INGREDIENTS';
         message = `${productName} may contain: ${allergens.join(', ')}. Please check the full ingredient list carefully.`;
         cssClass = 'alert-warning';
         break;

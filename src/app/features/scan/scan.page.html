@@ -49,6 +49,8 @@
           #recentScansModal
           [recentScans]="recentScans"
           (scanSelected)="onRecentScanSelected($any($event))"
+          (deleteScan)="confirmDeleteScan($event)"
+          (clearScans)="clearRecentScans()"
           (close)="recentScansModal.onDismiss()">
         </app-recent-scans>
       </ion-card-content>

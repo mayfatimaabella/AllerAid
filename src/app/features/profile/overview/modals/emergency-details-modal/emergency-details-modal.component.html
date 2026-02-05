@@ -21,6 +21,9 @@
   <div class="modal-info-card allergies-card">
     <div class="section-header">
       <h3>ALLERGIES</h3>
+      <ion-button class="allergies-edit-btn" fill="clear" size="small" aria-label="Edit allergies" (click)="openEditAllergies.emit()">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
     </div>
     <div class="chips-wrapper" *ngIf="userAllergies.length > 0; else noAllergies">
       <span *ngFor="let allergy of userAllergies" class="allergy-chip">{{ allergy.label || allergy.name }}</span>
@@ -28,39 +31,53 @@
     <ng-template #noAllergies><p class="value no-data">None</p></ng-template>
   </div>
 
-  <h2 class="section-title">Instructions</h2>
+  <div class="section-header">
+    <h2 class="section-title">Instructions</h2>
+    <ion-button *ngIf="openEditEmergencyMessageModal" size="small" fill="clear" color="light" (click)="openEditEmergencyMessageModal()" class="contact-action-btn" aria-label="Edit instructions">
+      <ion-icon name="create-outline"></ion-icon>
+    </ion-button>
+  </div>
 
-  <ng-container *ngIf="hasInstructionEntries; else noInstructions">
-    <div *ngFor="let entry of instructionEntries" class="instruction-entry modal-info-card">
-      <div class="instruction-entry-header">
-        <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
-        <strong>{{ entry.label }}</strong>
+  <ng-container *ngIf="hasInstructionEntries">
+    <ng-container *ngFor="let entry of instructionEntries">
+      <div *ngIf="entry.label === 'General'" class="instruction-entry modal-info-card">
+        <div class="instruction-entry-header">
+          <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
+          <strong>{{ entry.label }}</strong>
+        </div>
+        <div class="instruction-entry-text">{{ entry.text }}</div>
       </div>
-      <div class="instruction-entry-text">{{ entry.text }}</div>
-    </div>
+    </ng-container>
   </ng-container>
-  <ng-template #noInstructions>
-    <div class="modal-info-card">
-      <p class="value no-data">No instructions set</p>
-      <ion-button color="primary" fill="outline" size="small" (click)="onEditInstruction('General','')">
-        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Add Instructions
+
+  <div class="section-header">
+    <h2 class="section-title">Specific Instructions</h2>
+    <ion-button size="small" fill="clear" color="light" (click)="addInstruction.emit()" class="contact-action-btn" aria-label="Add specific instruction">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <ng-container *ngIf="hasSpecificInstructions; else noSpecificInstructions">
+    <ng-container *ngFor="let entry of instructionEntries">
+      <div *ngIf="entry.label !== 'General'" class="instruction-entry modal-info-card">
+        <div class="instruction-entry-header">
+          <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
+          <strong>{{ entry.label }}</strong>
+        </div>
+        <div class="instruction-entry-text">{{ entry.text }}</div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #noSpecificInstructions>
+    <div class="modal-info-card no-instructions">
+      <p class="value no-data">No allergy-specific instructions yet</p>
+      <ion-button size="small" fill="outline" color="primary" (click)="addInstruction.emit()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add
       </ion-button>
     </div>
   </ng-template>
 
-  <div class="modal-info-card location-card">
-    <div class="section-header">
-      <h3>LOCATION</h3>
-    </div>
-    <p class="value">{{ emergencyLocation || 'Map Location' }}</p>
-  </div>
-
-  <div class="modal-actions">
-    <ion-button expand="block" fill="outline" class="test-audio-btn" (click)="onTestAudio()">
-      <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-      Test Audio
-    </ion-button>
-  </div>
   </div>
 </ion-content>

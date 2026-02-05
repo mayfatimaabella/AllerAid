@@ -71,6 +71,38 @@
 .tap-details { text-align:center; font-size:10px; color:rgba(31,74,66,0.6); opacity:.8; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:4px; }
 .tap-details ion-icon { font-size:14px; }
 
+.specific-instructions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.specific-instruction-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(3, 106, 93, 0.1);
+}
+
+.specific-instruction-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.specific-instruction-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #036a5d;
+  text-transform: capitalize;
+}
+
+.specific-instruction-text {
+  font-size: 12px;
+  color: #1f4a42;
+  line-height: 1.5;
+}
+
 .no-instructions {
 	display: flex;
 	align-items: center;

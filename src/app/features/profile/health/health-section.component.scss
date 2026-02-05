@@ -164,16 +164,23 @@
 }
 .medication-title-section { 
   flex: 1; 
+  min-width: 0;
 }
 .medication-title-section .medication-title { 
   font-size: 18px; 
   font-weight: 700; 
   color: #1f1f1f !important; 
   margin-bottom: 4px; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .medication-summary { 
   font-size: 14px; 
   color: #666; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .medication-summary .dosage { 
   font-weight: 600; 

@@ -11,7 +11,6 @@
 
 <ion-content class="ion-padding profile-page-bg">
 
-  <!-- PROFILE HEADER -->
   <section class="profile-header">
     <ion-avatar class="profile-avatar">
       <img alt="person-avatar"
@@ -23,7 +22,6 @@
     </div>
   </section>
 
-  <!-- PROFILE CARD -->
   <section class="profile-card">
 
     <!-- USER STATS -->
@@ -32,7 +30,7 @@
 
       <div class="stat">
         <div class="stat-label">Allergies</div>
-        <div class="stat-value">{{ allergiesCount }}</div>
+        <div class="stat-value">{{ ((profileDataLoader.userAllergies$ | async)?.length) ?? 0 }}</div>
       </div>
 
       <div class="stat">
@@ -74,6 +72,7 @@
           [emergencyMessageName]="((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User')"
           [emergencyInstructionsCombined]="((profileDataLoader.emergencyMessage$ | async)?.instructions || '')"
           [emergencyLocation]="((profileDataLoader.emergencyMessage$ | async)?.location || 'Map Location')"
+          [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
 
           (openEditAllergies)="openEditAllergiesModal()"
           (openEmergencyInfo)="showEmergencyInfoModal = true"
@@ -92,10 +91,13 @@
             [userAllergies]="(profileDataLoader.userAllergies$ | async) || []"
             [instructionEntries]="getEmergencyInstructionEntries()"
             [emergencyLocation]="((profileDataLoader.emergencyMessage$ | async)?.location || 'Map Location')"
+            [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
+            [openManageInstructionsModal]="openAddInstructionModal.bind(this)"
             (close)="showEmergencyInfoModal = false"
             (testAudio)="testAudioInstructions()"
             (addInstruction)="openAddInstructionModal()"
             (editInstruction)="openEditEmergencyMessageModal()"
+            (openEditAllergies)="openEditAllergiesModal()"
             >
           </app-emergency-details-modal>
           </ng-template>
@@ -199,7 +201,7 @@
           [editingInstruction]="emergencyInstructionsManager.editingInstruction"
           [selectedInstructionDetails]="emergencyInstructionsManager.selectedInstructionDetails"
           [showInstructionDetailsModal]="emergencyInstructionsManager.showInstructionDetailsModal"
-          [openManageInstructionsModal]="emergencyInstructionsManager.openManageInstructionsModal.bind(emergencyInstructionsManager)"
+          [openManageInstructionsModal]="openAddInstructionModal.bind(this)"
           [onManageInstructionsDismiss]="emergencyInstructionsManager.onManageInstructionsDismiss.bind(emergencyInstructionsManager)"
           [onAddInstruction]="emergencyInstructionsManager.onAddInstruction.bind(emergencyInstructionsManager)"
           [onUpdateInstruction]="emergencyInstructionsManager.onUpdateInstruction.bind(emergencyInstructionsManager)"
@@ -353,14 +355,6 @@
           </div>
         </div>
 
-        <!-- Emergency Specific Instructions Modal -->
-        <ion-modal [isOpen]="emergencyInstructionsManager.showManageInstructionsModal" (didDismiss)="emergencyInstructionsManager.onManageInstructionsDismiss()">
-          <ng-template>
-            <app-emergency-specific-instructions-modal
-              >
-            </app-emergency-specific-instructions-modal>
-          </ng-template>
-        </ion-modal>
       </ng-container>
     </section>
 
@@ -402,4 +396,11 @@
     (saveModal)="saveEditedEmergencyMessage($event)"
     (closeModal)="profileEmergencySettings.showEditEmergencyMessageModal = false">
   </app-edit-emergency-message-modal>
+</ion-modal>
+
+<!-- Emergency Specific Instructions Modal - Available on all tabs -->
+<ion-modal [isOpen]="emergencyInstructionsManager.showManageInstructionsModal" (didDismiss)="emergencyInstructionsManager.onManageInstructionsDismiss()">
+  <ng-template>
+    <app-emergency-specific-instructions-modal></app-emergency-specific-instructions-modal>
+  </ng-template>
 </ion-modal>

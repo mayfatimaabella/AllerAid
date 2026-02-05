@@ -23,6 +23,7 @@ export class OverviewSectionComponent {
   @Input() emergencyLocation = '';
   @Input() emergencyMessage: any = {};
   @Input() userProfile: UserProfile | null = null;
+  @Input() openEditEmergencyMessageModal!: () => void;
   // UI state owned by this component
 
 

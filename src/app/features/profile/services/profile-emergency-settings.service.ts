@@ -112,18 +112,17 @@ export class ProfileEmergencySettingsService {
   ): { label: string; text: string }[] {
     const entries: { label: string; text: string }[] = [];
     
+    const general = (emergencyMessage?.instructions || '').trim();
+    if (general) {
+      entries.push({ label: 'General', text: general });
+    }
+    
     if (Array.isArray(emergencyInstructions) && emergencyInstructions.length) {
       emergencyInstructions.forEach((instr: any) => {
         const label = instr?.allergyName;
         const text = instr?.instruction;
         if (label && text) entries.push({ label, text });
       });
-    }
-    
-    const general = (emergencyMessage?.instructions || '').trim();
-    if (general) {
-      const exists = entries.some(e => e.text.toLowerCase() === general.toLowerCase());
-      if (!exists) entries.push({ label: 'General', text: general });
     }
     
     return entries;

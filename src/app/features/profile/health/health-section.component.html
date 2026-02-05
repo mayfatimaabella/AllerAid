@@ -24,10 +24,10 @@
 <div class="medication-filters">
   <ion-segment [ngModel]="medicationFilter" (ionChange)="onFilterChange($event)">
     <ion-segment-button value="all">
-      <ion-label>All</ion-label>
+      <ion-icon name="list-outline"></ion-icon>
     </ion-segment-button>
     <ion-segment-button value="active">
-      <ion-label>Active Only</ion-label>
+      <ion-icon name="medkit-outline"></ion-icon>
     </ion-segment-button>
   </ion-segment>
 </div>
@@ -71,46 +71,10 @@
             color="medium" 
             size="small"
             *ngIf="medication.id"
-            (click)="$event.stopPropagation(); toggleDetails.emit(medication.id)"
-            [attr.aria-label]="isMedicationDetailsExpanded(medication.id) ? 'Hide medication details' : 'Show medication details'"
-            title="Click to show/hide detailed information">
-            <ion-icon [name]="isMedicationDetailsExpanded(medication.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-          </ion-button>
-          <ion-button 
-            fill="clear" 
-            color="primary" 
-            size="small"
-            *ngIf="medication.id"
-            (click)="toggleStatus.emit(medication.id)"
-            title="Toggle Active Status">
-            <ion-icon [name]="medication.isActive ? 'pause-outline' : 'play-outline'"></ion-icon>
-          </ion-button>
-          <ion-button 
-            fill="clear" 
-            color="secondary" 
-            size="small"
-            *ngIf="medication.id"
-            (click)="edit.emit(medication)"
-            title="Edit Medication">    
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button 
-            fill="clear" 
-            color="tertiary" 
-            size="small"
-            *ngIf="medication.id"
-            (click)="$event.stopPropagation(); viewDetails.emit(medication)"
-            title="View full details">
-            <ion-icon name="open-outline"></ion-icon>
-          </ion-button>
-          <ion-button 
-            fill="clear" 
-            color="danger" 
-            size="small"
-            *ngIf="medication.id"
-            (click)="delete.emit(medication.id)"
-            title="Delete Medication">
-            <ion-icon name="trash-outline"></ion-icon>
+            (click)="$event.stopPropagation(); presentMedicationActions(medication)"
+            aria-label="Medication actions"
+            title="More actions">
+            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
           </ion-button>
         </div>
       </div>

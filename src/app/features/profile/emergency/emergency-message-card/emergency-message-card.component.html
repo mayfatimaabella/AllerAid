@@ -6,10 +6,6 @@
         <div class="emergency-message-value">{{ emergencyMessage.name || userProfile?.fullName || 'User' }}</div>
       </div>
       <div class="emergency-message-row">
-        <div class="emergency-message-label">Allergies:</div>
-        <div class="emergency-message-value">{{ emergencyMessage.allergies }}</div>
-      </div>
-      <div class="emergency-message-row">
         <div class="emergency-message-label">Instructions:</div>
         <div class="emergency-message-value">
           <ng-container *ngIf="isInstructionsEmpty()">
@@ -25,10 +21,6 @@
             {{ emergencyMessage.instructions }}
           </ng-container>
         </div>
-      </div>
-      <div class="emergency-message-row">
-        <div class="emergency-message-label">Location:</div>
-        <div class="emergency-message-value">{{ emergencyMessage.location || 'Map Location' }}</div>
       </div>
     </div>
   </div>

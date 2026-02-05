@@ -25,12 +25,26 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .section-header h3 {
-  margin: 0 0 10px;
+  margin: 0;
   color: #036a5d !important;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: .4px;
+}
+
+.allergies-edit-btn {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  height: 24px;
 }
 
 .name-value {

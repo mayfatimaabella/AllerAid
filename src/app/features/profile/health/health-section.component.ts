@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { ActionSheetController, IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-profile-health-section',
@@ -38,6 +38,7 @@ export class HealthSectionComponent {
 
   trackByMedication = (i: number, m: any) => m?.id ?? m?.name ?? i;
 
+
   // Wrapper helpers to safely call optional functions from parent in templates
   isEmergencyMedication(med: any): boolean {
     return this.isEmergencyMedicationFn ? !!this.isEmergencyMedicationFn(med) : false;
@@ -49,6 +50,53 @@ export class HealthSectionComponent {
 
   isExpiringSoon(date: any): boolean {
     return this.isExpiringSoonFn ? !!this.isExpiringSoonFn(date) : false;
+  }
+
+  constructor(private actionSheetController: ActionSheetController) {}
+
+  async presentMedicationActions(medication: any): Promise<void> {
+    if (!medication?.id) {
+      return;
+    }
+
+    const actionSheet = await this.actionSheetController.create({
+      header: medication.name || 'Medication',
+      buttons: [
+        {
+          text: medication.isActive ? 'Pause Medication' : 'Activate Medication',
+          icon: medication.isActive ? 'pause-outline' : 'play-outline',
+          handler: () => this.toggleStatus.emit(medication.id)
+        },
+        {
+          text: this.isMedicationDetailsExpanded(medication.id) ? 'Hide Details' : 'Show Details',
+          icon: this.isMedicationDetailsExpanded(medication.id) ? 'chevron-up-outline' : 'chevron-down-outline',
+          handler: () => this.toggleDetails.emit(medication.id)
+        },
+        {
+          text: 'Edit Medication',
+          icon: 'create-outline',
+          handler: () => this.edit.emit(medication)
+        },
+        {
+          text: 'View Full Details',
+          icon: 'open-outline',
+          handler: () => this.viewDetails.emit(medication)
+        },
+        {
+          text: 'Delete Medication',
+          role: 'destructive',
+          icon: 'trash-outline',
+          handler: () => this.delete.emit(medication.id)
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          icon: 'close-outline'
+        }
+      ]
+    });
+
+    await actionSheet.present();
   }
 
   onFilterChange(ev: CustomEvent) {

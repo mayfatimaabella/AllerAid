@@ -2,6 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { ProductService } from '../../core/services/product.service';
 import { BarcodeService } from '../../core/services/barcode.service';
 import { ScanResultComponent } from './scan-result/scan-result.component';
+import { AlertController } from '@ionic/angular';
+import { LocalStorageService } from '../../features/profile/services/local-storage.service';
 
 @Component({
   selector: 'app-scan',
@@ -24,6 +26,8 @@ export class ScanPage {
   constructor(
     private productService: ProductService,
     private barcodeService: BarcodeService,
+    private localStorage: LocalStorageService,
+    private alertCtrl: AlertController
   ) {}
 
   scanAndFetchProduct(barcode: string) {
@@ -174,4 +178,45 @@ export class ScanPage {
     this.viewScan(scan);
     this.recentScansModal.onDismiss();
   }
+
+  async confirmDeleteScan(index: number) {
+
+  const alert = await this.alertCtrl.create({
+    header: 'Delete Scan',
+    message: 'Are you sure you want to remove this product from recent scans?',
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      {
+        text: 'Delete',
+        handler: async () => {
+          this.recentScans.splice(index, 1);
+          await this.localStorage.set('recentScans', this.recentScans);
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
+async clearRecentScans() {
+
+  const alert = await this.alertCtrl.create({
+    header: 'Clear All Scans',
+    message: 'Remove all recent scans?',
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      {
+        text: 'Clear',
+        handler: async () => {
+          this.recentScans = [];
+          await this.localStorage.set('recentScans', []);
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
 }

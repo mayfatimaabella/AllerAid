@@ -19,11 +19,14 @@ export class EmergencyDetailsModalComponent implements OnInit {
   @Input() userAllergies: any[] = [];
   @Input() instructionEntries: EmergencyInstructionEntry[] = [];
   @Input() emergencyLocation: string = '';
+  @Input() openEditEmergencyMessageModal?: () => void;
+  @Input() openManageInstructionsModal?: () => void;
 
   @Output() close = new EventEmitter<void>();
   @Output() editInstruction = new EventEmitter<{ label: string; text: string }>();
   @Output() testAudio = new EventEmitter<void>();
   @Output() addInstruction = new EventEmitter<void>();
+  @Output() openEditAllergies = new EventEmitter<void>();
 
   ngOnInit() {}
 
@@ -31,8 +34,24 @@ export class EmergencyDetailsModalComponent implements OnInit {
     return Array.isArray(this.instructionEntries) && this.instructionEntries.length > 0;
   }
 
+  get hasSpecificInstructions(): boolean {
+    return Array.isArray(this.instructionEntries) && 
+           this.instructionEntries.some(entry => entry.label !== 'General');
+  }
+
   onClose() { this.close.emit(); }
   onEditInstruction(label: string, text: string) { this.editInstruction.emit({ label, text }); }
   onTestAudio() { this.testAudio.emit(); }
   onAddInstruction() { this.addInstruction.emit(); }
+  
+  async handleOpenManageInstructionsModal() {
+    // Close this modal first
+    this.close.emit();
+    // Wait a bit for modal to close
+    await new Promise(resolve => setTimeout(resolve, 400));
+    // Then open the manage instructions modal
+    if (this.openManageInstructionsModal) {
+      this.openManageInstructionsModal();
+    }
+  }
 }

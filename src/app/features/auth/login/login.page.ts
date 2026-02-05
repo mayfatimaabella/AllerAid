@@ -98,6 +98,10 @@ export class LoginPage implements OnInit {
               console.log('User needs to complete allergy onboarding');
               this.navCtrl.navigateRoot('/allergy-onboarding');
               return;
+            } else {
+              // User has completed onboarding
+              this.navCtrl.navigateRoot('/tabs/home');
+              return;
             }
           }
           

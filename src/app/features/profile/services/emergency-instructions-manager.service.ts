@@ -132,21 +132,59 @@ export class EmergencyInstructionsManagerService {
         return;
       }
 
-      await this.medicalService.setEmergencyInstructionForAllergy(
-        currentUser.uid,
-        allergyId,
-        allergyName,
-        instructionText.trim()
+      // Check if instruction already exists for this allergy
+      const existingInstruction = this.emergencyInstructions.find(
+        inst => (inst.allergyId === allergyId) || (inst.allergyName === allergyName)
       );
 
-      this.manageInstructionsModal.selectedAllergyForInstruction = null;
-      this.manageInstructionsModal.newInstructionText = '';
+      if (existingInstruction) {
+        const alert = await this.alertController.create({
+          header: 'Replace Existing Instruction?',
+          message: `An instruction already exists for ${allergyName}:<br><br>"${existingInstruction.instruction}"<br><br>Do you want to replace it with the new instruction?`,
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Replace',
+              role: 'confirm',
+              handler: async () => {
+                await this.saveInstruction(currentUser.uid, allergyId, allergyName, instructionText.trim());
+              }
+            }
+          ]
+        });
 
-      await this.loadEmergencyInstructions({ uid: currentUser.uid });
+        await alert.present();
+      } else {
+        // No existing instruction, save directly
+        await this.saveInstruction(currentUser.uid, allergyId, allergyName, instructionText.trim());
+      }
     } catch (error) {
       console.error('Error adding instruction:', error);
       this.presentAlert('Failed to save instruction. Please try again.');
     }
+  }
+
+  /**
+   * Helper method to save instruction and refresh
+   */
+  private async saveInstruction(uid: string, allergyId: string, allergyName: string, instructionText: string): Promise<void> {
+    await this.medicalService.setEmergencyInstructionForAllergy(
+      uid,
+      allergyId,
+      allergyName,
+      instructionText
+    );
+
+    if (this.manageInstructionsModal) {
+      this.manageInstructionsModal.selectedAllergyForInstruction = null;
+      this.manageInstructionsModal.newInstructionText = '';
+    }
+
+    await this.loadEmergencyInstructions({ uid });
+    await this.presentToast('Instruction saved successfully!');
   }
 
   /**

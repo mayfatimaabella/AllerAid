@@ -78,7 +78,8 @@ export class AllergyOnboardingPage implements OnInit {
             // Use existing checked status if available, otherwise default to false
             checked: userAllergy ? userAllergy.checked : false,
             // Use existing value if available, otherwise default to empty string for inputs
-            value: userAllergy?.value || (option.hasInput ? '' : undefined)
+            value: userAllergy?.value || (option.hasInput ? '' : undefined),
+            label: userAllergy?.customValue || option.label
           };
         });
         
@@ -152,7 +153,9 @@ export class AllergyOnboardingPage implements OnInit {
       console.log('Saving allergies for user:', currentUser?.email || 'no user'); // Debug log
       
       // Prepare allergies for Firebase - ensure no undefined values
-      const sanitizedAllergies = this.allergyOptions.map(allergy => {
+      const sanitizedAllergies = this.allergyOptions
+      .filter(allergy => allergy.checked)
+      .map(allergy => {
         // Create a clean copy without undefined values
         const cleanAllergy: Record<string, any> = {
           id: allergy.id,
@@ -164,10 +167,16 @@ export class AllergyOnboardingPage implements OnInit {
         };
         
         // Only include input value if it's not empty
-        if (allergy.hasInput && allergy.value) {
-          cleanAllergy['value'] = allergy.value;
-        }
-        
+       if (allergy.hasInput) {
+        const inputValue = allergy.value?.trim();
+
+       if (inputValue) {
+          cleanAllergy['customValue'] = inputValue;
+
+      // Replace "Others" label with user input
+        cleanAllergy['label'] = inputValue;
+  }
+}
         return cleanAllergy;
       });
       

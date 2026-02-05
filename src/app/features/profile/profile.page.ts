@@ -35,6 +35,7 @@ import { ProfileEmergencySettingsService } from './services/profile-emergency-se
 import { ProfileNavigationService } from './services/profile-navigation.service';
 import { ProfileUtilityService } from './services/profile-utility.service';
 import { ProfileAccessRequestService } from './services/profile-access-request.service';
+import { ProfileDataService } from './services/profile-data.service';
 
 /* =======================
  * Allergy (single source)
@@ -67,14 +68,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     return this.emergencyInstructionsManager.isEmergencyInstructionsEmpty();
   }
 
-  // Voice settings are consumed directly from voiceSettingsManager in the template
-
-  // Medications: rely on service state/observables (no page-level getters/setters)
-
-  // EHR state consumed directly from profileEHRManager in the template
-
-  // Emergency settings consumed directly from profileEmergencySettings in the template
-
   userAllergies: any[] = [];
   emergencyMessage: EmergencyMessage = { name: '', allergies: '', instructions: '', location: '' };
   userProfile: UserProfile | null = null;
@@ -101,6 +94,10 @@ export class ProfilePage implements OnInit, OnDestroy {
     
     await this.loadAllergyOptions(); // Load allergy options first
     await this.profileDataLoader.loadAllData(); // Load profile, allergies, emergency message
+    
+    // Populate userAllergies from the data loader so modal has access to them
+    this.userAllergies = this.profileDataLoader.userAllergiesValue;
+    
     await this.loadUserMedications(); // Load medications for Health tab
     await this.loadEmergencyInstructions(); // Load emergency instructions after user data
     this.setDefaultTabForRole();
@@ -108,6 +105,14 @@ export class ProfilePage implements OnInit, OnDestroy {
   
   // Open edit allergies modal
   async openEditAllergiesModal() {
+    // Close the emergency details modal if it's open to avoid nested modal issues
+    if (this.showEmergencyInfoModal) {
+      this.showEmergencyInfoModal = false;
+      // Give the modal time to close before opening the next one
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    await this.refreshAllergiesDisplay();
     await this.allergyModalService.openEditAllergiesModal(
       this.allergyOptions,
       () => this.refreshAllergiesDisplay()
@@ -251,6 +256,10 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async openEditEmergencyMessageModal(): Promise<void> {
+    if (this.showEmergencyInfoModal) {
+      this.showEmergencyInfoModal = false;
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
     await this.profileEmergencySettings.openEditEmergencyMessageModal(
       this.profileDataLoader.emergencyMessageValue || { name: '', allergies: '', instructions: '', location: '' },
       this.profileDataLoader.userProfileValue,
@@ -287,7 +296,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   getEmergencyInstructionEntries(): { label: string; text: string }[] {
     return this.profileEmergencySettings.getEmergencyInstructionEntries(
       this.emergencyInstructionsManager.emergencyInstructions,
-      this.emergencyMessage
+      this.profileDataLoader.emergencyMessageValue || this.emergencyMessage
     );
   }
 
@@ -322,7 +331,10 @@ export class ProfilePage implements OnInit, OnDestroy {
       if (!currentUser) return;
 
       const updated = await this.profileDataLoader.refreshAllergies(currentUser.uid);
+      this.userAllergies = updated;
       this.allergiesCount = updated.length;
+      this.emergencyMessage.allergies = updated.map(a => a.label || a.name).join(', ');
+      this.updateAllergyOptions();
     } catch (error) {
       console.error('Error refreshing allergies display:', error);
     }
@@ -360,6 +372,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   public profileNavigation: ProfileNavigationService,
   public profileUtility: ProfileUtilityService,
   public profileDataLoader: ProfileDataLoaderService,
+  public profileDataService: ProfileDataService,
   public allergyManager: AllergyManagerService,
   public allergyModalService: AllergyModalService,
   public profileAccessRequest: ProfileAccessRequestService,
@@ -662,7 +675,12 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   // Modal open handled by service
-  openAddInstructionModal() {
+  async openAddInstructionModal() {
+    // Close emergency details modal if open
+    if (this.showEmergencyInfoModal) {
+      this.showEmergencyInfoModal = false;
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
     // Ensure manager has allergy options for selection within modal
     this.emergencyInstructionsManager.userAllergies = this.userAllergies;
     this.emergencyInstructionsManager.openManageInstructionsModal();
