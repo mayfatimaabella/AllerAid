@@ -19,6 +19,10 @@ export class EmergencyDetailsModalComponent implements OnInit {
   @Input() userAllergies: any[] = [];
   @Input() instructionEntries: EmergencyInstructionEntry[] = [];
   @Input() emergencyLocation: string = '';
+  @Input() emergencyContactName: string = '';
+  @Input() emergencyContactPhone: string = '';
+  @Input() dateOfBirth: string = '';
+  @Input() bloodType: string = '';
   @Input() openEditEmergencyMessageModal?: () => void;
   @Input() openManageInstructionsModal?: () => void;
 

@@ -79,17 +79,40 @@ export class ProfileEmergencySettingsService {
     message: any,
     userProfile: UserProfile | null,
     onEmergencyMessageUpdate: (msg: EmergencyMessage) => void,
+    onUserProfileUpdate: (profile: UserProfile) => void,
     loadMedicalData: () => Promise<void>,
     presentToast: (msg: string) => Promise<void>
   ): Promise<void> {
+    const emergencyMessage: EmergencyMessage = {
+      name: message?.name || '',
+      allergies: message?.allergies || '',
+      instructions: message?.instructions || '',
+      location: message?.location || ''
+    };
+
     // Optimistic UI update
-    onEmergencyMessageUpdate(message);
+    onEmergencyMessageUpdate(emergencyMessage);
+    if (userProfile) {
+      onUserProfileUpdate({
+        ...userProfile,
+        emergencyContactName: message?.emergencyContactName || '',
+        emergencyContactPhone: message?.emergencyContactPhone || '',
+        dateOfBirth: message?.dateOfBirth || '',
+        bloodType: message?.bloodType || ''
+      });
+    }
     
     if (userProfile?.uid) {
       const uid = userProfile.uid;
       try {
-        await this.medicalService.updateEmergencyMessage(uid, message);
-        await this.userService.updateUserProfile(uid, { emergencyMessage: message });
+        await this.medicalService.updateEmergencyMessage(uid, emergencyMessage);
+        await this.userService.updateUserProfile(uid, {
+          emergencyMessage,
+          emergencyContactName: message?.emergencyContactName || '',
+          emergencyContactPhone: message?.emergencyContactPhone || '',
+          dateOfBirth: message?.dateOfBirth || '',
+          bloodType: message?.bloodType || ''
+        });
         await loadMedicalData();
         this.showEditEmergencyMessageModal = false;
         await presentToast('Emergency message saved successfully');

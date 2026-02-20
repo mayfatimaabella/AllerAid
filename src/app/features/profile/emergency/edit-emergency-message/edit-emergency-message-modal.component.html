@@ -15,6 +15,34 @@
         <ion-label position="stacked">Name</ion-label>
         <ion-input formControlName="name"></ion-input>
       </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Emergency Contact Name</ion-label>
+        <ion-input formControlName="emergencyContactName"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Emergency Contact Phone</ion-label>
+        <ion-input
+          formControlName="emergencyContactPhone"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="11"
+          (ionInput)="onPhoneInput($event)">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Date of Birth</ion-label>
+        <ion-input formControlName="dateOfBirth" type="date" [min]="minDate" [max]="maxDate"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Blood Type (Optional)</ion-label>
+        <ion-input formControlName="bloodType" placeholder="e.g. O+"></ion-input>
+      </ion-item>
+
       <ion-item>
         <ion-label position="stacked">Instructions</ion-label>
         <ion-textarea formControlName="instructions"></ion-textarea>

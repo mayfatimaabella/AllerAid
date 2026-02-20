@@ -35,6 +35,7 @@ export class ProfileDataLoaderService {
   get userAllergiesValue(): any[] { return this.userAllergiesSubject.value; }
   get emergencyMessageValue(): any | null { return this.emergencyMessageSubject.value; }
 
+  setUserProfile(profile: UserProfile | null): void { this.userProfileSubject.next(profile); }
   setEmergencyMessage(message: any): void { this.emergencyMessageSubject.next(message); }
   setUserAllergies(allergies: any[]): void { this.userAllergiesSubject.next(allergies); }
 

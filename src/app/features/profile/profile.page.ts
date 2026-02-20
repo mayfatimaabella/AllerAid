@@ -281,6 +281,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       message,
       this.profileDataLoader.userProfileValue,
       (msg: EmergencyMessage) => { this.profileDataLoader.setEmergencyMessage(msg); },
+      (profile: UserProfile) => { this.profileDataLoader.setUserProfile(profile); },
       () => this.loadMedicalData(),
       this.presentToast.bind(this)
     );
@@ -690,14 +691,38 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async saveNewEmergencyMessage(message: any) {
+    const emergencyMessage = {
+      name: message?.name || '',
+      allergies: message?.allergies || '',
+      instructions: message?.instructions || '',
+      location: message?.location || ''
+    };
+
     // Optimistic UI update
-    this.emergencyMessage = message;
+    this.emergencyMessage = emergencyMessage;
+    this.profileDataLoader.setEmergencyMessage(this.emergencyMessage);
+    const currentProfile = this.profileDataLoader.userProfileValue;
+    if (currentProfile) {
+      this.profileDataLoader.setUserProfile({
+        ...currentProfile,
+        emergencyContactName: message?.emergencyContactName || '',
+        emergencyContactPhone: message?.emergencyContactPhone || '',
+        dateOfBirth: message?.dateOfBirth || '',
+        bloodType: message?.bloodType || ''
+      });
+    }
     // Persist to backend (MedicalService + UserService)
     if (this.userProfile?.uid) {
       const uid = this.userProfile.uid; // capture to satisfy TS narrow across async
       try {
         await this.medicalService.updateEmergencyMessage(uid, this.emergencyMessage);
-        await this.userService.updateUserProfile(uid, { emergencyMessage: this.emergencyMessage });
+        await this.userService.updateUserProfile(uid, {
+          emergencyMessage: this.emergencyMessage,
+          emergencyContactName: message?.emergencyContactName || '',
+          emergencyContactPhone: message?.emergencyContactPhone || '',
+          dateOfBirth: message?.dateOfBirth || '',
+          bloodType: message?.bloodType || ''
+        });
         // Refresh local user data from backend to ensure consistency after reload
         await this.loadMedicalData?.();
         this.showAddEmergencyMessageModal = false;

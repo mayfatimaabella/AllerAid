@@ -50,7 +50,7 @@
           <ion-button 
             expand="block" 
             type="submit" 
-            [disabled]="(!selectedAllergyForInstruction || !newInstructionText) && !editingInstruction || (editingInstruction && !newInstructionText)"
+            [disabled]="!selectedAllergyForInstruction || !newInstructionText"
             color="primary">
             <ion-icon [name]="editingInstruction ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
             {{ editingInstruction ? 'Update Instruction' : 'Add Instruction' }}

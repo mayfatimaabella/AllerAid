@@ -11,6 +11,13 @@
       </div>
     </ion-card-header>
     <ion-card-content>
+      <div class="emergency-section">
+        <div class="emergency-label">EMERGENCY CONTACT</div>
+        <div class="emergency-value">
+          {{ userProfile?.emergencyContactName || 'Not specified' }} | {{ userProfile?.emergencyContactPhone || 'Not specified' }}
+        </div>
+      </div>
+
       <div class="emergency-section allergies-section">
         <div class="emergency-label">ALLERGIES</div>
         <div class="allergy-chips">
@@ -19,7 +26,7 @@
         </div>
       </div>
       <div class="emergency-section">
-        <div class="emergency-label">INSTRUCTIONS</div>
+        <div class="emergency-label">EMERGENCY ACTION PLAN</div>
 
         <div class="emergency-value instructions">
           <ng-container *ngIf="emergencyInstructionsCombined; else noInstructions">
@@ -35,8 +42,7 @@
           <ng-container *ngIf="emergencyInstructions?.length; else noSpecificInstructions">
             <div class="specific-instructions-list">
               <div *ngFor="let instr of emergencyInstructions" class="specific-instruction-item">
-                <span class="specific-instruction-label">{{ instr.allergyName || instr.label || 'Allergy' }}</span>
-                <span class="specific-instruction-text">{{ instr.instruction || instr.text }}</span>
+                <span class="specific-instruction-text">{{ instr.allergyName || instr.label || 'Allergy' }}: {{ instr.instruction || instr.text }}</span>
               </div>
             </div>
           </ng-container>

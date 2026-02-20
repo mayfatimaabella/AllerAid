@@ -7,7 +7,7 @@ import { AlertController, ToastController } from '@ionic/angular';
   providedIn: 'root'
 })
 export class EmergencyInstructionsManagerService {
-  // State
+
   emergencyInstructions: any[] = [];
   showManageInstructionsModal: boolean = false;
   showInstructionDetailsModal: boolean = false;

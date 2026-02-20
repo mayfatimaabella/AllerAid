@@ -18,6 +18,16 @@
   <div class="content-wrapper">
   <h1 class="name-value">{{ emergencyMessageName || 'Not set' }}</h1>
 
+  <div class="modal-info-card">
+    <div class="section-header">
+      <h3>EMERGENCY CONTACT</h3>
+    </div>
+    <p class="value">{{ emergencyContactName || 'Not specified' }} | {{ emergencyContactPhone || 'Not specified' }}</p>
+    <p class="value">Date of Birth: {{ dateOfBirth || 'Not specified' }} </p>
+    <p class="value">Blood Type: {{ bloodType || 'Not specified' }}</p>
+
+  </div>
+
   <div class="modal-info-card allergies-card">
     <div class="section-header">
       <h3>ALLERGIES</h3>

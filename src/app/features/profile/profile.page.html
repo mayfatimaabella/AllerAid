@@ -17,9 +17,20 @@
            src="https://ionicframework.com/docs/img/demos/avatar.svg" />
     </ion-avatar>
 
-    <div class="profile-name">
-      {{ ((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User') }}
-    </div>
+    <ng-container *ngIf="(profileDataLoader.userProfile$ | async) as profile">
+      <div class="profile-name">
+        {{ ((profileDataLoader.emergencyMessage$ | async)?.name || profile.fullName || 'User') }}
+      </div>
+
+      <ion-button
+        class="profile-edit-btn"
+        size="small"
+        fill="solid"
+        (click)="openEditEmergencyMessageModal()"
+        aria-label="Edit profile">
+        Edit Profile
+      </ion-button>
+    </ng-container>
   </section>
 
   <section class="profile-card">
@@ -77,9 +88,8 @@
           (openEditAllergies)="openEditAllergiesModal()"
           (openEmergencyInfo)="showEmergencyInfoModal = true"
           (testInstructionAudio)="testInstructionAudio($event)"
-          >
+          ></app-profile-overview-section>
           
-          </app-profile-overview-section>
         </ng-container>
         
         
@@ -91,6 +101,10 @@
             [userAllergies]="(profileDataLoader.userAllergies$ | async) || []"
             [instructionEntries]="getEmergencyInstructionEntries()"
             [emergencyLocation]="((profileDataLoader.emergencyMessage$ | async)?.location || 'Map Location')"
+            [emergencyContactName]="(profileDataLoader.userProfile$ | async)?.emergencyContactName || ''"
+            [emergencyContactPhone]="(profileDataLoader.userProfile$ | async)?.emergencyContactPhone || ''"
+            [dateOfBirth]="(profileDataLoader.userProfile$ | async)?.dateOfBirth || ''"
+            [bloodType]="(profileDataLoader.userProfile$ | async)?.bloodType || ''"
             [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
             [openManageInstructionsModal]="openAddInstructionModal.bind(this)"
             (close)="showEmergencyInfoModal = false"
@@ -186,11 +200,9 @@
           [isEmergencyInstructionsEmpty]="isEmergencyInstructionsEmpty.bind(this)"
           [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
           [testEmergencyAlert]="testEmergencyAlert"
-          [testShakeDetection]="testShakeDetection"
           [testPowerButtonDetection]="testPowerButtonDetection"
-          [testAudioInstructions]="testAudioInstructions"
-          [requestMotionPermissions]="requestMotionPermissions"
-          [showEmergencyExamples]="showEmergencyExamples.bind(this)"
+      
+          
           [emergencyMessage]="(profileDataLoader.emergencyMessage$ | async)"
           [userProfile]="(profileDataLoader.userProfile$ | async)"
           [emergencyInstructions]="emergencyInstructionsManager.emergencyInstructions"
@@ -380,6 +392,7 @@
 <ion-modal [isOpen]="showAddEmergencyMessageModal" (didDismiss)="showAddEmergencyMessageModal = false">
   <app-edit-emergency-message-modal
     [emergencyMessage]="{ name: '', allergies: '', instructions: '', location: '' }"
+    [userProfile]="(profileDataLoader.userProfile$ | async)"
     [mode]="'add'"
     (saveModal)="saveNewEmergencyMessage($event)"
     (closeModal)="showAddEmergencyMessageModal = false">
@@ -390,6 +403,7 @@
 <ion-modal [isOpen]="profileEmergencySettings.showEditEmergencyMessageModal" (didDismiss)="profileEmergencySettings.showEditEmergencyMessageModal = false">
   <app-edit-emergency-message-modal
     [emergencyMessage]="(profileDataLoader.emergencyMessage$ | async)"
+    [userProfile]="(profileDataLoader.userProfile$ | async)"
     [mode]="'edit'"
     (saveModal)="saveEditedEmergencyMessage($event)"
     (closeModal)="profileEmergencySettings.showEditEmergencyMessageModal = false">
