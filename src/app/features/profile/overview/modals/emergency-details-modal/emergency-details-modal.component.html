@@ -21,7 +21,7 @@
   <div class="modal-info-card allergies-card">
     <div class="section-header">
       <h3>ALLERGIES</h3>
-      <ion-button class="allergies-edit-btn" fill="clear" size="small" aria-label="Edit allergies" (click)="openEditAllergies.emit()">
+      <ion-button class="allergies-edit-btn" fill="clear" size="small" color="dark" aria-label="Edit allergies" (click)="openEditAllergies.emit()">
         <ion-icon name="create-outline"></ion-icon>
       </ion-button>
     </div>
@@ -33,7 +33,7 @@
 
   <div class="section-header">
     <h2 class="section-title">Instructions</h2>
-    <ion-button *ngIf="openEditEmergencyMessageModal" size="small" fill="clear" color="light" (click)="openEditEmergencyMessageModal()" class="contact-action-btn" aria-label="Edit instructions">
+    <ion-button *ngIf="openEditEmergencyMessageModal" size="small" fill="clear" color="dark" (click)="openEditEmergencyMessageModal()" class="contact-action-btn" aria-label="Edit instructions">
       <ion-icon name="create-outline"></ion-icon>
     </ion-button>
   </div>
@@ -52,7 +52,7 @@
 
   <div class="section-header">
     <h2 class="section-title">Specific Instructions</h2>
-    <ion-button size="small" fill="clear" color="light" (click)="addInstruction.emit()" class="contact-action-btn" aria-label="Add specific instruction">
+    <ion-button size="small" fill="clear" color="dark" (click)="addInstruction.emit()" class="contact-action-btn" aria-label="Add specific instruction">
       <ion-icon name="add-outline"></ion-icon>
     </ion-button>
   </div>

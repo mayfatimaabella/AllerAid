@@ -113,14 +113,12 @@
           [isLoading]="$any(profileMedicationManager.isLoadingMedications$ | async)"
 
           [isEmergencyMedicationFn]="isEmergencyMedicationBind"
-          [isMedicationDetailsExpandedFn]="isMedicationDetailsExpandedBind"
           [isExpiringSoonFn]="isExpiringSoonBind"
         
           (add)="openAddMedicationModal()"
           (search)="searchMedications($event)"
           (clearSearch)="clearMedicationSearch()"
           (medicationFilterChange)="profileMedicationManager.medicationFilter = $event; filterMedications()"
-          (toggleDetails)="toggleMedicationDetails($event)"
           (toggleStatus)="toggleMedicationStatus($event)"
 
           (edit)="editMedication($event)"

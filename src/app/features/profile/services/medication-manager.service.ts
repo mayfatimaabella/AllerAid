@@ -21,7 +21,7 @@ export class MedicationManagerService {
     loadUserMedications: () => Promise<void>
   ) {
     const modal = await this.modalController.create({
-      component: (await import('../health/modals/add-medication.modal')).AddMedicationModal,
+      component: (await import('../health/modals/add-medication/add-medication.modal')).AddMedicationModal,
       componentProps: {
         medication: medication,
         isEditMode: true

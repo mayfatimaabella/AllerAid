@@ -21,7 +21,6 @@ export class HealthSectionComponent {
 
   // Function helpers from parent (to avoid duplicating logic)
   @Input() isEmergencyMedicationFn?: (m: any) => boolean;
-  @Input() isMedicationDetailsExpandedFn?: (id: any) => boolean;
   @Input() isExpiringSoonFn?: (date: any) => boolean;
 
   // Events to parent
@@ -29,7 +28,6 @@ export class HealthSectionComponent {
   @Output() search = new EventEmitter<CustomEvent>();
   @Output() clearSearch = new EventEmitter<void>();
   @Output() medicationFilterChange = new EventEmitter<string>();
-  @Output() toggleDetails = new EventEmitter<any>();
   @Output() toggleStatus = new EventEmitter<any>();
   @Output() edit = new EventEmitter<any>();
   @Output() delete = new EventEmitter<any>();
@@ -39,13 +37,8 @@ export class HealthSectionComponent {
   trackByMedication = (i: number, m: any) => m?.id ?? m?.name ?? i;
 
 
-  // Wrapper helpers to safely call optional functions from parent in templates
   isEmergencyMedication(med: any): boolean {
     return this.isEmergencyMedicationFn ? !!this.isEmergencyMedicationFn(med) : false;
-  }
-
-  isMedicationDetailsExpanded(id: any): boolean {
-    return this.isMedicationDetailsExpandedFn ? !!this.isMedicationDetailsExpandedFn(id) : false;
   }
 
   isExpiringSoon(date: any): boolean {
@@ -66,11 +59,6 @@ export class HealthSectionComponent {
           text: medication.isActive ? 'Pause Medication' : 'Activate Medication',
           icon: medication.isActive ? 'pause-outline' : 'play-outline',
           handler: () => this.toggleStatus.emit(medication.id)
-        },
-        {
-          text: this.isMedicationDetailsExpanded(medication.id) ? 'Hide Details' : 'Show Details',
-          icon: this.isMedicationDetailsExpanded(medication.id) ? 'chevron-up-outline' : 'chevron-down-outline',
-          handler: () => this.toggleDetails.emit(medication.id)
         },
         {
           text: 'Edit Medication',

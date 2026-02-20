@@ -105,6 +105,7 @@
   --color: #036a5d;
   --color-checked: #ffffff;
   --indicator-color: #036a5d;
+  --background-checked: #036a5d;
   font-weight: 600;
   font-size: 15px;
   transition: background 0.2s, color 0.2s;
@@ -135,6 +136,15 @@
   position: relative;
   z-index: 1;
   overflow: visible;
+  pointer-events: auto;
+}
+
+/* Make child content clickable but stop propagation at action area */
+.medication-card .medication-header,
+.medication-card .medication-title-section,
+.medication-card .medication-summary,
+.medication-card .medication-details-expanded {
+  pointer-events: auto;
 }
 .medication-card .medication-title,
 .medication-card .medication-summary,
@@ -151,10 +161,6 @@
   border-color: #086c4a; 
   box-shadow: 0 4px 12px rgba(0,123,255,0.1); 
   transform: translateY(-1px); 
-}
-.medication-card.expanded { 
-  border-color: #086c4a; 
-  box-shadow: 0 4px 16px rgba(0,123,255,0.15); 
 }
 
 .medication-header { 
@@ -190,11 +196,13 @@
 .medication-actions { 
   display: flex; 
   align-items: center; 
-  gap: 8px; 
+  gap: 8px;
+  pointer-events: auto;
 }
 .action-buttons { 
   display: flex; 
-  gap: 4px; 
+  gap: 4px;
+  pointer-events: auto;
 }
 /* Let icons honor the ion-button color for better contrast */
 .action-buttons ion-button ion-icon { color: inherit; }

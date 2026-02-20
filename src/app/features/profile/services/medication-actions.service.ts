@@ -16,7 +16,8 @@ export class MedicationActionsService {
 	 * Pass the component instance to set selectedMedication and modal flag
 	 */
 	openMedicationDetails(medication: any, component: any) {
-		component.selectedMedication = medication;
-		component.showMedicationDetailsModal = true;
+		// Set the selected medication and show the modal via the manager
+		component.profileMedicationManager.selectedMedication = medication;
+		component.profileMedicationManager.showMedicationDetailsModal = true;
 	}
 }

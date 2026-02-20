@@ -45,8 +45,9 @@
   <ng-container *ngIf="!isLoading">
   <div *ngFor="let medication of filteredMedications; trackBy: trackByMedication" 
     class="medication-card" 
-    [ngClass]="{ 'emergency-medication': isEmergencyMedication(medication), 'expanded': isMedicationDetailsExpanded(medication.id) }"
-    (click)="toggleDetails.emit(medication.id)">
+    [ngClass]="{ 'emergency-medication': isEmergencyMedication(medication) }"
+    (click)="viewDetails.emit(medication)"
+    style="cursor: pointer;">
           
     <div class="medication-header">
       <div class="medication-title-section">
@@ -58,7 +59,7 @@
         </div>
 
       </div>
-      <div class="medication-actions" (click)="$event.stopPropagation()">
+      <div class="medication-actions">
         <ion-chip 
           [color]="medication.isActive ? 'success' : 'medium'" 
           size="small">
@@ -75,60 +76,6 @@
             aria-label="Medication actions"
             title="More actions">
             <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-          </ion-button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Expanded Details Section -->
-  <div *ngIf="isMedicationDetailsExpanded(medication.id)" class="medication-details-expanded">
-
-      <!-- Additional Details -->
-      <div class="medication-details-grid">
-        <div class="medication-detail" *ngIf="medication.quantity">
-          <ion-icon name="cube-outline"></ion-icon>
-          <b>Pills:</b> {{ medication.quantity }}
-        </div>
-        <div class="medication-detail" *ngIf="medication.startDate">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <b>Started:</b> {{ medication.startDate | date:'mediumDate' }}
-        </div>
-        <div class="medication-detail" *ngIf="medication.expiryDate">
-          <ion-icon name="warning-outline" [color]="isExpiringSoon(medication.expiryDate) ? 'warning' : 'medium'"></ion-icon>
-          <b>Expires:</b> {{ medication.expiryDate | date:'mediumDate' }}
-        </div>
-        <div class="medication-detail" *ngIf="medication.prescribedBy">
-          <ion-icon name="person-outline"></ion-icon>
-          <b>Prescribed by:</b> {{ medication.prescribedBy }}
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="medication-detail full-width" *ngIf="medication.notes">
-        <ion-icon name="chatbubble-outline"></ion-icon>
-        <b>Notes:</b> {{ medication.notes }}
-      </div>
-
-      <!-- Images -->
-      <div class="medication-detail full-width" *ngIf="medication.prescriptionImageUrl || medication.medicationImageUrl">
-        <ion-icon name="images-outline"></ion-icon>
-        <b>Images:</b>
-  <div class="medication-image-btns">
-          <ion-button
-            *ngIf="medication.prescriptionImageUrl"
-            fill="outline"
-            size="small"
-            (click)="$event.stopPropagation(); viewImage.emit({ url: medication.prescriptionImageUrl, title: 'Prescription Image' })">
-            <ion-icon name="document-attach" slot="start"></ion-icon>
-            Prescription
-          </ion-button>
-          <ion-button
-            *ngIf="medication.medicationImageUrl"
-            fill="outline"
-            size="small"
-            (click)="$event.stopPropagation(); viewImage.emit({ url: medication.medicationImageUrl, title: 'Medication Photo' })">
-            <ion-icon name="camera" slot="start"></ion-icon>
-            Photo
           </ion-button>
         </div>
       </div>

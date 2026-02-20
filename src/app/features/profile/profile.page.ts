@@ -45,7 +45,7 @@ import { AllergyManagerService } from '../../core/services/allergy-manager.servi
 /* =======================
  * UI / Modals
  * ======================= */
-import { AddMedicationModal } from './health/modals/add-medication.modal';
+import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
 
 /* =======================
  * Environment
@@ -162,10 +162,6 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   filterMedications(): void {
     this.profileMedicationManager.filterMedications();
-  }
-
-  toggleMedicationDetails(id: string): void {
-    this.profileMedicationManager.toggleMedicationDetails(id);
   }
 
     /**
@@ -356,8 +352,9 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   // Template compatibility stubs
   // Health Section bindings
+  // Template compatibility stubs
+  // Health Section bindings
   isEmergencyMedicationBind = this.profileMedicationManager.isEmergencyMedication.bind(this.profileMedicationManager);
-  isMedicationDetailsExpandedBind = this.isMedicationDetailsExpanded;
   isExpiringSoonBind = this.profileMedicationManager.isExpiringSoon.bind(this.profileMedicationManager);
   
   // Child modal manages its own state via service; no ViewChild needed
