@@ -112,3 +112,64 @@ ion-button {
     --background-activated: rgba(139, 161, 156, 0.1);
   }
 }
+
+.avatar-section {
+  border: 1px solid #d1e7e0;
+  border-radius: 12px;
+  padding: 12px 16px 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(3, 106, 93, 0.08);
+  background: #ffffff;
+}
+
+.avatar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.avatar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #036a5d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.avatar-body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #e1ecea;
+  object-fit: cover;
+  background: #f7fbfa;
+}
+
+.avatar-input {
+  display: none;
+}
+
+.avatar-action {
+  --color: #036a5d;
+  --padding-start: 6px;
+  --padding-end: 6px;
+  height: 28px;
+}
+
+.avatar-remove {
+  margin-top: 10px;
+  height: 32px;
+}
+
+.avatar-spinner {
+  --color: #036a5d;
+  width: 20px;
+  height: 20px;
+}

@@ -43,6 +43,7 @@ export class ProfileEmergencySettingsService {
         userProfile
       },
       cssClass: 'force-white-modal',
+      handle: false,
       breakpoints: [0, 1],
       initialBreakpoint: 1
     });
@@ -90,6 +91,10 @@ export class ProfileEmergencySettingsService {
       location: message?.location || ''
     };
 
+    const avatarValue = typeof message?.avatar === 'string'
+      ? message.avatar
+      : (userProfile?.avatar || '');
+
     // Optimistic UI update
     onEmergencyMessageUpdate(emergencyMessage);
     if (userProfile) {
@@ -98,7 +103,8 @@ export class ProfileEmergencySettingsService {
         emergencyContactName: message?.emergencyContactName || '',
         emergencyContactPhone: message?.emergencyContactPhone || '',
         dateOfBirth: message?.dateOfBirth || '',
-        bloodType: message?.bloodType || ''
+        bloodType: message?.bloodType || '',
+        avatar: avatarValue
       });
     }
     
@@ -111,7 +117,8 @@ export class ProfileEmergencySettingsService {
           emergencyContactName: message?.emergencyContactName || '',
           emergencyContactPhone: message?.emergencyContactPhone || '',
           dateOfBirth: message?.dateOfBirth || '',
-          bloodType: message?.bloodType || ''
+          bloodType: message?.bloodType || '',
+          avatar: avatarValue
         });
         await loadMedicalData();
         this.showEditEmergencyMessageModal = false;

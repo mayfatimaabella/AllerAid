@@ -19,8 +19,15 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   form!: FormGroup;
   minDate = '1900-01-01';
   maxDate = '';
+  avatarPreview: string | null = null;
+  readonly defaultAvatarUrl = 'https://ionicframework.com/docs/img/demos/avatar.svg';
+  isUploadingAvatar: boolean = false;
 
-  constructor(private modalCtrl: ModalController, private fb: FormBuilder, private alertController: AlertController) {}
+  constructor(
+    private modalCtrl: ModalController,
+    private fb: FormBuilder,
+    private alertController: AlertController
+  ) {}
 
   ngOnInit() {
     this.maxDate = new Date().toISOString().split('T')[0];
@@ -33,10 +40,12 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       emergencyContactName: [this.userProfile?.emergencyContactName || ''],
       emergencyContactPhone: [this.userProfile?.emergencyContactPhone || ''],
       dateOfBirth: [this.userProfile?.dateOfBirth || ''],
-      bloodType: [this.userProfile?.bloodType || '']
+      bloodType: [this.userProfile?.bloodType || ''],
+      avatar: [this.userProfile?.avatar || '']
     });
     // Allergies are managed elsewhere; make field read-only in the editor
     this.form.get('allergies')?.disable({ emitEvent: false });
+    this.avatarPreview = this.form.get('avatar')?.value || null;
   }
 
   close() {
@@ -111,6 +120,93 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       this.form.get('emergencyContactPhone')?.setValue(digitsOnly, { emitEvent: false });
     }
   }
+
+  async onAvatarSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!this.userProfile?.uid) {
+      const profileAlert = await this.alertController.create({
+        header: 'Profile Missing',
+        message: 'Unable to upload photo without a user profile.',
+        buttons: ['OK']
+      });
+      await profileAlert.present();
+      input.value = '';
+      return;
+    }
+
+    this.isUploadingAvatar = true;
+    try {
+      // Compress and store as data URL (no Firebase Storage upload needed)
+      const compressedDataUrl = await this.compressImageToDataUrl(file, 600, 0.75);
+      this.avatarPreview = compressedDataUrl;
+      this.form.get('avatar')?.setValue(compressedDataUrl, { emitEvent: false });
+    } catch (error) {
+      console.error('Avatar compression error:', error);
+      const uploadAlert = await this.alertController.create({
+        header: 'Processing Failed',
+        message: 'Unable to process the photo. Please try again.',
+        buttons: ['OK']
+      });
+      await uploadAlert.present();
+      this.avatarPreview = this.form.get('avatar')?.value || null;
+    } finally {
+      this.isUploadingAvatar = false;
+      input.value = '';
+    }
+  }
+
+  removeAvatar(): void {
+    this.avatarPreview = null;
+    this.form.get('avatar')?.setValue('', { emitEvent: false });
+  }
+
+  private async compressImageToDataUrl(file: File, maxSize: number, quality: number): Promise<string> {
+    const dataUrl = await this.readFileAsDataUrl(file);
+    const img = await this.loadImage(dataUrl);
+
+    let { width, height } = img;
+    if (width > height) {
+      if (width > maxSize) {
+        height = Math.round((height * maxSize) / width);
+        width = maxSize;
+      }
+    } else if (height > maxSize) {
+      width = Math.round((width * maxSize) / height);
+      height = maxSize;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx?.drawImage(img, 0, 0, width, height);
+
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
+  private readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
 
   private isValidDateOfBirth(dateValue: string): boolean {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {

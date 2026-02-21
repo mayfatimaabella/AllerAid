@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
   deleteDoc,
   collection,
   query,
@@ -11,6 +11,7 @@ import {
   getDocs,
   serverTimestamp
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FirebaseService } from './firebase.service';
 import { AuthService } from './auth.service';
 
@@ -120,9 +121,11 @@ export class UserService {
     }
   }
   private db: any;
+  private storage: any;
   private userProfileCache: Map<string, UserProfile> = new Map();
   constructor(private firebaseService: FirebaseService, private authService: AuthService) {
     this.db = this.firebaseService.getDb();
+    this.storage = this.firebaseService.getStorage();
   }
 
   async getUserProfile(uid: string, useCache: boolean = true): Promise<UserProfile | null> {
@@ -380,6 +383,36 @@ export class UserService {
       console.log('User avatar updated successfully');
     } catch (error) {
       console.error('Error updating user avatar:', error);
+      throw error;
+    }
+  }
+
+  // Upload user avatar to storage and update profile
+  async uploadUserAvatar(uid: string, file: File): Promise<string> {
+    try {
+      console.log('UserService: Starting upload', { uid, fileName: file.name, size: file.size });
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_');
+      const storagePath = `avatars/${uid}/${Date.now()}_${safeName}`;
+      console.log('UserService: Storage path:', storagePath);
+      
+      const storageRef = ref(this.storage, storagePath);
+      const metadata = file.type ? { contentType: file.type } : undefined;
+
+      console.log('UserService: Uploading bytes...');
+      const snapshot = metadata
+        ? await uploadBytes(storageRef, file, metadata)
+        : await uploadBytes(storageRef, file);
+      console.log('UserService: Upload complete, getting URL...');
+
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+      console.log('UserService: Download URL obtained:', downloadUrl);
+      
+      await this.updateUserAvatar(uid, downloadUrl);
+      console.log('UserService: Profile updated successfully');
+      return downloadUrl;
+    } catch (error) {
+      console.error('UserService: Upload failed:', error);
+      console.error('Error uploading user avatar:', error);
       throw error;
     }
   }

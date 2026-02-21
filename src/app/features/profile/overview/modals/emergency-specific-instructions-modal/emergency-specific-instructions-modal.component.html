@@ -2,11 +2,6 @@
   <ion-header>
     <ion-toolbar class="toolbar--teal">
       <ion-title>Manage Emergency <br> Instructions</ion-title>
-      <ion-buttons slot="start">
-        <ion-button (click)="onClose()" fill="clear">
-          <ion-icon name="arrow-back-outline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
       <ion-buttons slot="end">
         <ion-button (click)="onClose()" fill="clear">
           <ion-icon name="close"></ion-icon>
@@ -51,7 +46,7 @@
             expand="block" 
             type="submit" 
             [disabled]="!selectedAllergyForInstruction || !newInstructionText"
-            color="primary">
+            class="teal-modal-btn">
             <ion-icon [name]="editingInstruction ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
             {{ editingInstruction ? 'Update Instruction' : 'Add Instruction' }}
           </ion-button>

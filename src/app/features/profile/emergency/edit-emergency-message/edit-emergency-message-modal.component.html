@@ -11,6 +11,36 @@
 <ion-content class="ion-padding">
   <form [formGroup]="form" (ngSubmit)="save()">
     <ion-list>
+      <div class="avatar-section" aria-label="Profile picture">
+        <div class="avatar-header">
+          <div class="avatar-label">Profile Picture</div>
+          <ion-button fill="clear" size="small" class="avatar-action" (click)="avatarInput.click()">
+            Change
+          </ion-button>
+        </div>
+        <div class="avatar-body">
+          <img
+            class="avatar-preview"
+            [src]="avatarPreview || defaultAvatarUrl"
+            alt="Profile picture preview">
+          <ion-spinner *ngIf="isUploadingAvatar" name="crescent" class="avatar-spinner"></ion-spinner>
+          <input
+            #avatarInput
+            type="file"
+            accept="image/*"
+            (change)="onAvatarSelected($event)"
+            class="avatar-input" />
+        </div>
+        <ion-button
+          *ngIf="avatarPreview"
+          fill="outline"
+          size="small"
+          class="avatar-remove"
+          (click)="removeAvatar()">
+          Remove
+        </ion-button>
+      </div>
+
       <ion-item>
         <ion-label position="stacked">Name</ion-label>
         <ion-input formControlName="name"></ion-input>
@@ -49,7 +79,7 @@
       </ion-item>
     </ion-list>
     <ion-footer class="ion-padding">
-      <ion-button expand="block" class="teal-modal-btn" type="submit" [disabled]="form.invalid">
+      <ion-button expand="block" class="teal-modal-btn" type="submit" [disabled]="form.invalid || isUploadingAvatar">
         {{ mode === 'add' ? 'Create' : 'Save' }}
       </ion-button>
     </ion-footer>

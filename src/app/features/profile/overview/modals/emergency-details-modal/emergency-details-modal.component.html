@@ -1,11 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="toolbar--teal">
     <ion-title>Emergency Details</ion-title>
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="onClose()">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="onClose()">
         <ion-icon name="close"></ion-icon>
@@ -23,7 +18,7 @@
       <h3>EMERGENCY CONTACT</h3>
     </div>
     <p class="value">{{ emergencyContactName || 'Not specified' }} | {{ emergencyContactPhone || 'Not specified' }}</p>
-    <p class="value">Date of Birth: {{ dateOfBirth || 'Not specified' }} </p>
+    <p class="value">Date of Birth: {{ formattedDateOfBirth }} </p>
     <p class="value">Blood Type: {{ bloodType || 'Not specified' }}</p>
 
   </div>

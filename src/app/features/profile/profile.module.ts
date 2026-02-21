@@ -19,7 +19,6 @@ import { OverviewSectionComponent } from './overview/overview-section.component'
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EmergencyMessageCardComponent } from './emergency/emergency-message-card/emergency-message-card.component';
 import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
 
 @NgModule({
@@ -35,7 +34,6 @@ import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-m
     MedicationDetailsModal,
     EHRSectionCardsComponent,
     EmergencySettingsCardComponent,
-    EmergencyMessageCardComponent,
     EmergencySpecificInstructionsModalComponent,
     EditEmergencyMessageModalComponent
   ],

@@ -14,7 +14,7 @@
   <section class="profile-header">
     <ion-avatar class="profile-avatar">
       <img alt="person-avatar"
-           src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+           [src]="(profileDataLoader.userProfile$ | async)?.avatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'" />
     </ion-avatar>
 
     <ng-container *ngIf="(profileDataLoader.userProfile$ | async) as profile">
@@ -94,7 +94,7 @@
         
         
         <!-- Detailed Emergency Info Modal -->
-         <ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="showEmergencyInfoModal = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+         <ion-modal [isOpen]="showEmergencyInfoModal" (didDismiss)="showEmergencyInfoModal = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]" [handle]="false">
           <ng-template>
             <app-emergency-details-modal
             [emergencyMessageName]="((profileDataLoader.emergencyMessage$ | async)?.name || (profileDataLoader.userProfile$ | async)?.fullName || 'User')"

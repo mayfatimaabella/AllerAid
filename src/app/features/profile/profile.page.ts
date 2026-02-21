@@ -698,7 +698,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       location: message?.location || ''
     };
 
-    // Optimistic UI update
+    // UI update
     this.emergencyMessage = emergencyMessage;
     this.profileDataLoader.setEmergencyMessage(this.emergencyMessage);
     const currentProfile = this.profileDataLoader.userProfileValue;

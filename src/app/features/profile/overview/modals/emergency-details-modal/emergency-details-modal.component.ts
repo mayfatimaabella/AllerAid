@@ -43,6 +43,35 @@ export class EmergencyDetailsModalComponent implements OnInit {
            this.instructionEntries.some(entry => entry.label !== 'General');
   }
 
+  get formattedDateOfBirth(): string {
+    const rawValue = (this.dateOfBirth || '').trim();
+    if (!rawValue) {
+      return 'Not specified';
+    }
+
+    let dateValue: Date;
+    const isoDateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rawValue);
+
+    if (isoDateMatch) {
+      const year = Number(isoDateMatch[1]);
+      const monthIndex = Number(isoDateMatch[2]) - 1;
+      const day = Number(isoDateMatch[3]);
+      dateValue = new Date(year, monthIndex, day);
+    } else {
+      dateValue = new Date(rawValue);
+    }
+
+    if (isNaN(dateValue.getTime())) {
+      return rawValue;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(dateValue);
+  }
+
   onClose() { this.close.emit(); }
   onEditInstruction(label: string, text: string) { this.editInstruction.emit({ label, text }); }
   onTestAudio() { this.testAudio.emit(); }
