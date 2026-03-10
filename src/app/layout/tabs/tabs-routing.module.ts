@@ -9,10 +9,9 @@ const routes: Routes = [
     path: '',
     component: TabsPage,
     children: [
-      // Patient Routes
       { 
         path: 'home', 
-        loadChildren: () => import('../../features/dashboard/home/home.module').then(m => m.HomePageModule),
+        loadChildren: () => import('../../features/dashboard/home-dashboard/home.module').then(m => m.HomePageModule),
         canActivate: [RoleGuard],
         data: { roles: ['user'] }
       },

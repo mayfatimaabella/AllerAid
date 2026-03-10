@@ -1,4 +1,6 @@
 // /* Global font styling */
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
 
 body,
@@ -218,6 +220,32 @@ ion-app {
   background: #fff !important;
 }
 
+/* Force dark readable colors for AlertController overlays regardless of system theme */
+.fixed-dark-alert {
+  --background: #ffffff;
+  --color: #1f4a42;
+  --backdrop-opacity: 0.4;
+}
+
+.fixed-dark-alert .alert-wrapper {
+  background: #ffffff !important;
+  color: #1f4a42 !important;
+}
+
+.fixed-dark-alert .alert-head,
+.fixed-dark-alert .alert-title,
+.fixed-dark-alert .alert-sub-title,
+.fixed-dark-alert .alert-message,
+.fixed-dark-alert .alert-input,
+.fixed-dark-alert .alert-radio-label,
+.fixed-dark-alert .alert-checkbox-label {
+  color: #1f4a42 !important;
+}
+
+.fixed-dark-alert .alert-button {
+  color: #1f4a42 !important;
+}
+
 /* Reusable Card Style */
 .app-card {
   background: var(--app-color-surface);
@@ -291,6 +319,12 @@ ion-alert .alert-radio-group,
 ion-alert .alert-checkbox-group {
   --background: #e8f2f0 !important;
   background: #e8f2f0 !important;
+}
+ion-alert .alert-head,
+ion-alert .alert-title,
+ion-alert .alert-sub-title {
+  color: #1f4a42 !important;
+  font-weight: 700 !important;
 }
 ion-alert .alert-radio-label,
 ion-alert .alert-checkbox-label {
@@ -526,4 +560,10 @@ ion-modal {
   --background-hover: #00796b;
   --color: #fff;
   --border-radius: 8px;
+}
+
+/* Responder-map sheet modal */
+ion-modal.responder-map-modal {
+  --border-radius: 16px 16px 0 0;
+  --box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }

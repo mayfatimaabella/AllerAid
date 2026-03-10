@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
 import { AllergyService } from '../../../core/services/allergy.service';

@@ -93,10 +93,10 @@
                 <ion-icon name="medical-outline"></ion-icon>
                 Emergency Instructions
               </h3>
-                <div class="instruction-box">{{ currentEmergency.emergencyInstruction || currentEmergency.instruction || 'No instructions available' }}</div>
+                <div class="instruction-box">{{ displayedEmergencyInstruction }}</div>
               
               <!-- Voice Message Available -->
-              <div class="voice-available" *ngIf="currentEmergency.instruction">
+              <div class="voice-available" *ngIf="hasEmergencyInstruction">
                 <ion-chip color="primary" outline="true">
                   <ion-icon name="play-outline"></ion-icon>
                   <ion-label>VOICE MESSAGE AVAILABLE</ion-label>
@@ -219,4 +219,4 @@
         </ion-card>
     </div>
   </div>
-</ion-content>
+</ion-content>  

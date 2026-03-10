@@ -5,6 +5,15 @@
   background: #ffffff;
 }
 
+.close-action-btn {
+  --color: #1f4a42;
+  color: #1f4a42 !important;
+}
+
+.close-action-btn ion-icon {
+  color: #1f4a42 !important;
+}
+
 .header { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
 .title { margin:0; color:#1f4a42; font-size:20px; font-weight:700; }
 .chips { display:flex; gap:8px; flex-wrap:wrap; }

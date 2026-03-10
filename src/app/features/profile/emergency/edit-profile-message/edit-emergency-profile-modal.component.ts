@@ -2,11 +2,12 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, IonicModule, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-edit-emergency-message-modal',
-  templateUrl: './edit-emergency-message-modal.component.html',
-  styleUrls: ['./edit-emergency-message-modal.component.scss'],
+  templateUrl: './edit-emergency-profile-modal.component.html',
+  styleUrls: ['./edit-emergency-profile-modal.component.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, ReactiveFormsModule]
 })
@@ -26,7 +27,8 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   constructor(
     private modalCtrl: ModalController,
     private fb: FormBuilder,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -37,7 +39,6 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       allergies: [this.emergencyMessage?.allergies || ''],
       instructions: [this.emergencyMessage?.instructions || ''],
       location: [this.emergencyMessage?.location || ''],
-      emergencyContactName: [this.userProfile?.emergencyContactName || ''],
       emergencyContactPhone: [this.userProfile?.emergencyContactPhone || ''],
       dateOfBirth: [this.userProfile?.dateOfBirth || ''],
       bloodType: [this.userProfile?.bloodType || ''],
@@ -59,6 +60,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       const validationAlert = await this.alertController.create({
         header: 'Invalid Phone Number',
         message: 'Emergency Contact Phone must be exactly 11 digits.',
+        cssClass: 'fixed-dark-alert',
         buttons: ['OK']
       });
       await validationAlert.present();
@@ -70,6 +72,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       const dobAlert = await this.alertController.create({
         header: 'Invalid Date of Birth',
         message: `Date of Birth must be between ${this.minDate} and ${this.maxDate}.`,
+        cssClass: 'fixed-dark-alert',
         buttons: ['OK']
       });
       await dobAlert.present();
@@ -80,6 +83,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
     const alert = await this.alertController.create({
       header: 'Confirm Save',
       message: 'Save changes to the emergency message?',
+      cssClass: 'fixed-dark-alert',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         { text: 'Save', role: 'confirm' }
@@ -132,6 +136,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       const profileAlert = await this.alertController.create({
         header: 'Profile Missing',
         message: 'Unable to upload photo without a user profile.',
+        cssClass: 'fixed-dark-alert',
         buttons: ['OK']
       });
       await profileAlert.present();
@@ -141,7 +146,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
 
     this.isUploadingAvatar = true;
     try {
-      // Compress and store as data URL (no Firebase Storage upload needed)
+      // Compress and store as data URL 
       const compressedDataUrl = await this.compressImageToDataUrl(file, 600, 0.75);
       this.avatarPreview = compressedDataUrl;
       this.form.get('avatar')?.setValue(compressedDataUrl, { emitEvent: false });
@@ -150,6 +155,7 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       const uploadAlert = await this.alertController.create({
         header: 'Processing Failed',
         message: 'Unable to process the photo. Please try again.',
+        cssClass: 'fixed-dark-alert',
         buttons: ['OK']
       });
       await uploadAlert.present();
@@ -163,6 +169,12 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   removeAvatar(): void {
     this.avatarPreview = null;
     this.form.get('avatar')?.setValue('', { emitEvent: false });
+  }
+
+  async goToBuddyTab(): Promise<void> {
+    this.closeModal.emit();
+    await this.modalCtrl.dismiss();
+    await this.router.navigate(['/tabs/buddy']);
   }
 
   private async compressImageToDataUrl(file: File, maxSize: number, quality: number): Promise<string> {

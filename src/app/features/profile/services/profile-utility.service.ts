@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { AllergyManagerService } from '../../../core/services/allergy-manager.service';
 
+interface AllergyLike {
+  name: string;
+  label?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,6 +36,10 @@ export class ProfileUtilityService {
       console.error('Error loading allergies:', error);
       return [];
     }
+  }
+
+  generateEmergencyAllergyText(allergies: AllergyLike[]): string {
+    return allergies.map(allergy => allergy.label || allergy.name).join(', ');
   }
 }
 

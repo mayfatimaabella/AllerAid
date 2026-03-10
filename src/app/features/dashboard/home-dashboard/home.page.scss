@@ -29,7 +29,7 @@ ion-content {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  padding-bottom: 25px; /* ensures a larger white gap above tab bar */
+  padding-bottom: 25px;
   z-index: 1;
   border-radius: 5px;
   border: 1px solid #198476;
@@ -125,89 +125,6 @@ ion-card-content p {
   color: #034f45;
 }
 
-.health-stats-section {
-  margin-top: 15px;
-  margin-bottom: 16px; /* add gap below health stats */
-}
-
-.health-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  justify-content: center;
-}
-
-.health-stat-card {
-  background: #f6f6fa;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(3,106,93,0.06);
-  padding: 18px 24px;
-  min-width: 140px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #299f93;
-  margin-bottom: 6px;
-}
-
-.stat-value {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #13786a;
-}
-
-.stat-unit {
-  font-size: 1rem;
-  color: #036a5d;
-}
-
-.smartwatch-card {
-  background: #f5fafa;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(3,106,93,0.06);
-  padding: 18px 18px;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.smartwatch-info {
-  display: flex;
-  align-items: center;
-}
-
-.smartwatch-icon {
-  width: 48px;
-  height: 48px;
-  margin-right: 16px;
-  display: inline-block;
-}
-
-.smartwatch-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #036a5d;
-}
-
-.smartwatch-link a {
-  color: #0f7668;
-  font-weight: 500;
-  text-decoration: underline;
-  font-size: 1rem;
-}
-
-.smartwatch-connect {
-  font-weight: 500;
-  text-decoration: underline;
-}
-
 ion-tab-bar {
   border-top: 1px solid #e5e5e5;
   margin-top: 0;
@@ -223,24 +140,6 @@ ion-tab-bar {
 /* Optional: add hover feedback on header button */
 ion-toolbar .ion-buttons[slot="end"] ion-button:hover {
   filter: brightness(1.1);
-}
-
-/* Pollen map preview styles */
-.pollen-map-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.pollen-map-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.pollen-map-note {
-  margin: 0;
-  color: var(--ion-color-medium);
 }
 
 /* Spacing utilities */

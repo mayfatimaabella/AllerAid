@@ -7,6 +7,7 @@ import { BuddyService } from '../../../core/services/buddy.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { EmergencyService, EmergencyAlert } from '../../../core/services/emergency.service';
+import { ResponderMapPage } from '../../emergency/responder-map/responder-map.page';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -146,6 +147,33 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   activeEmergencies: EmergencyAlert[] = [];
   currentEmergency: EmergencyAlert | null = null;
   private emergencySubscription: Subscription | null = null;
+  private instructionFallbackByUserId = new Map<string, string>();
+  private profileInstructionFallback = '';
+
+  get displayedEmergencyInstruction(): string {
+    if (!this.currentEmergency) {
+      return 'No instructions available';
+    }
+
+    const candidates = [
+      (this.currentEmergency as any).emergencyInstruction,
+      (this.currentEmergency as any).instruction,
+      (this.currentEmergency as any).instructions,
+      (this.currentEmergency as any).emergencyMessage?.instructions,
+      this.profileInstructionFallback,
+      this.responderData?.instruction,
+      this.responderData?.alert?.instruction,
+      this.responderData?.alert?.instructions,
+      this.responderData?.alert?.emergencyInstruction
+    ];
+
+    const resolved = candidates.find(value => typeof value === 'string' && value.trim().length > 0);
+    return resolved || 'No instructions available';
+  }
+
+  get hasEmergencyInstruction(): boolean {
+    return this.displayedEmergencyInstruction !== 'No instructions available';
+  }
 
   constructor(
     private router: Router,
@@ -158,6 +186,14 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   ) {}
 
   async ngOnInit() {
+    // Read navigation state if responderData wasn't injected as @Input (page navigation)
+    if (!this.responderData) {
+      const navState = history.state;
+      if (navState?.emergencyData) {
+        this.responderData = navState.emergencyData;
+      }
+    }
+
     // If modal provided responderData, seed currentEmergency for immediate interaction
     if (this.responderData && this.responderData.alert) {
       // Merge minimal fields to match EmergencyAlert shape
@@ -171,6 +207,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         status: this.responderData.alert.status,
         timestamp: this.responderData.alert.timestamp
       } as EmergencyAlert;
+      await this.loadProfileInstructionFallback(this.currentEmergency.userId);
       // Preload address and allergies if possible
       if (this.currentEmergency?.location) {
         await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
@@ -203,6 +240,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           // Set current emergency to the most recent active one
           if (this.activeEmergencies.length > 0) {
             this.currentEmergency = this.activeEmergencies[0];
+            await this.loadProfileInstructionFallback(this.currentEmergency.userId);
             this.playEmergencyNotificationSound();
             this.loadMiniMap(); // Ensure map renders when emergency changes
             // Fetch address for patient location
@@ -226,6 +264,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
               return;
             }
             this.currentEmergency = null;
+            this.profileInstructionFallback = '';
             this.address = '';
             this.emergencyAllergies = [];
             this.isAllergiesLoading = false;
@@ -236,6 +275,34 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       }
     } catch (error) {
       console.error('Error setting up real-time listeners:', error);
+    }
+  }
+
+  private async loadProfileInstructionFallback(userId?: string): Promise<void> {
+    if (!userId) {
+      this.profileInstructionFallback = '';
+      return;
+    }
+
+    if (this.instructionFallbackByUserId.has(userId)) {
+      this.profileInstructionFallback = this.instructionFallbackByUserId.get(userId) || '';
+      return;
+    }
+
+    try {
+      const profile = await this.userService.getUserProfile(userId);
+      const fromEmergencyMessage = (profile as any)?.emergencyMessage?.instructions;
+      const fromLegacyField = (profile as any)?.emergencyInstruction;
+      const fallbackText =
+        (typeof fromEmergencyMessage === 'string' && fromEmergencyMessage.trim()) ||
+        (typeof fromLegacyField === 'string' && fromLegacyField.trim()) ||
+        '';
+
+      this.profileInstructionFallback = fallbackText;
+      this.instructionFallbackByUserId.set(userId, fallbackText);
+    } catch (error) {
+      this.profileInstructionFallback = '';
+      console.warn('Unable to load profile instruction fallback for responder dashboard:', error);
     }
   }
 
@@ -274,27 +341,27 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           // Reflect local status immediately so template shows confirmation
           this.currentEmergency.status = 'responding';
           console.log('Buddy marked as responded with ETA calculation');
-          
-          // Try to navigate to responder-map; if blocked (e.g., role guard), fall back to in-modal routing
+
+          // Open responder-map as a modal after responding
           try {
-            const navResult = await this.router.navigate(['/responder-map'], {
-              state: {
+            const mapModal = await this.modalController.create({
+              component: ResponderMapPage,
+              componentProps: {
                 responder: {
                   responderName: buddyName,
                   emergencyId: this.currentEmergency.id,
                   patientLocation: this.currentEmergency.location
                 }
-              }
+              },
+              cssClass: 'responder-map-modal',
+              initialBreakpoint: 0.95,
+              breakpoints: [0, 0.5, 0.75, 0.95],
+              handle: true,
+              handleBehavior: 'cycle'
             });
-            if (navResult) {
-              await this.modalController.dismiss(null, 'respond');
-            } else {
-              console.warn('Navigation to responder-map was blocked; starting in-modal route');
-              this.loadMiniMap();
-            }
+            await mapModal.present();
           } catch (navErr) {
-            console.warn('Navigation to responder-map failed; starting in-modal route', navErr);
-            this.loadMiniMap();
+            console.warn('Opening responder-map modal failed', navErr);
           }
         }
       } catch (error) {
@@ -331,21 +398,26 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         }
       } catch {}
 
-      // Pass both responder and patient location to the map page
-      this.router.navigate(['/responder-map'], {
-        state: {
+      // Open responder-map as a modal
+      const mapModal = await this.modalController.create({
+        component: ResponderMapPage,
+        componentProps: {
           responder: {
             responderName,
             emergencyId: this.currentEmergency.id,
-            responderLocation: null, // will be set by map page
+            responderLocation: null,
             patientLocation: this.currentEmergency.location,
             estimatedArrival: null,
             distance: null
           }
-        }
+        },
+        cssClass: 'responder-map-modal',
+        initialBreakpoint: 0.95,
+        breakpoints: [0, 0.5, 0.75, 0.95],
+        handle: true,
+        handleBehavior: 'cycle'
       });
-      // Dismiss modal if opened as a modal to unblock navigation
-      this.dismissIfModal();
+      await mapModal.present();
     } else {
       console.log('No emergency location available');
     }
@@ -393,8 +465,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     }
 
     // Add specific instructions if available
-    if (this.currentEmergency.instruction) {
-      emergencyText += ` Emergency instructions: ${this.currentEmergency.instruction}`;
+    if (this.hasEmergencyInstruction) {
+      emergencyText += ` Emergency instructions: ${this.displayedEmergencyInstruction}`;
     }
 
     // Add location information (reverse geocoded address)

@@ -2,7 +2,18 @@ import { Injectable } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { MedicalService, EmergencyMessage } from '../../../core/services/medical.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
-import { EditEmergencyMessageModalComponent } from '../emergency/edit-emergency-message/edit-emergency-message-modal.component';
+import { EditEmergencyMessageModalComponent } from '../emergency/edit-profile-message/edit-emergency-profile-modal.component';
+
+interface EmergencyMessageFormData {
+  name?: string;
+  allergies?: string;
+  instructions?: string;
+  location?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  dateOfBirth?: string;
+  bloodType?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -130,6 +141,42 @@ export class ProfileEmergencySettingsService {
       }
     } else {
       this.showEditEmergencyMessageModal = false;
+    }
+  }
+
+  async saveNewEmergencyMessage(
+    message: EmergencyMessageFormData,
+    userProfile: UserProfile | null,
+    presentToast: (msg: string) => Promise<void>,
+    loadMedicalData: () => Promise<void>
+  ): Promise<void> {
+    const emergencyMessage: EmergencyMessage = {
+      name: message?.name || '',
+      allergies: message?.allergies || '',
+      instructions: message?.instructions || '',
+      location: message?.location || ''
+    };
+
+    if (!userProfile?.uid) {
+      return;
+    }
+
+    const uid = userProfile.uid;
+
+    try {
+      await this.medicalService.updateEmergencyMessage(uid, emergencyMessage);
+      await this.userService.updateUserProfile(uid, {
+        emergencyMessage,
+        emergencyContactName: message?.emergencyContactName || '',
+        emergencyContactPhone: message?.emergencyContactPhone || '',
+        dateOfBirth: message?.dateOfBirth || '',
+        bloodType: message?.bloodType || ''
+      });
+      await loadMedicalData();
+      await presentToast('Emergency message saved successfully');
+    } catch (err) {
+      console.error('Error saving emergency message:', err);
+      await presentToast('Error saving emergency message');
     }
   }
 

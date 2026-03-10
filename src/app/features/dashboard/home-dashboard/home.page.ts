@@ -7,6 +7,7 @@ import { EmergencyService } from '../../../core/services/emergency.service';
 import { EmergencyNotificationService } from '../../../core/services/emergency-notification.service';
 import { UserService } from '../../../core/services/user.service';
 import { AllergyService } from '../../../core/services/allergy.service';
+import { ResponderMapPage } from '../../emergency/responder-map/responder-map.page';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -22,6 +23,7 @@ export class HomePage implements OnInit, OnDestroy {
   emergencyInstruction: string = '';
   currentEmergencyId: string | null = null;
   respondingBuddy: any = null;
+  minimizedResponder: any = null;
   
   // Emergency tracking
   isEmergencyActive: boolean = false;
@@ -77,7 +79,11 @@ export class HomePage implements OnInit, OnDestroy {
         const userProfile = await this.userService.getUserProfile(currentUser.uid);
         if (userProfile) {
           this.userName = userProfile.fullName || 'User';
-          this.emergencyInstruction = userProfile.emergencyInstruction || '';
+          const messageInstruction = (userProfile as any)?.emergencyMessage?.instructions;
+          this.emergencyInstruction =
+            (typeof messageInstruction === 'string' && messageInstruction.trim()) ||
+            userProfile.emergencyInstruction ||
+            '';
         }
 
         // Load user buddies
@@ -198,6 +204,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.buddyResponses = {};
     this.emergencyLocation = null;
     this.respondingBuddy = null;
+    this.minimizedResponder = null;
   }
   
   /**
@@ -309,22 +316,48 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private async openResponderDashboardModal(payload: any) {
+    this.router.navigate(['/tabs/responder-dashboard'], {
+      state: { emergencyData: payload }
+    });
+  }
+  
+  async openResponderMap(response: any) {
+    // Open responder map as a bottom-sheet style modal
+    const data = response || this.minimizedResponder;
+    if (!data) return;
     const modal = await this.modalController.create({
-      component: (await import('../responder-dashboard/responder-dashboard.page')).ResponderDashboardPage,
-      componentProps: {
-        responderData: payload
-      },
-      canDismiss: true,
-      showBackdrop: true
+      component: ResponderMapPage,
+      componentProps: { responder: data },
+      cssClass: 'responder-map-modal',
+      initialBreakpoint: 0.95,
+      breakpoints: [0, 0.5, 0.75, 0.95],
+      handle: true,
+      handleBehavior: 'cycle'
     });
     await modal.present();
   }
-  
-  openResponderMap(response: any) {
-    // Navigate to a map view showing the responder's location
-    this.router.navigate(['/responder-map'], { 
-      state: { responder: response } 
-    });
+
+  /**
+   * Dismiss the full notification but keep a minimized chip so the map stays accessible.
+   */
+  dismissToMinimized() {
+    this.minimizedResponder = this.respondingBuddy;
+    this.respondingBuddy = null;
+  }
+
+  /**
+   * Restore the full notification from the minimized chip.
+   */
+  restoreResponder() {
+    this.respondingBuddy = this.minimizedResponder;
+    this.minimizedResponder = null;
+  }
+
+  /**
+   * Fully dismiss the minimized chip.
+   */
+  dismissMinimized() {
+    this.minimizedResponder = null;
   }
 
   openNotifications() {
@@ -402,6 +435,17 @@ export class HomePage implements OnInit, OnDestroy {
         throw new Error('User not authenticated');
       }
 
+      // Resolve latest emergency instruction right before sending
+      const latestProfile = await this.userService.getUserProfile(currentUser.uid);
+      const latestMessageInstruction = (latestProfile as any)?.emergencyMessage?.instructions;
+      const latestLegacyInstruction = latestProfile?.emergencyInstruction;
+      const resolvedInstruction =
+        (typeof latestMessageInstruction === 'string' && latestMessageInstruction.trim()) ||
+        (typeof latestLegacyInstruction === 'string' && latestLegacyInstruction.trim()) ||
+        (this.emergencyInstruction || '');
+
+      this.emergencyInstruction = resolvedInstruction;
+
       // Get unique connected user IDs (actual recipient user IDs), exclude self
       const buddyIds = Array.from(new Set(
         this.userBuddies
@@ -422,7 +466,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.userName,
         buddyIds,
         allergyStrings,
-        this.emergencyInstruction
+        resolvedInstruction
       );
       
       // Set emergency state

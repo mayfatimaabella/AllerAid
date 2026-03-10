@@ -6,14 +6,16 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
+import { ResponderMapPageModule } from '../../../emergency/responder-map/responder-map.module';
+import { ResponderMapPage } from '../../../emergency/responder-map/responder-map.page';
 
 @Component({
   selector: 'app-emergencies',
   templateUrl: './emergencies.page.html',
   styleUrls: ['./emergencies.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, ResponderMapPageModule]
 })
 export class EmergenciesPage implements OnInit, OnDestroy {
   activeEmergencies: EmergencyAlert[] = [];
@@ -28,7 +30,8 @@ export class EmergenciesPage implements OnInit, OnDestroy {
     private router: Router,
     private emergencyService: EmergencyService,
     private buddyService: BuddyService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalController: ModalController
   ) { }
 
   async ngOnInit() {
@@ -167,16 +170,22 @@ export class EmergenciesPage implements OnInit, OnDestroy {
     }
   }
 
-  viewOnMap(emergency: EmergencyAlert) {
-    // Navigate to map view with emergency location
-    this.router.navigate(['/responder-map'], { 
-      state: { 
+  async viewOnMap(emergency: EmergencyAlert) {
+    const modal = await this.modalController.create({
+      component: ResponderMapPage,
+      componentProps: {
         responder: {
           emergencyId: emergency.id,
           responderName: emergency.responderName || 'Buddy Response'
         }
-      }
+      },
+      cssClass: 'responder-map-modal',
+      initialBreakpoint: 0.95,
+      breakpoints: [0, 0.5, 0.75, 0.95],
+      handle: true,
+      handleBehavior: 'cycle'
     });
+    await modal.present();
   }
 
   callPatient(emergency: EmergencyAlert) {

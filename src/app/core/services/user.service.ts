@@ -23,7 +23,7 @@ export interface UserProfile {
   fullName: string;
   role: string;
   avatar?: string;
-  phone?: string; // Added for buddy users
+  phone?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   dateOfBirth?: string;

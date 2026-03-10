@@ -271,11 +271,13 @@
     right: max(16px, env(safe-area-inset-right));
     bottom: max(16px, env(safe-area-inset-bottom));
     z-index: 1000;
+    background: transparent !important;
   }
   .add-med-fab ion-fab-button {
     --background: #065a4c;
     --color: #fff;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    --box-shadow: none;
+    box-shadow: none;
   }
 }
 

@@ -1,22 +1,24 @@
-<ion-toolbar class="dark-toolbar">
-  <ion-buttons slot="start">
-    <ion-menu-button></ion-menu-button>
-  </ion-buttons>
+<ion-header>
+  <ion-toolbar class="dark-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
 
-  <ion-title>AllerAid</ion-title>
+    <ion-title>AllerAid</ion-title>
 
-  <ion-buttons slot="end">
-    <ion-button fill="clear" [routerLink]="['/tabs/alerts']">
-      <ion-icon name="alert-circle-outline"></ion-icon>
-    </ion-button>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" [routerLink]="['/tabs/alerts']">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+      </ion-button>
 
-    <ion-button fill="clear" size="small" (click)="openNotifications()">
-      <img src="assets/icon/bell.png" alt="bell" class="notif-icon" />
-    </ion-button>
-  </ion-buttons>
-</ion-toolbar>
+      <ion-button fill="clear" size="small" (click)="openNotifications()">
+        <img src="assets/icon/bell.png" alt="bell" class="notif-icon" />
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-<ion-content class="ion-padding" [scrollY]="true">
+<ion-content class="ion-padding">
   <div class="wrapper scrollable-content">
     <h2 class="page-title">Welcome, {{ userName }}!</h2>
 
@@ -30,14 +32,15 @@
     </div>
 
     <!-- Show the emergency response notification when a buddy responds -->
-    <app-emergency-response-notification 
+    <app-emergency-response-notification
       *ngIf="respondingBuddy"
       [responderName]="respondingBuddy.responderName"
       [estimatedTime]="respondingBuddy.estimatedTime"
       [distance]="respondingBuddy.distance"
       [estimatedMinutes]="respondingBuddy.estimatedArrival"
       (viewMap)="openResponderMap(respondingBuddy)"
-      (dismiss)="respondingBuddy = null">
+      (dismiss)="respondingBuddy = null"
+    >
     </app-emergency-response-notification>
 
     <!-- Emergency Status Card -->
@@ -47,13 +50,13 @@
           <ion-icon name="alert-circle" color="danger"></ion-icon>
           EMERGENCY ACTIVE
         </ion-card-title>
-        <ion-card-subtitle>
-          Started: {{ emergencyStartTime | date:'short' }}
-        </ion-card-subtitle>
+        <ion-card-subtitle>Started: {{ emergencyStartTime | date: 'short' }}</ion-card-subtitle>
       </ion-card-header>
+
       <ion-card-content>
         <div class="emergency-info">
-          <p><strong>Location:</strong>
+          <p>
+            <strong>Location:</strong>
             <span *ngIf="isEmergencyAddressLoading">Resolving address...</span>
             <span *ngIf="!isEmergencyAddressLoading && emergencyAddress">{{ emergencyAddress }}</span>
             <span *ngIf="!isEmergencyAddressLoading && !emergencyAddress && emergencyLocation">
@@ -61,7 +64,7 @@
             </span>
             <span *ngIf="!emergencyLocation && !isEmergencyAddressLoading">Updating...</span>
           </p>
-          
+
           <div class="buddy-responses" *ngIf="hasBuddyResponses()">
             <h4>Buddy Responses & Notifications:</h4>
             <div class="response-list">
@@ -69,27 +72,23 @@
                 <div class="buddy-info">
                   <span class="buddy-name">{{ buddyResponses[buddyId].name }}</span>
                   <div class="buddy-status">
-                    <ion-badge [color]="getBuddyResponseColor(buddyId)" class="status-badge">
+                    <ion-badge class="status-badge" [color]="getBuddyResponseColor(buddyId)">
                       {{ getBuddyResponseStatus(buddyId) }}
                     </ion-badge>
-                    <ion-badge [color]="getNotificationStatusColor(buddyId)" class="notification-badge">
+                    <ion-badge class="notification-badge" [color]="getNotificationStatusColor(buddyId)">
                       {{ getNotificationStatus(buddyId) }}
                     </ion-badge>
                   </div>
                 </div>
                 <div class="response-time">
-                  {{ buddyResponses[buddyId].timestamp | date:'short' }}
+                  {{ buddyResponses[buddyId].timestamp | date: 'short' }}
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div class="emergency-actions">
-            <ion-button 
-              expand="block" 
-              color="success" 
-              (click)="resolveEmergency()"
-              class="mt-16">
+            <ion-button class="mt-16" expand="block" color="success" (click)="resolveEmergency()">
               <ion-icon name="checkmark-circle" slot="start"></ion-icon>
               Mark as Resolved
             </ion-button>
@@ -103,10 +102,9 @@
         <ion-card-title>Health Overview</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <p><strong>Allergens:</strong> 
-          <span *ngIf="userAllergies.length > 0">
-            {{ userAllergies.length }} recorded
-          </span>
+        <p>
+          <strong>Allergens:</strong>
+          <span *ngIf="userAllergies.length > 0">{{ userAllergies.length }} recorded</span>
           <span *ngIf="userAllergies.length === 0">None recorded</span>
         </p>
         <p><strong>Buddies:</strong> {{ getBuddiesCount() }}</p>

@@ -2,11 +2,14 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { Router, ActivatedRoute } from '@angular/router';
 import { EmergencyService } from '../../../core/services/emergency.service';
 import { Subscription } from 'rxjs';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, ModalController } from '@ionic/angular';
 import * as L from 'leaflet';
+import 'leaflet-routing-machine';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { LocationPermissionService } from '../../../core/services/location-permission.service';
+import { AllergyService } from '../../../core/services/allergy.service';
+import { EmergencyInfoModalComponent } from '../../../shared/components/emergency-info-modal/emergency-info-modal.component';
 
 // Fix for default markers in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -40,6 +43,10 @@ export class ResponderMapPage implements OnInit, OnDestroy {
   estimatedArrivalTime: string = '';
   responderDistance: string = '';
   mapAvailable: boolean = true; // Leaflet is always available
+
+  patientName: string = 'Patient';
+  patientInstructions: string = '';
+  patientAllergies: any[] = [];
   
   constructor(
     private router: Router,
@@ -48,7 +55,9 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private authService: AuthService,
     private userService: UserService,
-    private locationPermissionService: LocationPermissionService
+    private locationPermissionService: LocationPermissionService,
+    private allergyService: AllergyService,
+    private modalController: ModalController
   ) {
     // Get emergency info from router state
     const navigation = this.router.getCurrentNavigation();
@@ -89,6 +98,7 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     
     // Set up real-time updates
     if (this.emergencyId) {
+      await this.loadPatientEmergencyInfo(this.emergencyId);
       this.subscribeToEmergencyUpdates(this.emergencyId);
       
       // Start tracking own location and sending updates to Firebase
@@ -101,6 +111,63 @@ export class ResponderMapPage implements OnInit, OnDestroy {
         this.updateDistanceAndEta();
       }, 10000); // Every 10 seconds
     }
+  }
+
+  private resolveInstructions(emergency: any, profile: any): string {
+    const candidates = [
+      emergency?.emergencyInstruction,
+      emergency?.instruction,
+      emergency?.instructions,
+      emergency?.emergencyMessage?.instructions,
+      profile?.emergencyMessage?.instructions,
+      profile?.emergencyInstruction
+    ];
+    const resolved = candidates.find((v: any) => typeof v === 'string' && v.trim().length > 0);
+    return resolved || '';
+  }
+
+  private async loadPatientEmergencyInfo(emergencyId: string): Promise<void> {
+    try {
+      const emergency = await this.emergencyService.getEmergencyById(emergencyId);
+      if (!emergency) return;
+
+      const userId = (emergency as any).userId;
+      this.patientName = (emergency as any).userName || (emergency as any).patientName || 'Patient';
+
+      let profile: any = null;
+      if (userId) {
+        try {
+          profile = await this.userService.getUserProfile(userId);
+        } catch {}
+      }
+
+      this.patientInstructions = this.resolveInstructions(emergency, profile);
+
+      if (userId) {
+        const allergyDocs = await this.allergyService.getUserAllergies(userId);
+        if (allergyDocs && allergyDocs.length > 0) {
+          const list = (allergyDocs[0] as any).allergies || [];
+          this.patientAllergies = Array.isArray(list) ? list.filter((a: any) => a.checked) : [];
+        } else {
+          this.patientAllergies = [];
+        }
+      }
+    } catch (error) {
+      console.warn('Unable to load patient emergency info for responder map:', error);
+    }
+  }
+
+  async openEmergencyInfo(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: EmergencyInfoModalComponent,
+      componentProps: {
+        patientName: this.patientName,
+        instructions: this.patientInstructions,
+        allergies: this.patientAllergies
+      },
+      cssClass: 'emergency-info-modal'
+    });
+    await modal.present();
   }
   
   ngOnDestroy() {
@@ -419,8 +486,17 @@ export class ResponderMapPage implements OnInit, OnDestroy {
       console.log('Distance and ETA could not be calculated');
     }
   }
+
+  async dismissModal() {
+    const topModal = await this.modalController.getTop();
+    if (topModal) {
+      await this.modalController.dismiss();
+      return;
+    }
+    this.router.navigate(['/tabs/home']);
+  }
   
   goBack() {
-  this.router.navigate(['/tabs/home']);
+    this.dismissModal();
   }
 }

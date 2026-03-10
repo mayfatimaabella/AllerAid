@@ -77,14 +77,19 @@
 .detail-item {
   display: flex;
   align-items: center;
+  color: #000 !important;
+  transition: none !important;
   
   ion-icon {
     margin-right: 8px;
-    color: #451d66;
+    color: #000 !important;
+    transition: none !important;
   }
   
   span {
     font-size: 16px;
+    color: #000 !important;
+    transition: none !important;
   }
 }
 
@@ -106,6 +111,16 @@
 }
 
 ion-toolbar {
-  --background: #451d66;
-  --color: white;
+  --background: var(--app-color-primary);
+  --color: #ffffff;
+}
+
+/* Leaflet routing UI (panel + instructions) */
+:host ::ng-deep .leaflet-routing-container,
+:host ::ng-deep .leaflet-routing-container * {
+  color: #000 !important;
+}
+
+:host ::ng-deep .leaflet-routing-container {
+  background: #fff !important;
 }

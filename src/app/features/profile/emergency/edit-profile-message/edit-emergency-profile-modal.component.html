@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar class="toolbar--teal">
-    <ion-title>{{ mode === 'add' ? 'Add Emergency Message' : 'Edit Emergency Message' }}</ion-title>
+    <ion-title>{{ mode === 'add' ? 'Add Emergency Message' : 'Edit Profile' }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="close()">
         <ion-icon name="close"></ion-icon>
@@ -14,15 +14,22 @@
       <div class="avatar-section" aria-label="Profile picture">
         <div class="avatar-header">
           <div class="avatar-label">Profile Picture</div>
-          <ion-button fill="clear" size="small" class="avatar-action" (click)="avatarInput.click()">
-            Change
-          </ion-button>
         </div>
         <div class="avatar-body">
-          <img
-            class="avatar-preview"
-            [src]="avatarPreview || defaultAvatarUrl"
-            alt="Profile picture preview">
+          <div class="avatar-wrapper">
+            <img
+              class="avatar-preview"
+              [src]="avatarPreview || defaultAvatarUrl"
+              alt="Profile picture preview">
+            <button
+              *ngIf="avatarPreview"
+              class="avatar-remove-icon"
+              (click)="removeAvatar()"
+              type="button"
+              aria-label="Remove profile picture">
+              <ion-icon name="close-circle"></ion-icon>
+            </button>
+          </div>
           <ion-spinner *ngIf="isUploadingAvatar" name="crescent" class="avatar-spinner"></ion-spinner>
           <input
             #avatarInput
@@ -31,13 +38,8 @@
             (change)="onAvatarSelected($event)"
             class="avatar-input" />
         </div>
-        <ion-button
-          *ngIf="avatarPreview"
-          fill="outline"
-          size="small"
-          class="avatar-remove"
-          (click)="removeAvatar()">
-          Remove
+        <ion-button fill="clear" size="small" class="avatar-action" (click)="avatarInput.click()">
+          Change
         </ion-button>
       </div>
 
@@ -46,13 +48,15 @@
         <ion-input formControlName="name"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="stacked">Emergency Contact Name</ion-label>
-        <ion-input formControlName="emergencyContactName"></ion-input>
-      </ion-item>
+      <div class="buddy-contact-note">
+        <p class="buddy-contact-text">Buddies are your primary emergency contacts.</p>
+        <ion-button fill="outline" size="small" (click)="goToBuddyTab()">
+          Manage Emergency Contacts
+        </ion-button>
+      </div>
 
       <ion-item>
-        <ion-label position="stacked">Emergency Contact Phone</ion-label>
+        <ion-label position="stacked">Contact Phone</ion-label>
         <ion-input
           formControlName="emergencyContactPhone"
           type="text"
@@ -74,12 +78,12 @@
       </ion-item>
 
       <ion-item>
-        <ion-label position="stacked">Instructions</ion-label>
+        <ion-label position="stacked">Emergency Action Plan</ion-label>
         <ion-textarea formControlName="instructions"></ion-textarea>
       </ion-item>
     </ion-list>
-    <ion-footer class="ion-padding">
-      <ion-button expand="block" class="teal-modal-btn" type="submit" [disabled]="form.invalid || isUploadingAvatar">
+    <ion-footer>
+      <ion-button expand="block" type="submit" [disabled]="form.invalid || isUploadingAvatar">
         {{ mode === 'add' ? 'Create' : 'Save' }}
       </ion-button>
     </ion-footer>
