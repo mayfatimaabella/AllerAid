@@ -27,6 +27,7 @@ import { ProfileDataService } from './services/profile-data.service';
 import { AllergyManagerService } from '../../core/services/allergy-manager.service';
 
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
+import { ChangePasswordModal } from './modal/change-password.modal';
 
 import { VoiceSettingsManagerService } from './services/voice-settings-manager.service';
 import { VoiceRecordingService } from '../../core/services/voice-recording.service';
@@ -197,6 +198,38 @@ export class ProfilePage implements OnInit, OnDestroy {
     });
 
     await modal.present();
+  }
+
+  /**
+   * Open change password modal
+   */
+  async openChangePasswordModal(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ChangePasswordModal,
+      cssClass: 'change-password-modal'
+    });
+
+    await modal.present();
+  }
+
+  //Search medications with debounce
+  searchMedications(event: any): void {
+    this.profileMedicationManager.searchMedications(event);
+  }
+
+  /**
+   * Clear medication search
+   */
+  clearMedicationSearch(): void {
+    this.profileMedicationManager.clearMedicationSearch();
+  }
+
+    /**
+   * Filter medications based on selected filter
+   * Using memoization to improve performance
+   */
+  filterMedications(): void {
+    this.profileMedicationManager.filterMedications();
   }
 
     /**

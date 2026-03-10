@@ -26,14 +26,25 @@
         {{ (vm.emergencyMessage?.name || profile.fullName || 'User') }}
       </div>
 
-      <ion-button
-        class="profile-edit-btn"
-        size="small"
-        fill="solid"
-        (click)="openEditEmergencyMessageModal()"
-        aria-label="Edit profile">
-        Edit Profile
-      </ion-button>
+      <div class="profile-actions">
+        <ion-button
+          class="profile-edit-btn"
+          size="small"
+          fill="solid"
+          (click)="openEditEmergencyMessageModal()"
+          aria-label="Edit profile">
+          Edit Profile
+        </ion-button>
+        <ion-button
+          class="profile-password-btn"
+          size="small"
+          fill="outline"
+          (click)="openChangePasswordModal()"
+          aria-label="Change password">
+          <ion-icon name="key" slot="start"></ion-icon>
+          Change Password
+        </ion-button>
+      </div>
     </ng-container>
   </section>
 

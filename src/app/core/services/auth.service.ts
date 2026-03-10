@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
+import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, onAuthStateChanged, sendEmailVerification, updatePassword, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { firebaseConfig } from './firebase.config';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -104,6 +104,43 @@ export class AuthService {
       console.log('User signed out successfully');
     } catch (error) {
       console.error('Sign out error:', error);
+      throw error;
+    }
+  }
+
+  // Reauthenticate user with their current password
+  async reauthenticateUser(password: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user || !user.email) {
+      throw new Error('No user is currently logged in.');
+    }
+    
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+  }
+
+  // Change the current user's password
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    // First, reauthenticate the user with their current password
+    await this.reauthenticateUser(currentPassword);
+    
+    // Then update the password
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently logged in.');
+    }
+    
+    await updatePassword(user, newPassword);
+    console.log('Password updated successfully');
+  }
+
+  // Send password reset email to user
+  async sendPasswordReset(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(this.auth, email);
+      console.log('Password reset email sent to', email);
+    } catch (error: any) {
+      console.error('Failed to send password reset email:', error);
       throw error;
     }
   }
