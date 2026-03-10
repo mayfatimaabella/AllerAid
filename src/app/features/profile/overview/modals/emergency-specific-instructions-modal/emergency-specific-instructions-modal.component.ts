@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ModalController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EmergencyInstructionsManagerService } from '../../../services/emergency-instructions-manager.service';
+import { EmergencyInstructionsManagerService } from '../../../profile-services/emergency-instructions-manager.service';
 
 @Component({
   selector: 'app-emergency-specific-instructions-modal',

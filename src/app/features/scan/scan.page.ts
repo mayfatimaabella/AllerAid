@@ -3,7 +3,7 @@ import { ProductService } from '../../core/services/product.service';
 import { BarcodeService } from '../../core/services/barcode.service';
 import { ScanResultComponent } from './scan-result/scan-result.component';
 import { AlertController } from '@ionic/angular';
-import { LocalStorageService } from '../../features/profile/services/local-storage.service';
+import { LocalStorageService } from '../profile/profile-services/local-storage.service';
 
 @Component({
   selector: 'app-scan',

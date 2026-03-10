@@ -14,24 +14,24 @@ import { UserProfile } from '../../core/services/user.service';
 import { EmergencyMessage } from '../../core/services/medical.service';
 import { Medication } from '../../core/services/medication.service';
 
-import { ProfileDataLoaderService } from './services/profile-data-loader.service';
-import { ProfileMedicationManagerService } from './services/profile-medication-manager.service';
-import { EmergencyInstructionsManagerService } from './services/emergency-instructions-manager.service';
-import { ProfileEHRManagerService } from './services/profile-ehr-manager.service';
-import { ProfileEmergencySettingsService } from './services/profile-emergency-settings.service';
-import { ProfileNavigationService } from './services/profile-navigation.service';
-import { ProfileUtilityService } from './services/profile-utility.service';
-import { ProfileAccessRequestService } from './services/profile-access-request.service';
-import { ProfileDataService } from './services/profile-data.service';
+import { ProfileDataLoaderService } from './profile-services/profile-data-loader.service';
+import { ProfileMedicationManagerService } from './profile-services/profile-medication-manager.service';
+import { EmergencyInstructionsManagerService } from './profile-services/emergency-instructions-manager.service';
+import { ProfileEHRManagerService } from './profile-services/profile-ehr-manager.service';
+import { ProfileEmergencySettingsService } from './profile-services/profile-emergency-settings.service';
+import { ProfileNavigationService } from './profile-services/profile-navigation.service';
+import { ProfileUtilityService } from './profile-services/profile-utility.service';
+import { ProfileAccessRequestService } from './profile-services/profile-access-request.service';
+import { ProfileDataService } from './profile-services/profile-data.service';
 
 import { AllergyManagerService } from '../../core/services/allergy-manager.service';
 
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
 import { ChangePasswordModal } from './modal/change-password.modal';
 
-import { VoiceSettingsManagerService } from './services/voice-settings-manager.service';
+import { VoiceSettingsManagerService } from './profile-services/voice-settings-manager.service';
 import { VoiceRecordingService } from '../../core/services/voice-recording.service';
-import { AllergyModalService } from './services/allergy-modal.service';
+import { AllergyModalService } from './profile-services/allergy-modal.service';
 
 interface Allergy {
   name: string;

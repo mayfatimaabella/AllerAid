@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class TabsPage implements OnInit, OnDestroy {
   userRole: string = 'user';
-  userProfile: any = null;  // Cache user profile to avoid duplicate API calls
+  userProfile: any = null;
   invitationCount: number = 0;
   emergencyCount: number = 0;
   // Track which emergency IDs have already shown a modal to avoid repeats

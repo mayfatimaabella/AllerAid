@@ -16,7 +16,6 @@ import { ResponderMapPage } from './responder-map.page';
     ResponderMapPageRoutingModule
   ],
   declarations: [ResponderMapPage],
-  exports: [ResponderMapPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ResponderMapPageModule {}

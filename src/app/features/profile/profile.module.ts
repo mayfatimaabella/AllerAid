@@ -19,8 +19,9 @@ import { OverviewSectionComponent } from './overview/overview-section.component'
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
+import { EditEmergencyMessageModalComponent } from './emergency/edit-profile-message/edit-emergency-profile-modal.component';
 import { ChangePasswordModal } from './modal/change-password.modal';
+import { ProfileSettingsComponent } from './emergency/voice-settings-section/profile-settings.component';
 
 @NgModule({
   imports: [
