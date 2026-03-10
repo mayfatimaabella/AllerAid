@@ -46,6 +46,7 @@ import { AllergyManagerService } from '../../core/services/allergy-manager.servi
  * UI / Modals
  * ======================= */
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
+import { ChangePasswordModal } from './modal/change-password.modal';
 
 /* =======================
  * Environment
@@ -139,6 +140,18 @@ export class ProfilePage implements OnInit, OnDestroy {
       if (result.data?.saved) {
         this.loadUserMedications(); // Refresh medications list
       }
+    });
+
+    await modal.present();
+  }
+
+  /**
+   * Open change password modal
+   */
+  async openChangePasswordModal(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ChangePasswordModal,
+      cssClass: 'change-password-modal'
     });
 
     await modal.present();

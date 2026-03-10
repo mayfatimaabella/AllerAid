@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastController, NavController, LoadingController, AlertController } from '@ionic/angular';
+import { ToastController, NavController, LoadingController, AlertController, ModalController } from '@ionic/angular';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RoleRedirectService } from '../../../core/services/role-redirect.service';
+import { ForgotPasswordModal } from './forgot-password.modal';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginPage implements OnInit {
     private authService: AuthService,
     private roleRedirectService: RoleRedirectService,
     private loadingController: LoadingController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {
@@ -145,6 +147,18 @@ export class LoginPage implements OnInit {
         await top.dismiss();
       }
     }
+  }
+
+  /**
+   * Open forgot password modal
+   */
+  async openForgotPasswordModal(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ForgotPasswordModal,
+      cssClass: 'forgot-password-modal'
+    });
+
+    await modal.present();
   }
 
   async presentToast(message: string, color: string = 'medium', duration: number = 3000, icon?: string) {

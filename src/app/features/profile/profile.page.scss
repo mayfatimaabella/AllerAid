@@ -47,6 +47,27 @@
   text-transform: none;
 }
 
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-password-btn {
+  --background: transparent;
+  --border-color: #036a5d;
+  --color: #036a5d;
+  --border-radius: 10px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+  border: 1.5px solid #036a5d;
+}
+
 .profile-card {
   background: #fff;
   border-radius: 16px;

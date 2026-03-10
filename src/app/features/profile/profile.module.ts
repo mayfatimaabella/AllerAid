@@ -20,6 +20,7 @@ import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
 import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-message/edit-emergency-message-modal.component';
+import { ChangePasswordModal } from './modal/change-password.modal';
 
 @NgModule({
   imports: [
@@ -44,7 +45,8 @@ import { EditEmergencyMessageModalComponent } from './emergency/edit-emergency-m
     AddMedicationModal,
     AddDoctorVisitModal,
     AddMedicalHistoryModal,
-    ImageViewerModal
+    ImageViewerModal,
+    ChangePasswordModal
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })

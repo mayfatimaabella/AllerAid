@@ -44,6 +44,23 @@ ion-button.loginBtn {
   margin-top: 1rem;
 }
 
+.forgot-password-link {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+
+  a {
+    cursor: pointer;
+    color: #036a5d;
+    font-weight: 600;
+    text-decoration: underline;
+    transition: opacity 0.2s;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
 a{
   color: #036a5d;
   font-weight: bold;;
