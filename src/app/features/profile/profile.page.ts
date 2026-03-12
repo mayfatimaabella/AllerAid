@@ -27,7 +27,7 @@ import { ProfileDataService } from './profile-services/profile-data.service';
 import { AllergyManagerService } from '../../core/services/allergy-manager.service';
 
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
-import { ChangePasswordModal } from './modal/change-password.modal';
+import { ChangePasswordModal } from './change-password/change-password.modal';
 
 import { VoiceSettingsManagerService } from './profile-services/voice-settings-manager.service';
 import { VoiceRecordingService } from '../../core/services/voice-recording.service';
@@ -152,6 +152,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.userAllergies = this.profileDataLoader.userAllergiesValue;
 
     await Promise.all([
+      this.loadMedicalData(),
       this.loadUserMedications(),
       this.loadEmergencyInstructions()
     ]);
@@ -329,8 +330,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.updateAllergyOptions();
   }
 
-  // Template compatibility stubs
-  // Health Section bindings
   // Template compatibility stubs
   // Health Section bindings
   isEmergencyMedicationBind = this.profileMedicationManager.isEmergencyMedication.bind(this.profileMedicationManager);

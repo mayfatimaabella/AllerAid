@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ImageViewerModal } from '../modal/image-viewer.modal';
+import { ImageViewerModal } from '../change-password/image-viewer.modal';
 
 @Injectable({ providedIn: 'root' })
 export class MedicationActionsService {
