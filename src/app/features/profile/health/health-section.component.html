@@ -2,7 +2,6 @@
   Medications 
 </div>
 
-<!-- Medication Search -->
 <div class="medication-search">
   <ion-searchbar 
     [value]="medicationSearchTerm"
@@ -17,10 +16,8 @@
       {{ filteredMedications.length }} of {{ userMedications.length }} medications found
     </small>
   </div>
-  
 </div>
 
-<!-- Medication Filter -->  
 <div class="medication-filters">
   <ion-segment [ngModel]="medicationFilter" (ionChange)="onFilterChange($event)">
     <ion-segment-button value="all">
@@ -32,16 +29,13 @@
   </ion-segment>
 </div>
 
-<!-- Medications List -->
 <div class="medications-list">
-  <!-- Loading state -->
   <div *ngIf="isLoading && (!userMedications || userMedications.length === 0)" class="loading-state">
   <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
   <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
   <ion-skeleton-text animated class="medication-skeleton"></ion-skeleton-text>
   </div>
 
-  <!-- Actual content when not loading -->
   <ng-container *ngIf="!isLoading">
   <div *ngFor="let medication of filteredMedications; trackBy: trackByMedication" 
     class="medication-card" 
@@ -55,15 +49,17 @@
         <div class="medication-summary">
            <span class="dosage">{{ medication.dosage }}</span>
            <span class="frequency" *ngIf="medication.frequency"> • {{ medication.frequency }}</span>
-           <span class="pills" *ngIf="medication.quantity"> • {{ calculateRemainingPills(medication) }} pills left</span>
+           <span class="pills" *ngIf="medication.quantity !== undefined"> 
+             • {{ calculateRemainingPills(medication) }} pills left
+           </span>
         </div>
-
       </div>
+
       <div class="medication-actions">
         <ion-chip 
-          [color]="medication.isActive ? 'success' : 'medium'" 
+          [color]="getStatusColor(medication)" 
           size="small">
-          {{ medication.isActive ? 'Active' : 'Inactive' }}
+          <ion-label>{{ getStatusLabel(medication) }}</ion-label>
         </ion-chip>
 
         <div class="action-buttons">
@@ -107,7 +103,6 @@
   </ng-container>
 </div>
 
-<!-- FAB -->
 <ion-fab class="add-med-fab" horizontal="end" vertical="bottom">
   <ion-fab-button (click)="add.emit()" aria-label="Add medication">
     <ion-icon name="add"></ion-icon>
