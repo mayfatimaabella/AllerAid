@@ -99,14 +99,20 @@ export class TabsPage implements OnInit, OnDestroy {
         // Listen for emergency alerts and notify with sound/vibration when new active alerts arrive
         this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
           const previousCount = this.emergencyCount;
-          const activeAlerts = alerts.filter(alert => alert.status === 'active');
+          const activeAlerts = alerts.filter((alert: any) => alert.status === 'active');
           this.emergencyCount = activeAlerts.length;
-          if (this.emergencyCount > previousCount) {
-            // Show pop-up like responder-dashboard: quick action to view map
-            const latest = activeAlerts[0];
-            // Only show once per emergency ID
-            if (latest?.id && !this.shownEmergencyIds.has(latest.id)) {
+          if (this.emergencyCount > previousCount && activeAlerts.length > 0) {
+            // New emergency: pick the latest by timestamp (newest first)
+            const sorted = [...activeAlerts].sort((a: any, b: any) => {
+              const ta = a.timestamp?.toDate?.()?.getTime() ?? a.timestamp ?? 0;
+              const tb = b.timestamp?.toDate?.()?.getTime() ?? b.timestamp ?? 0;
+              return tb - ta;
+            });
+            const latest = sorted[0];
+            const alreadyShown = latest?.id && this.shownEmergencyIds.has(latest.id);
+            if (latest?.id && !alreadyShown) {
               this.shownEmergencyIds.add(latest.id);
+              // Show full dashboard modal first so it isn't lost
               await this.showEmergencyPopup(latest);
             }
             this.playEmergencyNotificationFeedback();
@@ -182,43 +188,79 @@ export class TabsPage implements OnInit, OnDestroy {
         componentProps: {
           responderData: {
             emergencyId: alert.id,
-            userName: alert.userName,
-            instruction: alert.emergencyInstruction || alert.instruction || '',
-            alert
+            userName: alert.userName || (alert as any).patientName,
+            instruction: alert.emergencyInstruction || alert.instruction || (alert as any).instructions || '',
+            alert: {
+              id: alert.id,
+              userId: alert.userId,
+              userName: alert.userName || (alert as any).patientName,
+              instruction: alert.emergencyInstruction || alert.instruction,
+              emergencyInstruction: alert.emergencyInstruction || alert.instruction,
+              location: alert.location,
+              status: alert.status,
+              timestamp: alert.timestamp
+            }
           }
         },
-        cssClass: 'responder-dashboard-modal'
+        cssClass: 'responder-dashboard-modal',
+        backdropDismiss: false
       });
       await modal.present();
-      // After dismissal, route only if user cancelled (avoid overriding map navigation)
-      modal.onDidDismiss().then((detail) => {
-        // Ensure future alerts for this same emergency aren't re-shown
+      modal.onDidDismiss().then(async (detail) => {
         if (alert?.id) {
           this.shownEmergencyIds.add(alert.id);
         }
         const role = (detail && (detail as any).role) || '';
+        const data = (detail && (detail as any).data) || {};
+        if (role === 'responded' && data.openMap) {
+          await this.openResponderMapModal(data);
+          return;
+        }
         if (!role || role === 'cancel') {
           this.router.navigate(['/tabs/home']);
         }
       });
     } catch (e) {
       console.error('Failed to show responder dashboard modal:', e);
-      // Fallback to previous alert if modal fails
       try {
         const fallback = await this.alertController.create({
           header: 'Emergency Alert',
-          message: `${alert.userName || 'A connection'} needs help.<br/><small>${alert.emergencyInstruction || alert.instruction || ''}</small>`,
+          message: `${alert.userName || (alert as any).patientName || 'A connection'} needs help.${(alert.emergencyInstruction || alert.instruction) ? '<br/><small>' + (alert.emergencyInstruction || alert.instruction) + '</small>' : ''}`,
           cssClass: 'emergency-alert-modal',
           buttons: [
+            { text: 'View dashboard', handler: () => this.router.navigate(['/tabs/responder-dashboard']) },
             { text: 'Dismiss', role: 'cancel' }
           ]
         });
         await fallback.present();
-        // Navigate back to Home after dismissing fallback
         fallback.onDidDismiss().then(() => this.router.navigate(['/tabs/home']));
       } catch (inner) {
         console.error('Also failed to show fallback alert:', inner);
       }
+    }
+  }
+
+  private async openResponderMapModal(data: { responderName: string; emergencyId: string; patientLocation?: any }) {
+    try {
+      const { ResponderMapPage } = await import('../../features/emergency/responder-map/responder-map.page');
+      const mapModal = await this.modalController.create({
+        component: ResponderMapPage,
+        componentProps: {
+          responder: {
+            responderName: data.responderName,
+            emergencyId: data.emergencyId,
+            patientLocation: data.patientLocation
+          }
+        },
+        cssClass: 'responder-map-modal',
+        initialBreakpoint: 0.95,
+        breakpoints: [0.12, 0.5, 0.75, 0.95],
+        handle: true,
+        handleBehavior: 'cycle'
+      });
+      await mapModal.present();
+    } catch (e) {
+      console.error('Failed to open responder map:', e);
     }
   }
 

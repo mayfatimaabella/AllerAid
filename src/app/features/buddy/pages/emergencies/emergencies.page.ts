@@ -181,7 +181,7 @@ export class EmergenciesPage implements OnInit, OnDestroy {
       },
       cssClass: 'responder-map-modal',
       initialBreakpoint: 0.95,
-      breakpoints: [0, 0.5, 0.75, 0.95],
+      breakpoints: [0.12, 0.5, 0.75, 0.95],
       handle: true,
       handleBehavior: 'cycle'
     });

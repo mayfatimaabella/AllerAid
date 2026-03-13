@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BuddyService } from '../../../../core/services/buddy.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +30,6 @@ export class PatientsPage implements OnInit {
 
   constructor(
     private router: Router,
-    private buddyService: BuddyService,
     private authService: AuthService
   ) { }
 

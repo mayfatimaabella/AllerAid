@@ -1,9 +1,20 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="minimize()" title="Minimize (peek)">
+        <ion-icon slot="icon-only" name="chevron-down-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="expand()" title="Expand">
+        <ion-icon slot="icon-only" name="chevron-up-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Help is on the way</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openEmergencyInfo()">
+      <ion-button (click)="openEmergencyInfo()" title="Emergency info">
         <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="markResolved()" color="success" title="Mark resolved">
+        <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -52,6 +63,10 @@
         <ion-button expand="block" fill="outline" color="primary" (click)="openExternalNavigation()">
           <ion-icon slot="start" name="open-outline"></ion-icon>
           Open in Google Maps
+        </ion-button>
+        <ion-button expand="block" color="success" (click)="markResolved()" class="resolve-btn">
+          <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+          Mark resolved
         </ion-button>
       </div>
     </div>

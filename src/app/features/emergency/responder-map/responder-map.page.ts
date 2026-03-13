@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { EmergencyService } from '../../../core/services/emergency.service';
 import { Subscription } from 'rxjs';
@@ -39,6 +39,9 @@ export class ResponderMapPage implements OnInit, OnDestroy {
   private locationWatchId: number | null = null;
   private currentUserId: string | null = null;
 
+  /** When opened as modal, responder data is passed via componentProps */
+  @Input() responder: { responderName?: string; emergencyId?: string; patientLocation?: { latitude: number; longitude: number } } | null = null;
+
   responderName: string = 'Your buddy';
   estimatedArrivalTime: string = '';
   responderDistance: string = '';
@@ -59,7 +62,7 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     private allergyService: AllergyService,
     private modalController: ModalController
   ) {
-    // Get emergency info from router state
+    // Get emergency info from router state (when navigated via router)
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       const state = navigation.extras.state as any;
@@ -71,6 +74,16 @@ export class ResponderMapPage implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    // When opened as modal, use @Input() responder (set from componentProps)
+    if (this.responder) {
+      if (this.responder.responderName) {
+        this.responderName = this.responder.responderName;
+      }
+      if (this.responder.emergencyId) {
+        this.emergencyId = this.responder.emergencyId;
+      }
+    }
+
     // Get current user ID
     const user = await this.authService.waitForAuthInit();
     this.currentUserId = user?.uid || null;
@@ -484,6 +497,56 @@ export class ResponderMapPage implements OnInit, OnDestroy {
       this.responderDistance = 'Unknown';
       this.estimatedArrivalTime = 'Unknown';
       console.log('Distance and ETA could not be calculated');
+    }
+  }
+
+  /** Minimize to a small visible peek (12% height). */
+  async minimize() {
+    const topModal = await this.modalController.getTop();
+    if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
+      (topModal as any).setCurrentBreakpoint(0.12);
+    }
+  }
+
+  async expand() {
+    const topModal = await this.modalController.getTop();
+    if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
+      (topModal as any).setCurrentBreakpoint(0.95);
+    }
+  }
+
+  /** Stop tracking and mark the emergency as resolved, then close the modal. */
+  async markResolved() {
+    if (!this.emergencyId) {
+      console.warn('No emergency to resolve');
+      return;
+    }
+    this.stopTracking();
+    try {
+      await this.emergencyService.resolveEmergency(this.emergencyId);
+      const topModal = await this.modalController.getTop();
+      if (topModal) {
+        await this.modalController.dismiss({ resolved: true }, 'resolved');
+      } else {
+        this.router.navigate(['/tabs/home']);
+      }
+    } catch (error) {
+      console.error('Error resolving emergency:', error);
+    }
+  }
+
+  private stopTracking() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = undefined;
+    }
+    if (this.locationWatchId !== null) {
+      navigator.geolocation.clearWatch(this.locationWatchId);
+      this.locationWatchId = null;
+    }
+    if (this.emergencySubscription) {
+      this.emergencySubscription.unsubscribe();
+      this.emergencySubscription = null;
     }
   }
 

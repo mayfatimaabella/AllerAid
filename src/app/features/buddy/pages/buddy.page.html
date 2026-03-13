@@ -34,37 +34,35 @@
       </ion-button>
     </ion-item>
 
-    <ng-container *ngIf="!showModal">
-      <ion-card *ngIf="buddies.length > 0">
-        <ion-card-header style="display: flex; justify-content: space-between;">
-          <ion-card-title style="display: flex; align-items: center; gap: 8px;">
-            Recent Buddies
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list>
-            <ion-item *ngFor="let buddy of filteredBuddies">
-              <ion-label (click)="showBuddyDetails(buddy)" style="cursor:pointer; color:#036a5d; font-weight:500;">
-                <h2>{{ buddy.firstName }} {{ buddy.lastName }}</h2>
-                <p *ngIf="buddy.email">{{ buddy.email }}</p>
-              </ion-label>
-              <ion-button fill="clear" slot="end" (click)="openBuddyActions(buddy)">
-                <ion-icon name="ellipsis-vertical"></ion-icon>
-              </ion-button>
-            </ion-item>
-          </ion-list>
+    <ion-card *ngIf="buddies.length > 0">
+      <ion-card-header style="display: flex; justify-content: space-between;">
+        <ion-card-title style="display: flex; align-items: center; gap: 8px;">
+          Recent Buddies
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let buddy of filteredBuddies">
+            <ion-label (click)="showBuddyDetails(buddy)" style="cursor:pointer; color:#036a5d; font-weight:500;">
+              <h2>{{ buddy.firstName }} {{ buddy.lastName }}</h2>
+              <p *ngIf="buddy.email">{{ buddy.email }}</p>
+            </ion-label>
+            <ion-button fill="clear" slot="end" (click)="openBuddyActions(buddy)">
+              <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="buddies.length === 0" class="no-buddies-container">
+      <ion-card class="no-buddies-card">
+        <ion-card-content class="no-buddies-content">
+          <ion-icon name="person-add-outline" class="no-buddies-icon"></ion-icon>
+          <div class="no-buddies-text">You have no buddies yet. Invite friends to be your buddies!</div>
         </ion-card-content>
       </ion-card>
-
-      <div *ngIf="buddies.length === 0" class="no-buddies-container">
-        <ion-card class="no-buddies-card">
-          <ion-card-content class="no-buddies-content">
-            <ion-icon name="person-add-outline" class="no-buddies-icon"></ion-icon>
-            <div class="no-buddies-text">You have no buddies yet. Invite friends to be your buddies!</div>
-          </ion-card-content>
-        </ion-card>
-      </div>
-    </ng-container>
+    </div>
 
     <app-buddy-details-modal *ngIf="showDetailsModal" [buddy]="buddyToShowDetails" (closeDetails)="closeDetailsModal()"></app-buddy-details-modal>
 </ion-content>

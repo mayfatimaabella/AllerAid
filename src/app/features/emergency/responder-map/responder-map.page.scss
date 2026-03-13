@@ -110,6 +110,12 @@
   }
 }
 
+.nav-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 ion-toolbar {
   --background: var(--app-color-primary);
   --color: #ffffff;

@@ -338,31 +338,19 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           );
           
           this.hasResponded = true;
-          // Reflect local status immediately so template shows confirmation
           this.currentEmergency.status = 'responding';
           console.log('Buddy marked as responded with ETA calculation');
 
-          // Open responder-map as a modal after responding
-          try {
-            const mapModal = await this.modalController.create({
-              component: ResponderMapPage,
-              componentProps: {
-                responder: {
-                  responderName: buddyName,
-                  emergencyId: this.currentEmergency.id,
-                  patientLocation: this.currentEmergency.location
-                }
-              },
-              cssClass: 'responder-map-modal',
-              initialBreakpoint: 0.95,
-              breakpoints: [0, 0.5, 0.75, 0.95],
-              handle: true,
-              handleBehavior: 'cycle'
-            });
-            await mapModal.present();
-          } catch (navErr) {
-            console.warn('Opening responder-map modal failed', navErr);
-          }
+          // Close this dashboard modal and pass data so the caller (tabs) can open responder-map
+          await this.modalController.dismiss(
+            {
+              openMap: true,
+              responderName: buddyName,
+              emergencyId: this.currentEmergency.id,
+              patientLocation: this.currentEmergency.location
+            },
+            'responded'
+          );
         }
       } catch (error) {
         console.error('Error responding to emergency:', error);
@@ -413,7 +401,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         },
         cssClass: 'responder-map-modal',
         initialBreakpoint: 0.95,
-        breakpoints: [0, 0.5, 0.75, 0.95],
+        breakpoints: [0.12, 0.5, 0.75, 0.95],
         handle: true,
         handleBehavior: 'cycle'
       });
