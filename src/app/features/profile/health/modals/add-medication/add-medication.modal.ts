@@ -141,16 +141,16 @@ export class AddMedicationModal implements OnInit {
   // Validate quantity input
   validateQuantity(): boolean {
     const quantity = Number(this.med.quantity);
-    return !isNaN(quantity) && quantity >= 1 && quantity <= 999 && Number.isInteger(quantity);
+    // Modified: allow 0 so medication can be marked as finished
+    return !isNaN(quantity) && quantity >= 0 && quantity <= 999 && Number.isInteger(quantity);
   }
 
   // Handle quantity input change
   onQuantityChange() {
-    // Ensure quantity is a valid number
-    if (this.med.quantity) {
+    if (this.med.quantity !== undefined) {
       const numQuantity = Number(this.med.quantity);
-      if (numQuantity < 1) {
-        this.med.quantity = 1;
+      if (numQuantity < 0) {
+        this.med.quantity = 0;
       } else if (numQuantity > 999) {
         this.med.quantity = 999;
       } else {
@@ -166,7 +166,6 @@ export class AddMedicationModal implements OnInit {
                              this.med.dosageUnit && 
                              this.validateQuantity());
 
-    // Duration is optional: allow save without frequency or dates
     return hasBasicFields;
   }
 
@@ -308,7 +307,6 @@ export class AddMedicationModal implements OnInit {
     const img = new Image();
     
     img.onload = () => {
-      // Calculate new dimensions (max width/height of 600px for better compression)
       const maxSize = 600;
       let { width, height } = img;
       
@@ -326,18 +324,8 @@ export class AddMedicationModal implements OnInit {
       
       canvas.width = width;
       canvas.height = height;
-      
-      // Draw and compress
       ctx?.drawImage(img, 0, 0, width, height);
-      
-      // Convert to compressed JPEG with 50% quality for better compression
       const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5);
-      
-      // Log compression info
-      console.log(`Original file size: ${file.size} bytes`);
-      console.log(`Compressed data URL size: ${compressedDataUrl.length} characters`);
-      console.log(`Compression ratio: ${(compressedDataUrl.length / file.size * 100).toFixed(2)}%`);
-      
       callback(compressedDataUrl);
     };
     
@@ -366,53 +354,48 @@ export class AddMedicationModal implements OnInit {
       return;
     }
 
-    // Validate dosage - check for either structured fields or combined string
     if (!this.med.dosageAmount || !this.med.dosageUnit) {
       this.presentToast('Please enter dosage amount and unit');
       return;
     }
 
-    // Combine dosage amount and unit into the dosage string
     this.med.dosage = this.combineDosage();
 
-    // Validate quantity specifically
     if (!this.validateQuantity()) {
-      this.presentToast('Please enter a valid number of pills (1-999)');
+      this.presentToast('Please enter a valid number of pills (0-999)');
       return;
     }
 
-    // Convert quantity to number to ensure proper data type
     this.med.quantity = Number(this.med.quantity);
 
-    // If no duration is set but dates are provided, calculate it; otherwise leave blank
+    // --- AUTO-STATUS LOGIC ---
+    // Check if medication is expired or finished
+    const isExpired = this.med.expiryDate && new Date(this.med.expiryDate) < new Date();
+    const isOutOfPills = this.med.quantity <= 0;
+
+    if (isExpired || isOutOfPills) {
+      this.med.isActive = false; // Auto-deactivate
+    } else {
+      this.med.isActive = true; // Reactive if dates/stock are corrected
+    }
+
     if (!this.med.frequency?.trim() && this.med.startDate && this.med.expiryDate) {
       this.calculateDuration();
     }
 
     try {
-      // Set additional metadata
       if (!this.isEditMode) {
         this.med.createdAt = new Date();
       }
       this.med.updatedAt = new Date();
       
-      console.log(this.isEditMode ? 'Updating medication with images...' : 'Saving medication with images...');
-      
       if (this.isEditMode && this.medication?.id) {
-        // For update mode, we need to handle images differently
-        // Add images to the medication object before updating
-        if (this.prescriptionImage) {
-          this.med.prescriptionImageUrl = this.prescriptionImage;
-        }
-        if (this.medicationImage) {
-          this.med.medicationImageUrl = this.medicationImage;
-        }
+        if (this.prescriptionImage) this.med.prescriptionImageUrl = this.prescriptionImage;
+        if (this.medicationImage) this.med.medicationImageUrl = this.medicationImage;
         
-        // Update existing medication
         await this.medService.updateMedication(this.medication.id, this.med);
         this.presentToast('Medication updated successfully');
       } else {
-        // Add new medication
         await this.medService.addMedication(
           this.med, 
           this.prescriptionImage || undefined, 
@@ -426,6 +409,23 @@ export class AddMedicationModal implements OnInit {
       console.error('Error saving medication:', error);
       this.presentToast('Error saving medication');
     }
+  }
+
+  // Helper logic for status labels in HTML
+  getStatusLabel(medication: Medication): string {
+    const isExpired = medication.expiryDate && new Date(medication.expiryDate) < new Date();
+    if (isExpired) return 'Expired';
+    if (medication.quantity !== undefined && medication.quantity <= 0) return 'Finished';
+    if (!medication.isActive) return 'Inactive';
+    return 'Active';
+  }
+
+  getStatusColor(medication: Medication): string {
+    const isExpired = medication.expiryDate && new Date(medication.expiryDate) < new Date();
+    if (isExpired || (medication.quantity !== undefined && medication.quantity <= 0) || !medication.isActive) {
+      return 'danger';
+    }
+    return 'success';
   }
 
   private async presentToast(message: string) {
