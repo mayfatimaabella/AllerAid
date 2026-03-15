@@ -4,8 +4,8 @@ import { EHRService, MedicalHistory } from '../../../../../core/services/ehr.ser
 
 @Component({
   selector: 'app-add-medical-history',
-  templateUrl: './add-medical-history.modal.html',
-  styleUrls: ['./add-medical-history.modal.scss'],
+  templateUrl: './add-edit-medical-history.modal.html',
+  styleUrls: ['./add-edit-medical-history.modal.scss'],
   standalone: false,
 })
 export class AddMedicalHistoryModal implements OnInit {

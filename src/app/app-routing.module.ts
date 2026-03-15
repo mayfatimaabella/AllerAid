@@ -35,7 +35,7 @@ const routes: Routes = [
     path: 'scan',
     loadChildren: () => import('./features/scan/scan.module').then( m => m.ScanPageModule),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['user'] } // Patient-only feature
+    data: { roles: ['user'] }
   },
   {
 
@@ -81,7 +81,7 @@ const routes: Routes = [
   },
   {
     path: 'visit-details/:id',
-    loadChildren: () => import('./features/profile/ehr/pages/visit-details/visit-details.module').then( m => m.VisitDetailsPageModule),
+    loadChildren: () => import('./features/profile/ehr/pages/doctor-visit-details/doctor-visit-details.module').then( m => m.VisitDetailsPageModule),
     canActivate: [AuthGuard]
   },
   {

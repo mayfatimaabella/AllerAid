@@ -15,7 +15,7 @@ export class AllergyManagerService {
     const user = await this.authService.waitForAuthInit();
     if (!user) return [];
     const docs = await this.allergyService.getUserAllergies(user.uid);
-  // Use concat + map for compatibility with older JS targets
+
   return [].concat(...docs.map((doc: any) => doc.allergies?.filter((a: any) => a.checked) || []));
   }
 
@@ -65,7 +65,7 @@ export class AllergyManagerService {
     if (!environment.production) {
       console.log('Refreshed allergy docs:', userAllergyDocs);
     }
-    // Flatten and filter checked allergies
+
     const checkedAllergies: any[] = [];
     userAllergyDocs.forEach((doc: any) => {
       if (doc.allergies && Array.isArray(doc.allergies)) {

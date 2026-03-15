@@ -5,8 +5,8 @@ import { UserService } from '../../../../../core/services/user.service';
 
 @Component({
   selector: 'app-add-doctor-visit',
-  templateUrl: './add-doctor-visit.modal.html',
-  styleUrls: ['./add-doctor-visit.modal.scss'],
+  templateUrl: './add-edit-doctor-visit.modal.html',
+  styleUrls: ['./add-edit-doctor-visit.modal.scss'],
   standalone: false,
 })
 export class AddDoctorVisitModal implements OnInit {

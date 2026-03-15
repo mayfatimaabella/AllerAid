@@ -4,7 +4,7 @@ import { EHRService, DoctorVisit, MedicalHistory } from '../../../core/services/
 import { EHRDataService } from './ehr-data.service';
 import { MedicalHistoryManagerService } from './medical-history-manager.service';
 import { ModalController, AlertController, ActionSheetController, ToastController } from '@ionic/angular';
-import { AddDoctorVisitModal } from '../ehr/modals/add-doctor-visit/add-doctor-visit.modal';
+import { AddDoctorVisitModal } from '../ehr/modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({

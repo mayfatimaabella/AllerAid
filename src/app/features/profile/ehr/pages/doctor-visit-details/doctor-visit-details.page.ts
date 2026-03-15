@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NavController, ModalController, AlertController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { DoctorVisit, EHRService } from '../../../../../core/services/ehr.service';
-import { AddDoctorVisitModal } from '../../modals/add-doctor-visit/add-doctor-visit.modal';
+import { AddDoctorVisitModal } from '../../modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
 
 @Component({
   selector: 'app-visit-details',
-  templateUrl: './visit-details.page.html',
-  styleUrls: ['./visit-details.page.scss'],
+  templateUrl: './doctor-visit-details.page.html',
+  styleUrls: ['./doctor-visit-details.page.scss'],
   standalone: false,
 })
 export class VisitDetailsPage implements OnInit {
@@ -83,8 +83,6 @@ export class VisitDetailsPage implements OnInit {
       return '';
     }
   }
-
-  // Removed next appointment helpers in simplified model
 
   getFormattedVisitDate(): string {
     if (!this.visit?.visitDate) return 'Date not available';

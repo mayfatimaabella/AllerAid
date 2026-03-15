@@ -1,11 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="toolbar--teal">
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="goBack()">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Visit Details</ion-title>
+
+    <ion-title>Doctor Visit Details</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="openEditVisit()" [disabled]="!visit" title="Edit visit">
         <ion-icon name="create-outline"></ion-icon>
@@ -37,11 +33,11 @@
       </div>
     </div>
 
-    <!-- Chief Complaint -->
+    <!-- Main Reason of Visit aka Chief Complaint -->
     <div class="detail-card" *ngIf="visit.chiefComplaint">
       <div class="card-header">
         <ion-icon name="medical-outline"></ion-icon>
-        <h2>Chief Complaint</h2>
+        <h2>Main Reason of Visit</h2>
       </div>
       <div class="card-content">
         <p>{{ visit.chiefComplaint }}</p>

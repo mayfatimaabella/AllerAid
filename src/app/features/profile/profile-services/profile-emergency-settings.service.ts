@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { MedicalService, EmergencyMessage } from '../../../core/services/medical.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
-import { EditEmergencyMessageModalComponent } from '../emergency/edit-profile-message/edit-emergency-profile-modal.component';
+import { EditEmergencyMessageModalComponent } from '../overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
 
 interface EmergencyMessageFormData {
   name?: string;

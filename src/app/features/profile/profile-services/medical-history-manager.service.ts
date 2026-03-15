@@ -3,8 +3,8 @@
 
 import { Injectable } from '@angular/core';
 import { ModalController, AlertController, ToastController } from '@ionic/angular';
-import { AddDoctorVisitModal } from '../ehr/modals/add-doctor-visit/add-doctor-visit.modal';
-import { AddMedicalHistoryModal } from '../ehr/modals/add-medical-history/add-medical-history.modal';
+import { AddDoctorVisitModal } from '../ehr/modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
+import { AddMedicalHistoryModal } from '../ehr/modals/add-edit-medical-history/add-edit-medical-history.modal';
 import { EHRService } from '../../../core/services/ehr.service';
 
 @Injectable({ providedIn: 'root' })

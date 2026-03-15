@@ -9,8 +9,8 @@ import { ProfilePageRoutingModule } from './profile-routing.module';
 import { ProfilePage } from './profile.page';
 import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
-import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit/add-doctor-visit.modal';
-import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history/add-medical-history.modal';
+import { AddDoctorVisitModal } from './ehr/modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
+import { AddMedicalHistoryModal } from './ehr/modals/add-edit-medical-history/add-edit-medical-history.modal';
 import { DoctorProfileComponent } from './components-doctor-profile/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './overview/modals/emergency-details-modal/emergency-details-modal.component';
 import { EmergencySpecificInstructionsModalComponent } from './overview/modals/emergency-specific-instructions-modal/emergency-specific-instructions-modal.component';
@@ -19,7 +19,7 @@ import { OverviewSectionComponent } from './overview/overview-section.component'
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EditEmergencyMessageModalComponent } from './emergency/edit-profile-message/edit-emergency-profile-modal.component';
+import { EditEmergencyMessageModalComponent } from './overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
 import { ChangePasswordModal } from './change-password/change-password.modal';
 import { ProfileSettingsComponent } from './emergency/voice-settings-section/profile-settings.component';
 

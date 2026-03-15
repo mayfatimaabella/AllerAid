@@ -129,7 +129,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     contactPreference: 'Email'
   };
 
-  // Alias facade used in template to existing voice settings manager
   public profileVoiceFacade!: VoiceSettingsManagerService;
   readonly vm$ = combineLatest({
     profile: this.profileDataLoader.userProfile$,
@@ -139,7 +138,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   // 2) Initialization
   async ngOnInit(): Promise<void> {
-    // Initialize alias for template compatibility
+    
     this.profileVoiceFacade = this.voiceSettingsManager;
 
     await this.initializeProfile();
@@ -194,7 +193,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     modal.onDidDismiss().then((result) => {
       if (result.data?.saved) {
-        this.loadUserMedications(); // Refresh medications list
+        this.loadUserMedications();
       }
     });
 
@@ -262,9 +261,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.profileMedicationManager.openMedicationDetails(medication, this);
   }
 
-  // 7) EHR / Medical History
-
-  // 5) Emergency Message
   async openEditEmergencyMessageModal(): Promise<void> {
     await this.closeEmergencyModalIfOpen();
 
@@ -299,10 +295,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     );
   }
 
-  // Voice helpers are called directly on voiceSettingsManager from template
-
-  // 6) Emergency Instructions
-  // Provide normalized instruction entries for Emergency Details modal
   getEmergencyInstructionEntries(): { label: string; text: string }[] {
     return this.profileEmergencySettings.getEmergencyInstructionEntries(
       this.emergencyInstructionsManager.emergencyInstructions,
@@ -320,7 +312,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       await this.showToast('Unable to load allergy options. Please contact administrator.');
     }
   }
-  // Recording controls are invoked directly on voiceSettingsManager from template
+
   async refreshAllergiesDisplay(): Promise<void> {
     const allergies = await this.profileUtility.loadAndDisplayUserAllergies();
 
@@ -330,14 +322,10 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.updateAllergyOptions();
   }
 
-  // Template compatibility stubs
-  // Health Section bindings
   isEmergencyMedicationBind = this.profileMedicationManager.isEmergencyMedication.bind(this.profileMedicationManager);
   isExpiringSoonBind = this.profileMedicationManager.isExpiringSoon.bind(this.profileMedicationManager);
   
-  // Child modal manages its own state via service; no ViewChild needed
 
-  // Service dependencies
   constructor(
  public emergencyInstructionsManager: EmergencyInstructionsManagerService,
   public voiceSettingsManager: VoiceSettingsManagerService,
@@ -353,7 +341,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   public profileAccessRequest: ProfileAccessRequestService,
   public voiceRecordingService: VoiceRecordingService,
 
-  // UI helpers
   public toastController: ToastController,
   public modalController: ModalController,
   public alertController: AlertController,
@@ -415,14 +402,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.profileMedicationManager.loadUserMedications(user.uid);
   }
 
-  // Medication counts and predicates moved to ProfileMedicationManagerService
-
-  // 11) UI Helpers
-  // Centralized emergency test delegation
   private readonly runEmergencyTest = (type: 'alert' | 'shake' | 'power' | 'audio') =>
     this.profileEmergencySettings.runTest(type, this.showToast);
 
-  // Function properties for child inputs and events
   readonly testEmergencyAlert = () => this.runEmergencyTest('alert');
   readonly testShakeDetection = () => this.runEmergencyTest('shake');
   readonly testPowerButtonDetection = () => this.runEmergencyTest('power');
@@ -447,19 +429,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
       await toast.present();
     }
-// Access Request Management - Delegated to ProfileAccessRequestService
-  // Pending requests consumed directly from profileAccessRequest in the template
 
-  // 9) Navigation
-  // Navigation state consumed directly from profileNavigation in the template
-
-  // 10) Utility
-  // Utility Functions - Delegated to ProfileUtilityService
-
-  // 12) Cleanup
-  /**
-   * Cleanup method to prevent memory leaks
-   */
   ngOnDestroy(): void {
     window.speechSynthesis?.cancel();
   }
@@ -477,11 +447,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  // Modal open handled by service
   async openAddInstructionModal() {
     await this.closeEmergencyModalIfOpen();
 
-    // Ensure manager has allergy options for selection within modal
     this.emergencyInstructionsManager.userAllergies = this.userAllergies;
     this.emergencyInstructionsManager.openManageInstructionsModal();
   }
