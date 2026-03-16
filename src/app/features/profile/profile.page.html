@@ -98,7 +98,7 @@
           [emergencyMessageName]="(vm.emergencyMessage?.name || vm.profile?.fullName || 'User')"
           [emergencyInstructionsCombined]="(vm.emergencyMessage?.instructions || '')"
           [emergencyLocation]="(vm.emergencyMessage?.location || 'Map Location')"
-          [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
+          [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
 
           (openEditAllergies)="openEditAllergiesModal()"
           (openEmergencyInfo)="activeModal = 'emergencyInfo'"
@@ -119,8 +119,8 @@
             [emergencyContactPhone]="vm.profile?.emergencyContactPhone || ''"
             [dateOfBirth]="vm.profile?.dateOfBirth || ''"
             [bloodType]="vm.profile?.bloodType || ''"
-            [openEditEmergencyMessageModal]="openEditEmergencyMessageModal.bind(this)"
-            [openManageInstructionsModal]="openAddInstructionModal.bind(this)"
+            [openEditEmergencyMessageModal]="openEditEmergencyMessageModal"
+            [openManageInstructionsModal]="openAddInstructionModal"
             (close)="activeModal = null"
             (testAudio)="testAudioInstructions()"
             (addInstruction)="openAddInstructionModal()"
@@ -134,11 +134,11 @@
       <ng-container *ngIf="profileNavigation.selectedTab === 'health'">
         <app-profile-health-section
 
-          [userMedications]="$any((profileMedicationManager.userMedications$ | async) || [])"
-          [filteredMedications]="$any((profileMedicationManager.filteredMedications$ | async) || [])"
+          [userMedications]="(profileMedicationManager.userMedications$ | async) ?? []"
+          [filteredMedications]="(profileMedicationManager.filteredMedications$ | async) ?? []"
           [medicationFilter]="profileMedicationManager.medicationFilter"
           [medicationSearchTerm]="profileMedicationManager.medicationSearchTerm"
-          [isLoading]="$any(profileMedicationManager.isLoadingMedications$ | async)"
+          [isLoading]="(profileMedicationManager.isLoadingMedications$ | async) ?? false"
 
           [isEmergencyMedicationFn]="isEmergencyMedicationBind"
           [isExpiringSoonFn]="isExpiringSoonBind"
@@ -186,18 +186,18 @@
           [isDoctorVisitsExpanded]="profileEHRManager.isDoctorVisitsExpanded"
           [isMedicalHistoryExpanded]="profileEHRManager.isMedicalHistoryExpanded"
           
-          (addDoctorVisit)="profileEHRManager.openAddDoctorVisitModal(reloadMedicalData)"
-          (addMedicalHistory)="profileEHRManager.openAddMedicalHistoryModal(reloadMedicalData)"
+          (addDoctorVisit)="profileEHRManager.openAddDoctorVisitModal(loadMedicalDataFn)"
+          (addMedicalHistory)="profileEHRManager.openAddMedicalHistoryModal(loadMedicalDataFn)"
 
-          (sendAccessRequest)="profileEHRManager.sendAccessRequest(showToast)"
-           (revokeEHRAccess)="profileEHRManager.revokeEHRAccess($event, reloadMedicalData, showToast)"
+          (sendAccessRequest)="profileEHRManager.sendAccessRequest(presentToastFn)"
+           (revokeEHRAccess)="profileEHRManager.revokeEHRAccess($event, loadMedicalDataFn, presentToastFn)"
 
             (openVisitDetails)="profileEHRManager.openVisitDetails($event)"
             (editDoctorVisit)="profileEHRManager.openEditDoctorVisitModal($event)"
-           (deleteDoctorVisit)="profileEHRManager.deleteDoctorVisit($event.id ?? '', reloadMedicalData)"
+           (deleteDoctorVisit)="profileEHRManager.deleteDoctorVisit($event.id ?? '', loadMedicalDataFn)"
             (openMedicalHistoryDetails)="profileEHRManager.openMedicalHistoryDetails($event)"
             (presentVisitActionsPopover)="profileEHRManager.presentVisitActionsPopover($event)"
-           (presentHistoryActionsPopover)="profileEHRManager.presentHistoryActionsPopover($event, reloadMedicalData)"
+           (presentHistoryActionsPopover)="profileEHRManager.presentHistoryActionsPopover($event, loadMedicalDataFn)"
         ></app-ehr-section-cards>
       </ng-container>
       

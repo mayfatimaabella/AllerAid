@@ -3,35 +3,12 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { AccessRequest } from '../../../core/services/ehr.service';
-
-interface DoctorStats {
-  activePatients: number;
-  pendingRequests: number;
-  recentConsultations: number;
-  criticalPatients?: number;
-  highRiskPatients?: number;
-  upcomingAppointments?: number;
-}
-
-interface ProfessionalSettings {
-  accessRequestNotifications: boolean;
-  patientUpdateNotifications: boolean;
-  emergencyAlerts: boolean;
-  workingHours?: string;
-  contactPreference?: string;
-}
-
-interface RecentActivity {
-  type: string;
-  description: string;
-  timestamp: Date | string;
-}
-
-interface ProfessionalCredential {
-  name: string;
-  issuer: string;
-  dateIssued: Date | string;
-}
+import {
+  Activity,
+  DoctorStats,
+  ProfessionalCredential,
+  ProfessionalSettings,
+} from '../profile.types';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -58,7 +35,7 @@ export class DoctorProfileComponent implements OnInit {
     workingHours: '9:00 AM - 5:00 PM',
     contactPreference: 'Email'
   };
-  @Input() recentActivity: RecentActivity[] = [];
+  @Input() recentActivity: Activity[] = [];
   @Input() professionalCredentials: ProfessionalCredential[] = [];
 
   @Output() navigateToDashboard = new EventEmitter<void>();

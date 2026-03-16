@@ -1,18 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { combineLatest } from 'rxjs';
+
 import {
   ToastController,
-  ModalController,
-  AlertController,
-  PopoverController,
-  ActionSheetController
+  ModalController
 } from '@ionic/angular';
 
 import { UserProfile } from '../../core/services/user.service';
-
 import { EmergencyMessage } from '../../core/services/medical.service';
 import { Medication } from '../../core/services/medication.service';
+
+import { AllergyManagerService } from '../../core/services/allergy-manager.service';
+import { VoiceRecordingService } from '../../core/services/voice-recording.service';
 
 import { ProfileDataLoaderService } from './profile-services/profile-data-loader.service';
 import { ProfileMedicationManagerService } from './profile-services/profile-medication-manager.service';
@@ -23,78 +24,29 @@ import { ProfileNavigationService } from './profile-services/profile-navigation.
 import { ProfileUtilityService } from './profile-services/profile-utility.service';
 import { ProfileAccessRequestService } from './profile-services/profile-access-request.service';
 import { ProfileDataService } from './profile-services/profile-data.service';
-
-import { AllergyManagerService } from '../../core/services/allergy-manager.service';
+import { VoiceSettingsManagerService } from './profile-services/voice-settings-manager.service';
+import { AllergyModalService } from './profile-services/allergy-modal.service';
 
 import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
 import { ChangePasswordModal } from './change-password/change-password.modal';
+import {
+  ActiveModal,
+  Activity,
+  Allergy,
+  AllergyOption,
+  DoctorStats,
+  EmergencyInstructionItem,
+  EmergencyMessageFormData,
+  ProfessionalCredential,
+  ProfessionalSettings,
+} from './profile.types';
 
-import { VoiceSettingsManagerService } from './profile-services/voice-settings-manager.service';
-import { VoiceRecordingService } from '../../core/services/voice-recording.service';
-import { AllergyModalService } from './profile-services/allergy-modal.service';
-
-interface Allergy {
-  name: string;
-  label?: string;
-  checked?: boolean;
-  value?: string;
-}
-
-interface AllergyOption {
-  name: string;
-  checked: boolean;
-  hasInput?: boolean;
-  value?: string;
-}
-
-interface DoctorStats {
-  activePatients: number;
-  pendingRequests: number;
-  recentConsultations: number;
-  criticalPatients?: number;
-  highRiskPatients?: number;
-  upcomingAppointments?: number;
-}
-
-interface Activity {
-  type: string;
-  description: string;
-  timestamp: Date | string;
-}
-
-interface ProfessionalSettings {
-  accessRequestNotifications: boolean;
-  patientUpdateNotifications: boolean;
-  emergencyAlerts: boolean;
-  workingHours?: string;
-  contactPreference?: string;
-}
-
-interface ProfessionalCredential {
-  name: string;
-  issuer: string;
-  dateIssued: Date | string;
-}
-
-interface EmergencyMessageFormData {
-  name?: string;
-  allergies?: string;
-  instructions?: string;
-  location?: string;
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  dateOfBirth?: string;
-  bloodType?: string;
-  avatar?: string;
-}
-
-interface EmergencyInstructionItem {
-  allergyId?: string;
-  allergyName?: string;
-  instruction?: string;
-}
-
-type ActiveModal = 'examples' | 'emergencyMessage' | 'emergencyInfo' | null;
+const EMPTY_EMERGENCY_MESSAGE: EmergencyMessage = {
+  name: '',
+  allergies: '',
+  instructions: '',
+  location: ''
+};
 
 
 @Component({
@@ -106,12 +58,11 @@ type ActiveModal = 'examples' | 'emergencyMessage' | 'emergencyInfo' | null;
 export class ProfilePage implements OnInit, OnDestroy {
 
   userAllergies: Allergy[] = [];
-  emergencyMessage: EmergencyMessage = { name: '', allergies: '', instructions: '', location: '' };
 
   activeModal: ActiveModal = null;
   allergyOptions: AllergyOption[] = [];
   allergiesCount: number = 0;
-  doctorStats: DoctorStats = {
+  readonly doctorStats: DoctorStats = {
     activePatients: 0,
     pendingRequests: 0,
     recentConsultations: 0,
@@ -119,9 +70,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     highRiskPatients: 0,
     upcomingAppointments: 0
   };
-  recentActivity: Activity[] = [];
-  professionalCredentials: ProfessionalCredential[] = [];
-  professionalSettings: ProfessionalSettings = {
+  readonly recentActivity: Activity[] = [];
+  readonly professionalCredentials: ProfessionalCredential[] = [];
+  readonly professionalSettings: ProfessionalSettings = {
     accessRequestNotifications: true,
     patientUpdateNotifications: true,
     emergencyAlerts: true,
@@ -166,8 +117,14 @@ export class ProfilePage implements OnInit, OnDestroy {
     await new Promise(resolve => setTimeout(resolve, 300));
   }
 
-  public readonly reloadMedicalData = (): Promise<void> => this.loadMedicalData();
-  public readonly showToast = (message: string): Promise<void> => this.presentToast(message);
+  private async openModal(component: any, cssClass?: string) {
+    const modal = await this.modalController.create({ component, cssClass });
+    await modal.present();
+    return modal;
+  }
+
+  readonly loadMedicalDataFn = (): Promise<void> => this.loadMedicalData();
+  readonly presentToastFn = (message: string): Promise<void> => this.presentToast(message);
   public readonly refreshAccessRequests = (): Promise<void> => this.profileAccessRequest.loadAccessRequests();
   
   // 3) Allergy Management
@@ -182,34 +139,15 @@ export class ProfilePage implements OnInit, OnDestroy {
     );
   }
   
-  /**
-   * Open add medication modal
-   */
-  // 4) Medication Management
   async openAddMedicationModal() {
-    const modal = await this.modalController.create({
-      component: AddMedicationModal,
-    });
-
+    const modal = await this.openModal(AddMedicationModal);
     modal.onDidDismiss().then((result) => {
-      if (result.data?.saved) {
-        this.loadUserMedications();
-      }
+      if (result.data?.saved) this.loadUserMedications();
     });
-
-    await modal.present();
   }
 
-  /**
-   * Open change password modal
-   */
   async openChangePasswordModal(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: ChangePasswordModal,
-      cssClass: 'change-password-modal'
-    });
-
-    await modal.present();
+    await this.openModal(ChangePasswordModal, 'change-password-modal');
   }
 
   //Search medications with debounce
@@ -261,16 +199,16 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.profileMedicationManager.openMedicationDetails(medication, this);
   }
 
-  async openEditEmergencyMessageModal(): Promise<void> {
+  readonly openEditEmergencyMessageModal = async (): Promise<void> => {
     await this.closeEmergencyModalIfOpen();
 
     await this.profileEmergencySettings.openEditEmergencyMessageModal(
-      this.profileDataLoader.emergencyMessageValue || { name: '', allergies: '', instructions: '', location: '' },
+      this.profileDataLoader.emergencyMessageValue || EMPTY_EMERGENCY_MESSAGE,
       this.profileDataLoader.userProfileValue,
       (message: EmergencyMessageFormData) => this.saveEditedEmergencyMessage(message),
       () => this.refreshEmergencyMessageDisplay()
     );
-  }
+  };
 
   /**
    * Refresh the emergency message-related UI after edits.
@@ -279,7 +217,7 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   async refreshEmergencyMessageDisplay(): Promise<void> {
     await this.profileEmergencySettings.refreshEmergencyMessageDisplay(
-      this.reloadMedicalData,
+      () => this.loadMedicalData(),
       () => this.loadEmergencyInstructions()
     );
   }
@@ -290,15 +228,15 @@ export class ProfilePage implements OnInit, OnDestroy {
       this.profileDataLoader.userProfileValue,
       (msg: EmergencyMessage) => { this.profileDataLoader.setEmergencyMessage(msg); },
       (profile: UserProfile) => { this.profileDataLoader.setUserProfile(profile); },
-      this.reloadMedicalData,
-      this.showToast
+      () => this.loadMedicalData(),
+      (toastMessage: string) => this.presentToast(toastMessage)
     );
   }
 
   getEmergencyInstructionEntries(): { label: string; text: string }[] {
     return this.profileEmergencySettings.getEmergencyInstructionEntries(
       this.emergencyInstructionsManager.emergencyInstructions,
-      this.profileDataLoader.emergencyMessageValue || this.emergencyMessage
+      this.profileDataLoader.emergencyMessageValue ?? EMPTY_EMERGENCY_MESSAGE
     );
   }
 
@@ -309,7 +247,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error loading allergy options:', error);
       this.allergyOptions = [];
-      await this.showToast('Unable to load allergy options. Please contact administrator.');
+      await this.presentToast('Unable to load allergy options. Please contact administrator.');
     }
   }
 
@@ -318,7 +256,11 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     this.userAllergies = allergies;
     this.allergiesCount = allergies.length;
-    this.emergencyMessage.allergies = this.profileUtility.generateEmergencyAllergyText(allergies);
+    const current = this.profileDataLoader.emergencyMessageValue ?? EMPTY_EMERGENCY_MESSAGE;
+    this.profileDataLoader.setEmergencyMessage({
+      ...current,
+      allergies: this.profileUtility.generateEmergencyAllergyText(allergies)
+    });
     this.updateAllergyOptions();
   }
 
@@ -343,9 +285,6 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   public toastController: ToastController,
   public modalController: ModalController,
-  public alertController: AlertController,
-  public popoverController: PopoverController,
-  public actionSheetController: ActionSheetController,
   public router: Router
   ) {}
 
@@ -359,7 +298,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         const data = await this.profileDataLoader.loadMedicalData();
         
         if (data.emergencyMessage) {
-          this.emergencyMessage = data.emergencyMessage;
+          this.profileDataLoader.setEmergencyMessage(data.emergencyMessage);
         }
         Object.assign(
           this.profileEmergencySettings.emergencySettings,
@@ -401,14 +340,15 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (!user) return;
     await this.profileMedicationManager.loadUserMedications(user.uid);
   }
+  
+  private runEmergencyTest(type: 'alert' | 'shake' | 'power' | 'audio') {
+    return this.profileEmergencySettings.runTest(type, (msg) => this.presentToast(msg));
+}
 
-  private readonly runEmergencyTest = (type: 'alert' | 'shake' | 'power' | 'audio') =>
-    this.profileEmergencySettings.runTest(type, this.showToast);
-
-  readonly testEmergencyAlert = () => this.runEmergencyTest('alert');
-  readonly testShakeDetection = () => this.runEmergencyTest('shake');
-  readonly testPowerButtonDetection = () => this.runEmergencyTest('power');
-  readonly testAudioInstructions = () => this.runEmergencyTest('audio');
+  testEmergencyAlert = () => this.runEmergencyTest('alert');
+  testShakeDetection = () => this.runEmergencyTest('shake');
+  testPowerButtonDetection = () => this.runEmergencyTest('power');
+  testAudioInstructions = () => this.runEmergencyTest('audio');
 
   async confirmDeleteInstruction(instruction?: EmergencyInstructionItem): Promise<void> {
     const id = instruction?.allergyId || instruction?.allergyName;
@@ -440,19 +380,19 @@ export class ProfilePage implements OnInit, OnDestroy {
     try {
       const text = instruction.instruction || 'No instruction content';
       await this.voiceRecordingService.playEmergencyInstructions(text);
-      await this.showToast('Instruction audio test played');
+      await this.presentToast('Instruction audio test played');
     } catch (e) {
       console.error('Error playing instruction audio', e);
-      await this.showToast('Audio test failed');
+      await this.presentToast('Audio test failed');
     }
   }
 
-  async openAddInstructionModal() {
+   openAddInstructionModal = async (): Promise<void> => {
     await this.closeEmergencyModalIfOpen();
 
     this.emergencyInstructionsManager.userAllergies = this.userAllergies;
     this.emergencyInstructionsManager.openManageInstructionsModal();
-  }
+  };
   
   readonly openAddEmergencyMessageModal = (): void => {
     this.activeModal = 'emergencyMessage';
@@ -462,8 +402,8 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.profileEmergencySettings.saveNewEmergencyMessage(
       message,
       this.profileDataLoader.userProfileValue,
-      this.showToast,
-      this.reloadMedicalData
+      (toastMessage: string) => this.presentToast(toastMessage),
+      () => this.loadMedicalData()
     );
 
     this.activeModal = null;
