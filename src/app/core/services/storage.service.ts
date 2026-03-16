@@ -28,22 +28,23 @@ export class StorageService {
   }
 
   async addRecentScan(scan: any): Promise<void> {
-    const scans = await this.getRecentScans();
+    let scans = await this.getRecentScans();
 
-    // Prevent duplicates (by id or timestamp if available)
-    const exists = scans.find(s =>
-      (scan.id && s.id === scan.id) ||
-      (scan.timestamp && s.timestamp === scan.timestamp)
-    );
+    // 1. Find the index of an existing scan with the same barcode 'code'
+    const existingIndex = scans.findIndex(s => s.code === scan.code);
 
-    if (!exists) {
-      scans.unshift({
-        ...scan,
-        timestamp: scan.timestamp || Date.now()
-      });
+    // 2. If it exists, remove it so we can re-insert it at the top
+    if (existingIndex !== -1) {
+      scans.splice(existingIndex, 1);
     }
 
-    // Keep only latest 10 scans
+    // 3. Add the new scan to the beginning of the array
+    scans.unshift({
+      ...scan,
+      timestamp: Date.now() // Always refresh timestamp for the "Recent" sort order
+    });
+
+    // 4. Keep only the latest 10 scans and save
     localStorage.setItem(
       this.RECENT_SCANS_KEY,
       JSON.stringify(scans.slice(0, 10))
@@ -52,8 +53,10 @@ export class StorageService {
 
   async deleteRecentScan(index: number): Promise<void> {
     const scans = await this.getRecentScans();
-    scans.splice(index, 1);
-    localStorage.setItem(this.RECENT_SCANS_KEY, JSON.stringify(scans));
+    if (index > -1 && index < scans.length) {
+      scans.splice(index, 1);
+      localStorage.setItem(this.RECENT_SCANS_KEY, JSON.stringify(scans));
+    }
   }
 
   async clearRecentScans(): Promise<void> {

@@ -13,11 +13,18 @@ export class ManualBarcodeComponent {
   manualBarcode: string = '';
 
   onSubmit() {
-    if (!this.manualBarcode || this.manualBarcode.trim() === '') {
+    // 1. Trim the barcode to prevent "fake" duplicates caused by whitespace
+    const cleanedBarcode = this.manualBarcode ? this.manualBarcode.trim() : '';
+
+    if (!cleanedBarcode) {
       alert('Please enter a valid barcode.');
       return;
     }
-    this.barcodeSubmitted.emit(this.manualBarcode);
+
+    // 2. Emit the cleaned version
+    this.barcodeSubmitted.emit(cleanedBarcode);
+    
+    // Reset and close
     this.closeModal();
   }
 
