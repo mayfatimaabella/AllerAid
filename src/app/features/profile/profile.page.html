@@ -16,37 +16,45 @@
 <ion-content class="ion-padding profile-page-bg">
 
   <section class="profile-header">
-    <ion-avatar class="profile-avatar">
-      <img alt="person-avatar"
-           [src]="vm.profile?.avatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'" />
-    </ion-avatar>
-
-    <ng-container *ngIf="vm.profile as profile">
-      <div class="profile-name">
-        {{ (vm.emergencyMessage?.name || profile.fullName || 'User') }}
+    <div class="profile-header-card">
+      <div class="profile-header-content">
+        <ion-avatar class="profile-avatar">
+          <img alt="person-avatar"
+               [src]="vm.profile?.avatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'" />
+        </ion-avatar>
+        
+        <ng-container *ngIf="vm.profile as profile">
+          <div class="profile-info">
+            <div class="profile-name">
+              {{ (vm.emergencyMessage?.name || profile.fullName || 'User') }}
+            </div>
+          </div>
+        </ng-container>
       </div>
-
-      <div class="profile-actions">
-        <ion-button
-          class="profile-edit-btn"
-          size="small"
-          fill="solid"
-          (click)="openEditEmergencyMessageModal()"
-          aria-label="Edit profile">
-          Edit Profile
-        </ion-button>
-        <ion-button
-          class="profile-password-btn"
-          size="small"
-          fill="outline"
-          (click)="openChangePasswordModal()"
-          aria-label="Change password">
-          <ion-icon name="key" slot="start"></ion-icon>
-          Change Password
-        </ion-button>
-      </div>
-    </ng-container>
+      
+      <button class="profile-menu-btn" id="profileMenuBtn" aria-label="Menu">
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </button>
+    </div>
   </section>
+
+  <!-- Profile Menu Popover -->
+  <ion-popover trigger="profileMenuBtn">
+    <ng-template>
+      <ion-content>
+        <ion-list>
+          <ion-item button (click)="openEditEmergencyMessageModal()">
+            <ion-icon name="pencil-outline" slot="start"></ion-icon>
+            <ion-label>Edit Profile</ion-label>
+          </ion-item>
+          <ion-item button (click)="openChangePasswordModal()">
+            <ion-icon name="key" slot="start"></ion-icon>
+            <ion-label>Change Password</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-popover>
 
   <section class="profile-card">
 
