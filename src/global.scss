@@ -246,6 +246,30 @@ ion-app {
   color: #1f4a42 !important;
 }
 
+/* Profile menu popover: enforce white background regardless of app theme */
+.profile-menu-popover {
+  --background: #ffffff;
+  --color: #000000;
+}
+
+.profile-menu-popover::part(content) {
+  background: #ffffff !important;
+}
+
+.profile-menu-popover ion-content,
+.profile-menu-popover ion-list,
+.profile-menu-popover ion-item {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+}
+
+.profile-menu-popover ion-item,
+.profile-menu-popover ion-label,
+.profile-menu-popover ion-icon {
+  color: #000000 !important;
+  --color: #000000 !important;
+}
+
 /* Reusable Card Style */
 .app-card {
   background: var(--app-color-surface);
@@ -392,8 +416,7 @@ ion-alert .alert-checkbox-label {
   --width: 95%;
   --max-width: 600px;
   --height: 80%;
-  --border-radius: 12px;
-  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  --border-radius: 12px;  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .route-map-modal .modal-wrapper {
