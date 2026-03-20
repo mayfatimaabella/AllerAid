@@ -21,7 +21,7 @@ export class MedicationManagerService {
     loadUserMedications: () => Promise<void>
   ) {
     const modal = await this.modalController.create({
-      component: (await import('../health/modals/add-medication/add-medication.modal')).AddMedicationModal,
+      component: (await import('../health/modals/add-edit-medication/add-edit-medication.modal')).AddMedicationModal,
       componentProps: {
         medication: medication,
         isEditMode: true
@@ -114,7 +114,16 @@ export class MedicationManagerService {
     }
     switch (medicationFilter) {
       case 'active':
-        filtered = filtered.filter(med => med.isActive);
+        filtered = filtered.filter(med => {
+          const isActive = med.isActive;
+
+          // Treat medications with no pills left or already expired as not active,
+          // even if their isActive flag is still true in the database.
+          const noPillsLeft = typeof med.quantity === 'number' && med.quantity <= 0;
+          const isExpired = med.expiryDate && new Date(med.expiryDate) < new Date();
+
+          return isActive && !noPillsLeft && !isExpired;
+        });
         break;
       case 'emergency':
         filtered = filtered.filter(med =>

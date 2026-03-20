@@ -46,6 +46,35 @@ export class MedicationReminderService {
     return out;
   }
 
+  // Mirror the UI logic for remaining pills so that
+  // notifications stop once a course is effectively finished.
+  private calculateRemainingPills(med: any): number {
+    if (!med?.startDate || med?.quantity === undefined) {
+      return med?.quantity ?? 0;
+    }
+
+    const start = new Date(med.startDate);
+    const today = new Date();
+    if (today < start) return med.quantity;
+
+    const daysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 3600 * 24));
+
+    let dosesPerDay = 1;
+    if (typeof med.frequency === 'string') {
+      const match = med.frequency.match(/(\d+)/);
+      if (match) {
+        dosesPerDay = parseInt(match[1], 10);
+      } else if (med.frequency.toLowerCase().includes('twice')) {
+        dosesPerDay = 2;
+      } else if (med.frequency.toLowerCase().includes('thrice')) {
+        dosesPerDay = 3;
+      }
+    }
+
+    const deducted = daysElapsed * dosesPerDay;
+    return Math.max(med.quantity - deducted, 0);
+  }
+
   async scheduleForMedication(med: any) {
     if (!med?.id) return;
     await this.ensurePermissions();
@@ -54,7 +83,12 @@ export class MedicationReminderService {
     const end = med?.expiryDate ? new Date(med.expiryDate) : undefined;
     const interval = Number(med?.intervalHours) || 0;
 
-    if (!interval || med?.isActive === false) {
+    const remaining = this.calculateRemainingPills(med);
+
+    // If there is no interval, the medication is inactive, or
+    // there are effectively no pills left, cancel any existing
+    // reminders and do not schedule new ones.
+    if (!interval || med?.isActive === false || remaining <= 0) {
       await this.cancelForMedication(med.id);
       return;
     }

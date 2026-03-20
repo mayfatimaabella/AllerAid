@@ -64,14 +64,11 @@ export class HealthSectionComponent {
 
     // We calculate these fresh every time the button is clicked
     const label = this.getStatusLabel(medication);
-    const remaining = this.calculateRemainingPills(medication);
-    const isExpired = medication.expiryDate && new Date(medication.expiryDate) < new Date();
-    
-    // A medication is "Pausing" ONLY if it's Active and NOT Finished/Expired
-    const showPauseButton = medication.isActive && remaining > 0 && !isExpired;
-    
-    // A medication cannot be toggled if it's logically dead
-    const cannotToggle = remaining <= 0 || isExpired;
+
+    // Allow toggling regardless of remaining pills/expiry.
+    // The math still drives the status label, but the user can
+    // always change Active/Inactive from the action sheet.
+    const showPauseButton = medication.isActive;
 
     const actionSheet = await this.actionSheetController.create({
       header: medication.name || 'Medication',
@@ -81,8 +78,7 @@ export class HealthSectionComponent {
           // Text is now derived from the 'showPauseButton' logic, not just the DB boolean
           text: showPauseButton ? 'Pause Medication' : 'Activate Medication',
           icon: showPauseButton ? 'pause-outline' : 'play-outline',
-          // Force disable if Finished or Expired
-          disabled: cannotToggle,
+          disabled: false,
           handler: () => {
             this.toggleStatus.emit(medication.id);
           }

@@ -4,8 +4,8 @@ import { MedicationService, Medication } from '../../../../../core/services/medi
 
 @Component({
   selector: 'app-add-medication',
-  templateUrl: './add-medication.modal.html',
-  styleUrls: ['./add-medication.modal.scss'],
+  templateUrl: './add-edit-medication.modal.html',
+  styleUrls: ['./add-edit-medication.modal.scss'],
   standalone: false,
 })
 export class AddMedicationModal implements OnInit {
@@ -85,7 +85,8 @@ export class AddMedicationModal implements OnInit {
     return '';
   }
 
-  // Calculate duration in days between start and expiry dates
+  // Calculate duration in days between start and expiry dates,
+  // and include interval information when available
   calculateDuration() {
     // Only auto-calculate if user hasn't manually set duration
     if (this.isDurationManual) {
@@ -95,18 +96,35 @@ export class AddMedicationModal implements OnInit {
     if (this.med.startDate && this.med.expiryDate) {
       const startDate = new Date(this.med.startDate);
       const expiryDate = new Date(this.med.expiryDate);
-      
+
       // Calculate the difference in time (milliseconds)
       const timeDifference = expiryDate.getTime() - startDate.getTime();
-      
+
       // Convert to days
       const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
-      
-      // Update the frequency field with calculated days
+
+      // Normalised interval (in hours), if provided
+      const intervalHours = this.med.intervalHours !== undefined && this.med.intervalHours !== null
+        ? Number(this.med.intervalHours)
+        : NaN;
+
+      const hasInterval = !isNaN(intervalHours) && intervalHours > 0;
+
+      // If we are in auto mode and there is no interval yet,
+      // wait until the user selects an interval before setting duration
+      if (!hasInterval) {
+        return;
+      }
+
+      // Build the duration/frequency text
       if (daysDifference > 0) {
-        this.med.frequency = `${daysDifference} day${daysDifference === 1 ? '' : 's'}`;
+        const daysText = `${daysDifference} day${daysDifference === 1 ? '' : 's'}`;
+        const hoursText = `${intervalHours} hour${intervalHours === 1 ? '' : 's'}`;
+        this.med.frequency = `${daysText}, every ${hoursText}`;
       } else if (daysDifference === 0) {
-        this.med.frequency = '1 day';
+        const daysText = '1 day';
+        const hoursText = `${intervalHours} hour${intervalHours === 1 ? '' : 's'}`;
+        this.med.frequency = `${daysText}, every ${hoursText}`;
       } else {
         // If expiry date is before start date, clear the duration
         this.med.frequency = '';
@@ -135,6 +153,11 @@ export class AddMedicationModal implements OnInit {
 
   // Handle expiry date change
   onExpiryDateChange() {
+    this.calculateDuration();
+  }
+
+  // Handle interval (hours) change
+  onIntervalChange() {
     this.calculateDuration();
   }
 
@@ -167,6 +190,54 @@ export class AddMedicationModal implements OnInit {
                              this.validateQuantity());
 
     return hasBasicFields;
+  }
+
+  // Inline validation message for dosage amount
+  get dosageAmountError(): string | null {
+    const value: any = this.med.dosageAmount;
+
+    // Don't show an error while empty; "required" is handled by form disable/toast
+    if (value === undefined || value === null || value === '') {
+      return null;
+    }
+
+    const numeric = Number(value);
+    if (isNaN(numeric)) {
+      return 'Please enter a valid number.';
+    }
+    if (numeric <= 0) {
+      return 'Dosage amount must be greater than 0.';
+    }
+    if (numeric > 10000) {
+      return 'Dosage amount seems too large (max 10000).';
+    }
+
+    return null;
+  }
+
+  // Inline validation message for quantity (number of pills)
+  get quantityError(): string | null {
+    const value: any = this.med.quantity;
+
+    if (value === undefined || value === null || value === '') {
+      return null;
+    }
+
+    const quantity = Number(value);
+    if (isNaN(quantity)) {
+      return 'Please enter a valid number of pills.';
+    }
+    if (!Number.isInteger(quantity)) {
+      return 'Number of pills must be a whole number.';
+    }
+    if (quantity < 0) {
+      return 'Number of pills cannot be negative.';
+    }
+    if (quantity > 999) {
+      return 'Number of pills cannot exceed 999.';
+    }
+
+    return null;
   }
 
   async selectPrescriptionImage() {
@@ -379,7 +450,13 @@ export class AddMedicationModal implements OnInit {
       this.med.isActive = true; // Reactive if dates/stock are corrected
     }
 
-    if (!this.med.frequency?.trim() && this.med.startDate && this.med.expiryDate) {
+    if (
+      !this.med.frequency?.trim() &&
+      this.med.startDate &&
+      this.med.expiryDate &&
+      this.med.intervalHours !== undefined &&
+      this.med.intervalHours !== null
+    ) {
       this.calculateDuration();
     }
 

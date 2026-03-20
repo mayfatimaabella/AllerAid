@@ -33,12 +33,29 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Load user role when app initializes
-    await this.loadUserRole();
+    // Wait for Firebase Auth to finish restoring any saved session
+    const user = await this.authService.waitForAuthInit();
 
-    // Listen for auth state changes to update role
-    this.authService.getCurrentUser$().subscribe(async (user) => {
-      if (user) {
+    if (user) {
+      // Ensure role is loaded for an authenticated user
+      await this.loadUserRole();
+
+      // If the app started on the login screen, redirect to the main area
+      if (this.router.url === '/login' || this.router.url === '/') {
+        await this.router.navigate(['/tabs'], { replaceUrl: true });
+      }
+    } else {
+      this.userRole = '';
+
+      // If there is no authenticated user, make sure we are on the login page
+      if (this.router.url !== '/login') {
+        await this.router.navigate(['/login'], { replaceUrl: true });
+      }
+    }
+
+    // Keep reacting to auth changes (e.g., after login/logout while app is open)
+    this.authService.getCurrentUser$().subscribe(async (currentUser) => {
+      if (currentUser) {
         await this.loadUserRole();
       } else {
         this.userRole = '';

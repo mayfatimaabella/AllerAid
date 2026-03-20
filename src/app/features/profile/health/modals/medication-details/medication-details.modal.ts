@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { ActionSheetController, IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-medication-details-modal',
@@ -14,8 +14,11 @@ export class MedicationDetailsModal {
   @Input() isEmergencyMedicationFn?: (m: any) => boolean;
   @Input() isExpiringSoonFn?: (date?: string) => boolean;
   @Output() close = new EventEmitter<void>();
+  @Output() edit = new EventEmitter<any>();
+  @Output() delete = new EventEmitter<string | undefined>();
 
-  // --- Logic for Status ---
+  constructor(private actionSheetController: ActionSheetController) {}
+
 
   getStatusLabel(): string {
     if (!this.medication) return '';
@@ -24,8 +27,12 @@ export class MedicationDetailsModal {
     if (isExpired) return 'Expired';
     
     const remaining = this.calculateRemainingPills();
-    if (remaining <= 0) return 'Finished';
-    
+    if (remaining <= 0) {
+      // Ensure finished medications are treated as inactive
+      this.medication.isActive = false;
+      return 'Finished';
+    }
+
     return this.medication.isActive ? 'Active' : 'Inactive';
   }
 
@@ -70,5 +77,40 @@ export class MedicationDetailsModal {
 
   isExpiringSoon(): boolean {
     return this.isExpiringSoonFn ? !!this.isExpiringSoonFn(this.medication?.expiryDate) : false;
+  }
+
+  async presentMedicationActions(medication?: any): Promise<void> {
+    const med = medication || this.medication;
+    if (!med?.id) {
+      return;
+    }
+
+    const actionSheet = await this.actionSheetController.create({
+      header: med.name || 'Medication',
+      buttons: [
+        {
+          text: 'Edit Medication',
+          icon: 'create-outline',
+          handler: () => {
+            this.edit.emit(med);
+          }
+        },
+        {
+          text: 'Delete Medication',
+          role: 'destructive',
+          icon: 'trash-outline',
+          handler: () => {
+            this.delete.emit(med.id);
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          icon: 'close-outline'
+        }
+      ]
+    });
+
+    await actionSheet.present();
   }
 }

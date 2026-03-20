@@ -8,7 +8,7 @@ import { ProfilePageRoutingModule } from './profile-routing.module';
 
 import { ProfilePage } from './profile.page';
 import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
-import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
+import { AddMedicationModal } from './health/modals/add-edit-medication/add-edit-medication.modal';
 import { AddDoctorVisitModal } from './ehr/modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
 import { AddMedicalHistoryModal } from './ehr/modals/add-edit-medical-history/add-edit-medical-history.modal';
 import { DoctorProfileComponent } from './components-doctor-profile/doctor-profile.component';

@@ -178,7 +178,9 @@
         [medication]="profileMedicationManager.selectedMedication"
         [isEmergencyMedicationFn]="isEmergencyMedicationBind"
         [isExpiringSoonFn]="isExpiringSoonBind"
-        (close)="profileMedicationManager.closeMedicationDetails()">
+          (close)="profileMedicationManager.closeMedicationDetails()"
+          (edit)="editMedication($event)"
+          (delete)="deleteMedication($event)">
         </app-medication-details-modal>
        </ng-template>
       </ion-modal>

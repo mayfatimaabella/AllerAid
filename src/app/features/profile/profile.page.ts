@@ -27,7 +27,7 @@ import { ProfileDataService } from './profile-services/profile-data.service';
 import { VoiceSettingsManagerService } from './profile-services/voice-settings-manager.service';
 import { AllergyModalService } from './profile-services/allergy-modal.service';
 
-import { AddMedicationModal } from './health/modals/add-medication/add-medication.modal';
+import { AddMedicationModal } from './health/modals/add-edit-medication/add-edit-medication.modal';
 import { ChangePasswordModal } from './change-password/change-password.modal';
 import {
   ActiveModal,
@@ -81,6 +81,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   };
 
   public profileVoiceFacade!: VoiceSettingsManagerService;
+  
   readonly vm$ = combineLatest({
     profile: this.profileDataLoader.userProfile$,
     allergies: this.profileDataLoader.userAllergies$,
@@ -193,6 +194,7 @@ export class ProfilePage implements OnInit, OnDestroy {
    */
   async deleteMedication(medicationId: string | undefined): Promise<void> {
     await this.profileMedicationManager.deleteMedication(medicationId, () => this.loadUserMedications());
+    this.profileMedicationManager.closeMedicationDetails();
   } 
 
   openMedicationDetails(medication: Medication): void {
