@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { AllergyService } from '../../../core/services/allergy.service';
+import { MedicalService } from '../../../core/services/medical.service';
 import * as L from 'leaflet';
 import { Router } from '@angular/router';
 import { BuddyService } from '../../../core/services/buddy.service';
@@ -31,9 +32,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   private async fetchAddressFromCoords(lat: number, lng: number) {
     try {
       this.isAddressLoading = true;
-      // Do not set forbidden headers like User-Agent/Referer in browser.
-      // Provide a contact email via query param per Nominatim policy.
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      // Use dev-server proxy (/nominatim) to avoid browser CORS issues in web builds.
+      const url = `/nominatim/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Reverse geocoding failed: ${response.status}`);
@@ -53,7 +53,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   private async fetchResponderAddress(lat: number, lng: number) {
     try {
       this.isResponderAddressLoading = true;
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      const url = `/nominatim/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Reverse geocoding failed: ${response.status}`);
@@ -149,10 +149,27 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   private emergencySubscription: Subscription | null = null;
   private instructionFallbackByUserId = new Map<string, string>();
   private profileInstructionFallback = '';
+  private avatarByUserId = new Map<string, string>();
+  patientAvatar: string | null = null;
+  emergencyContactPhone: string = '';
+  private dateOfBirthRaw: string = '';
+  bloodType: string = '';
+  // Allergy-specific instruction entries (e.g., Peanuts/Nuts: use EpiPen now)
+  specificInstructionEntries: { label: string; text: string }[] = [];
 
-  get displayedEmergencyInstruction(): string {
+  /**
+   * General emergency instructions saved on the patient's profile.
+   */
+  get profileEmergencyInstruction(): string {
+    return this.profileInstructionFallback || '';
+  }
+
+  /**
+   * Instructions specific to this emergency alert (what was sent with this event).
+   */
+  get eventSpecificInstruction(): string {
     if (!this.currentEmergency) {
-      return 'No instructions available';
+      return '';
     }
 
     const candidates = [
@@ -160,7 +177,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       (this.currentEmergency as any).instruction,
       (this.currentEmergency as any).instructions,
       (this.currentEmergency as any).emergencyMessage?.instructions,
-      this.profileInstructionFallback,
       this.responderData?.instruction,
       this.responderData?.alert?.instruction,
       this.responderData?.alert?.instructions,
@@ -168,11 +184,57 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     ];
 
     const resolved = candidates.find(value => typeof value === 'string' && value.trim().length > 0);
-    return resolved || 'No instructions available';
+    if (!resolved) {
+      return '';
+    }
+
+    const trimmedResolved = resolved.trim();
+    const trimmedProfile = this.profileEmergencyInstruction.trim();
+
+    // Avoid showing duplicate box when event instruction matches profile plan
+    if (trimmedResolved && trimmedProfile && trimmedResolved === trimmedProfile) {
+      return '';
+    }
+
+    return trimmedResolved;
+  }
+
+  get displayedEmergencyInstruction(): string {
+    const primary = this.eventSpecificInstruction || this.profileEmergencyInstruction;
+    return primary || 'No instructions available';
   }
 
   get hasEmergencyInstruction(): boolean {
-    return this.displayedEmergencyInstruction !== 'No instructions available';
+    return !!(this.eventSpecificInstruction || this.profileEmergencyInstruction);
+  }
+
+  get formattedDateOfBirth(): string {
+    const rawValue = (this.dateOfBirthRaw || '').trim();
+    if (!rawValue) {
+      return 'Not specified';
+    }
+
+    let dateValue: Date;
+    const isoDateMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(rawValue);
+
+    if (isoDateMatch) {
+      const year = Number(isoDateMatch[1]);
+      const monthIndex = Number(isoDateMatch[2]) - 1;
+      const day = Number(isoDateMatch[3]);
+      dateValue = new Date(year, monthIndex, day);
+    } else {
+      dateValue = new Date(rawValue);
+    }
+
+    if (isNaN(dateValue.getTime())) {
+      return rawValue;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(dateValue);
   }
 
   constructor(
@@ -182,6 +244,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     private userService: UserService,
     private emergencyService: EmergencyService,
     private allergyService: AllergyService,
+    private medicalService: MedicalService,
     private modalController: ModalController
   ) {}
 
@@ -239,9 +302,14 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
           // Set current emergency to the most recent active one
           if (this.activeEmergencies.length > 0) {
-            this.currentEmergency = this.activeEmergencies[0];
+            const nextEmergency = this.activeEmergencies[0];
+            const isNewEmergency = !this.currentEmergency || (nextEmergency.id && nextEmergency.id !== this.currentEmergency.id);
+
+            this.currentEmergency = nextEmergency;
             await this.loadProfileInstructionFallback(this.currentEmergency.userId);
-            this.playEmergencyNotificationSound();
+            if (isNewEmergency) {
+              this.playEmergencyNotificationSound();
+            }
             this.loadMiniMap(); // Ensure map renders when emergency changes
             // Fetch address for patient location
             if (this.currentEmergency.location) {
@@ -251,9 +319,24 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
                this.isAllergiesLoading = true;
                const allergyDocs = await this.allergyService.getUserAllergies(this.currentEmergency.userId);
                if (allergyDocs && allergyDocs.length > 0) {
-                 this.emergencyAllergies = allergyDocs[0].allergies.filter((a: any) => a.checked);
+                 const allergyDoc = allergyDocs[0];
+                 this.emergencyAllergies = allergyDoc.allergies.filter((a: any) => a.checked);
                } else {
                  this.emergencyAllergies = [];
+               }
+
+               // Load allergy-specific emergency instructions from medical profile
+               try {
+                 const emergencyInstructions = await this.medicalService.getEmergencyInstructions(this.currentEmergency.userId);
+                 this.specificInstructionEntries = (emergencyInstructions || [])
+                   .filter((entry: any) => entry && entry.allergyName && entry.instruction)
+                   .map((entry: any) => ({
+                     label: entry.allergyName,
+                     text: entry.instruction
+                   }));
+               } catch (e) {
+                 console.error('Error loading specific emergency instructions for responder dashboard:', e);
+                 this.specificInstructionEntries = [];
                }
                this.isAllergiesLoading = false;
              }
@@ -267,6 +350,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
             this.profileInstructionFallback = '';
             this.address = '';
             this.emergencyAllergies = [];
+            this.specificInstructionEntries = [];
+            this.patientAvatar = null;
             this.isAllergiesLoading = false;
             this.isAddressLoading = false;
             if (this.miniMap) this.miniMap.remove();
@@ -281,11 +366,17 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   private async loadProfileInstructionFallback(userId?: string): Promise<void> {
     if (!userId) {
       this.profileInstructionFallback = '';
+      this.patientAvatar = null;
+      this.emergencyContactPhone = '';
+      this.dateOfBirthRaw = '';
+      this.bloodType = '';
       return;
     }
 
     if (this.instructionFallbackByUserId.has(userId)) {
       this.profileInstructionFallback = this.instructionFallbackByUserId.get(userId) || '';
+      const cachedAvatar = this.avatarByUserId.get(userId);
+      this.patientAvatar = cachedAvatar && cachedAvatar.trim().length > 0 ? cachedAvatar : null;
       return;
     }
 
@@ -300,8 +391,21 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
       this.profileInstructionFallback = fallbackText;
       this.instructionFallbackByUserId.set(userId, fallbackText);
+
+      const rawAvatar = (profile as any)?.avatar;
+      const normalizedAvatar = typeof rawAvatar === 'string' ? rawAvatar.trim() : '';
+      this.patientAvatar = normalizedAvatar.length > 0 ? normalizedAvatar : null;
+      this.avatarByUserId.set(userId, this.patientAvatar || '');
+
+      this.emergencyContactPhone = (profile as any)?.emergencyContactPhone || '';
+      this.dateOfBirthRaw = (profile as any)?.dateOfBirth || '';
+      this.bloodType = (profile as any)?.bloodType || '';
     } catch (error) {
       this.profileInstructionFallback = '';
+      this.patientAvatar = null;
+      this.emergencyContactPhone = '';
+      this.dateOfBirthRaw = '';
+      this.bloodType = '';
       console.warn('Unable to load profile instruction fallback for responder dashboard:', error);
     }
   }
@@ -358,14 +462,39 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  cannotRespond() {
-    if (this.currentEmergency) {
-      // Mark as unable to respond and notify the patient
+  async cannotRespond() {
+    if (!this.currentEmergency || !this.currentEmergency.id) {
+      console.log('No current emergency to decline response for');
+      return;
+    }
+
+    try {
+      const user = await this.authService.waitForAuthInit();
+      if (!user) {
+        console.log('No authenticated user, cannot record cannot-respond status');
+        return;
+      }
+
+      // Resolve buddy name from profile for clearer patient notification
+      const userProfile = await this.userService.getUserProfile(user.uid);
+      const buddyName = userProfile
+        ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || 'Buddy'
+        : 'Buddy';
+
+      // Record that this buddy cannot respond to the emergency
+      await this.emergencyService.recordBuddyCannotRespond(
+        this.currentEmergency.id,
+        user.uid,
+        buddyName
+      );
+
       this.hasResponded = false;
-      console.log('User cannot respond to the emergency.');
-      
-      // TODO: Send notification to patient that this buddy cannot respond
-      // You could call an emergency service method here to update the response status
+      console.log('Buddy marked as cannot respond to the emergency.');
+
+      // Close the responder dashboard modal and return to the main app
+      await this.dismissIfModal();
+    } catch (error) {
+      console.error('Error recording cannot-respond status:', error);
     }
   }
 

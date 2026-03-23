@@ -44,6 +44,13 @@ export interface EmergencyAlert {
   estimatedArrival?: number; // Minutes until arrival
   responseTimestamp?: any; // When responder clicked "on my way"
   distance?: number; // Distance in kilometers
+  buddyResponses?: {
+    [buddyId: string]: {
+      status: 'responded' | 'cannot_respond';
+      timestamp: any;
+      name?: string;
+    };
+  };
 }
 
 @Injectable({
@@ -438,7 +445,12 @@ export class EmergencyService {
         responderLocation,
         responseTimestamp: Timestamp.now(),
         distance: Math.round(distance * 100) / 100, // Round to 2 decimal places
-        estimatedArrival
+        estimatedArrival,
+        [`buddyResponses.${responderId}`]: {
+          status: 'responded',
+          name: responderName,
+          timestamp: Timestamp.now()
+        }
       });
       
       // Start tracking the responder's location
@@ -521,6 +533,30 @@ export class EmergencyService {
     }
   }
   
+  /**
+   * Record that a buddy cannot respond to an emergency
+   */
+  async recordBuddyCannotRespond(
+    emergencyId: string,
+    buddyId: string,
+    buddyName: string
+  ): Promise<void> {
+    try {
+      const emergencyRef = doc(this.db, 'emergencies', emergencyId);
+      await updateDoc(emergencyRef, {
+        [`buddyResponses.${buddyId}`]: {
+          status: 'cannot_respond',
+          name: buddyName,
+          timestamp: Timestamp.now()
+        }
+      });
+      console.log(`Recorded cannot_respond for buddy ${buddyName} on emergency ${emergencyId}`);
+    } catch (error) {
+      console.error('Error recording buddy cannot respond:', error);
+      throw error;
+    }
+  }
+
   /**
    * Mark an emergency as resolved
    */

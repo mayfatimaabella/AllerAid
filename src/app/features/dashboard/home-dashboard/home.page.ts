@@ -170,6 +170,27 @@ export class HomePage implements OnInit, OnDestroy {
         this.emergencyAddress = '';
       }
 
+      // Sync per-buddy response statuses (including cannot_respond) from emergency document
+      if (emergency.buddyResponses) {
+        Object.keys(emergency.buddyResponses).forEach((buddyId) => {
+          const responseInfo: any = (emergency.buddyResponses as any)[buddyId];
+          if (!responseInfo || !responseInfo.status) {
+            return;
+          }
+
+          const existing = this.buddyResponses[buddyId];
+          const timestamp = responseInfo.timestamp && typeof (responseInfo.timestamp as any).toDate === 'function'
+            ? (responseInfo.timestamp as any).toDate()
+            : new Date();
+
+          this.buddyResponses[buddyId] = {
+            status: responseInfo.status,
+            timestamp,
+            name: responseInfo.name || (existing && existing.name) || 'Buddy'
+          };
+        });
+      }
+
       // Update emergency location and resolve to human-readable address
       if (emergency.location && typeof emergency.location.latitude === 'number' && typeof emergency.location.longitude === 'number') {
         this.emergencyLocation = { latitude: emergency.location.latitude, longitude: emergency.location.longitude };
@@ -182,7 +203,7 @@ export class HomePage implements OnInit, OnDestroy {
   private async reverseGeocodeEmergencyAddress(lat: number, lng: number) {
     try {
       this.isEmergencyAddressLoading = true;
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
+      const url = `/nominatim/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();

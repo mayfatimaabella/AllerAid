@@ -168,13 +168,7 @@ export class TabsPage implements OnInit, OnDestroy {
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);
       }
-      // Optional: show a toast
-      this.toastController.create({
-        message: 'Emergency alert received!',
-        duration: 3000,
-        position: 'top',
-        color: 'danger'
-      }).then(t => t.present());
+      
     } catch (e) {
       console.log('Notification feedback error:', e);
     }

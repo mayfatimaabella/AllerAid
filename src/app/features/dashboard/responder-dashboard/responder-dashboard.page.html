@@ -6,7 +6,7 @@
           <ion-card-header class="emergency-header">
             <div class="emergency-title-row">
               <ion-card-title>EMERGENCY ALERT</ion-card-title>
-              <ion-badge color="light" class="time-badge">{{ currentEmergency.timestamp?.toDate() | date:'short' }}</ion-badge>
+                <ion-badge color="light" class="time-badge">{{ currentEmergency.timestamp?.toDate() | date:'short' }}</ion-badge>
             </div>
           </ion-card-header>
 
@@ -14,8 +14,11 @@
             <!-- Patient Info -->
             <div class="patient-info">
               <ion-item lines="none" class="patient-item">
-                <ion-avatar slot="start">
-                  <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+                <ion-avatar slot="start" class="patient-avatar">
+                  <img
+                    [src]="patientAvatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+                    [alt]="currentEmergency.userName || 'Patient avatar'"
+                  />
                 </ion-avatar>
                 <ion-label>
                   <h2 class="patient-name">{{ currentEmergency.userName || 'Patient' }}</h2>
@@ -23,6 +26,20 @@
                 </ion-label>
                 <ion-badge color="danger" class="critical-badge">CRITICAL</ion-badge>
               </ion-item>
+              
+              <!-- Emergency Information Summary -->
+              <div class="info-section info-section-compact emergency-info-section">
+                <h3 class="section-title section-title-small">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                  Emergency Information
+                </h3>
+                <div class="emergency-info-box">
+                  <p><strong>Contact:</strong> {{ emergencyContactPhone || 'Not specified' }}</p>
+                  <p><strong>Date of Birth:</strong> {{ formattedDateOfBirth }}</p>
+                  <p><strong>Blood Type:</strong> {{ bloodType || 'Not specified' }}</p>
+                </div>
+              </div>
+              
               <!-- Allergies Section -->
               <div class="info-section info-section-compact">
                 <h3 class="section-title section-title-small">
@@ -92,7 +109,36 @@
                 <ion-icon name="medical-outline"></ion-icon>
                 Emergency Instructions
               </h3>
-                <div class="instruction-box">{{ displayedEmergencyInstruction }}</div>
+                <!-- General profile emergency plan -->
+                <div *ngIf="profileEmergencyInstruction">
+                  <h4 class="instruction-subtitle">Patient Emergency Plan</h4>
+                  <div class="instruction-box">{{ profileEmergencyInstruction }}</div>
+                </div>
+
+                <!-- Specific instructions for this alert (free-text) -->
+                <div *ngIf="eventSpecificInstruction">
+                  <h4 class="instruction-subtitle">This Emergency</h4>
+                  <div class="instruction-box">{{ eventSpecificInstruction }}</div>
+                </div>
+
+                <!-- Allergy-specific instructions list -->
+                <div *ngIf="specificInstructionEntries?.length">
+                  <h4 class="instruction-subtitle">Specific Instructions</h4>
+                  <div class="specific-instructions-list">
+                    <div *ngFor="let instr of specificInstructionEntries" class="specific-instruction-item">
+                      <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
+                      <div class="specific-instruction-text">
+                        <strong>{{ instr.label }}</strong>
+                        <div class="specific-instruction-detail">{{ instr.text }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fallback when nothing is available -->
+                <div class="instruction-box" *ngIf="!profileEmergencyInstruction && !eventSpecificInstruction && !specificInstructionEntries?.length">
+                  No instructions available
+                </div>
               
               <!-- Voice Message Available -->
               <div class="voice-available" *ngIf="hasEmergencyInstruction">
