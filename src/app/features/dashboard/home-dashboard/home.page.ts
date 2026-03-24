@@ -29,6 +29,7 @@ export class HomePage implements OnInit, OnDestroy {
   isEmergencyActive: boolean = false;
   emergencyStartTime: Date | null = null;
   buddyResponses: { [buddyId: string]: { status: string; timestamp: Date; name: string } } = {};
+  private buddyStatusHistory: { [buddyId: string]: string } = {};
   emergencyLocation: { latitude: number; longitude: number } | null = null;
   emergencyAddress: string = '';
   isEmergencyAddressLoading: boolean = false;
@@ -143,7 +144,7 @@ export class HomePage implements OnInit, OnDestroy {
    * Subscribe to the user's own emergency document and reflect responder status in UI.
    */
   private subscribeToUserEmergency() {
-    const sub = this.emergencyService.userEmergency$.subscribe((emergency) => {
+    const sub = this.emergencyService.userEmergency$.subscribe(async (emergency) => {
       if (!emergency) {
         this.respondingBuddy = null;
         this.emergencyAddress = '';
@@ -165,8 +166,8 @@ export class HomePage implements OnInit, OnDestroy {
           emergencyId: emergency.id
         };
       } else if (emergency.status === 'resolved') {
-        // Clear banner on resolve
-        this.respondingBuddy = null;
+        // Clear all local emergency state when the backend marks it resolved
+        this.clearEmergencyState();
         this.emergencyAddress = '';
       }
 
@@ -183,11 +184,21 @@ export class HomePage implements OnInit, OnDestroy {
             ? (responseInfo.timestamp as any).toDate()
             : new Date();
 
+          const previousStatus = this.buddyStatusHistory[buddyId];
+          this.buddyStatusHistory[buddyId] = responseInfo.status;
+
+          const displayName = responseInfo.name || (existing && existing.name) || 'Buddy';
+
           this.buddyResponses[buddyId] = {
             status: responseInfo.status,
             timestamp,
-            name: responseInfo.name || (existing && existing.name) || 'Buddy'
+            name: displayName
           };
+
+          // If this buddy has just changed to cannot_respond, inform the user
+          if (responseInfo.status === 'cannot_respond' && previousStatus !== 'cannot_respond') {
+            this.presentToast(`${displayName} cannot respond to your emergency right now.`);
+          }
         });
       }
 
@@ -433,6 +444,22 @@ export class HomePage implements OnInit, OnDestroy {
       case 'failed': return 'danger';
       default: return 'medium';
     }
+  }
+
+  /**
+   * Only show the notification badge while we are still waiting
+   * on delivery/notification status. Once a buddy has explicitly
+   * responded that they cannot respond, hide the extra "Pending" badge
+   * to avoid showing "Cannot Respond Pending..." together.
+   */
+  shouldShowNotificationBadge(buddyId: string): boolean {
+    const response = this.buddyResponses[buddyId];
+    if (!response) {
+      return true;
+    }
+
+    // Hide notification badge when buddy has marked cannot_respond
+    return response.status !== 'cannot_respond';
   }
   
   /**

@@ -75,7 +75,10 @@
                     <ion-badge class="status-badge" [color]="getBuddyResponseColor(buddyId)">
                       {{ getBuddyResponseStatus(buddyId) }}
                     </ion-badge>
-                    <ion-badge class="notification-badge" [color]="getNotificationStatusColor(buddyId)">
+                    <ion-badge
+                      *ngIf="shouldShowNotificationBadge(buddyId)"
+                      class="notification-badge"
+                      [color]="getNotificationStatusColor(buddyId)">
                       {{ getNotificationStatus(buddyId) }}
                     </ion-badge>
                   </div>

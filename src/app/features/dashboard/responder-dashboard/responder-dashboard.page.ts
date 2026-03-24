@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { AllergyService } from '../../../core/services/allergy.service';
 import { MedicalService } from '../../../core/services/medical.service';
 import * as L from 'leaflet';
@@ -22,17 +22,17 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   emergencyAllergies: any[] = [];
   isAllergiesLoading: boolean = true;
   isAddressLoading: boolean = true;
-  // Reverse-geocoded addresses
+
   address: string = '';
   patientAddress: string = '';
   responderAddress: string = '';
   isResponderAddressLoading: boolean = false;
-  // Passive viewing: disable continuous responder updates by default
+  
   liveUpdateResponder: boolean = false;
   private async fetchAddressFromCoords(lat: number, lng: number) {
     try {
       this.isAddressLoading = true;
-      // Use dev-server proxy (/nominatim) to avoid browser CORS issues in web builds.
+
       const url = `/nominatim/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1&email=support@aller-aid.example`;
       const response = await fetch(url);
       if (!response.ok) {
@@ -42,7 +42,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       this.address = (data?.display_name || '').trim() || 'Location unavailable';
       this.patientAddress = this.address;
     } catch (e) {
-      // Keep a friendly message rather than raw coordinates
+
       this.address = 'Location unavailable';
       this.patientAddress = this.address;
     } finally {
@@ -77,7 +77,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     setTimeout(() => {
       if (this.currentEmergency?.location && this.miniMapElement) {
         const { latitude, longitude } = this.currentEmergency.location;
-        // Remove previous map if exists
+      
         if (this.miniMap) {
           this.miniMap.remove();
         }
@@ -95,12 +95,10 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
         }).addTo(this.miniMap);
-        // Patient marker (blue default icon)
         L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
           .addTo(this.miniMap)
           .bindPopup('Patient');
 
-        // Get responder's current location and show marker (single fetch for passive viewing)
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(position => {
             const responderLat = position.coords.latitude;
@@ -108,11 +106,9 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
             this.responderMarker = L.marker([responderLat, responderLng], { icon: L.icon({ iconUrl: 'assets/leaflet/marker-icon-2x.png', iconSize: [25, 41], iconAnchor: [12, 41], className: 'responder-marker' }) })
               .addTo(this.miniMap)
               .bindPopup('Responder');
-            // Reverse geocode responder
             this.fetchResponderAddress(responderLat, responderLng);
           });
 
-          // Optional: live updates only when enabled (not for passive viewing)
           if (this.liveUpdateResponder) {
             let lastUpdate = 0;
             navigator.geolocation.watchPosition(position => {
@@ -122,7 +118,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
                 this.responderMarker.setLatLng([responderLat, responderLng]);
               }
               const now = Date.now();
-              if (now - lastUpdate > 30000) { // update at most every 30s
+              if (now - lastUpdate > 30000) { 
                 lastUpdate = now;
                 this.fetchResponderAddress(responderLat, responderLng);
               }
@@ -130,7 +126,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           }
         }
 
-        // Reverse geocode once using the patient coordinates to avoid drifting
         this.fetchAddressFromCoords(latitude, longitude);
       }
     }, 200);
@@ -154,7 +149,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   emergencyContactPhone: string = '';
   private dateOfBirthRaw: string = '';
   bloodType: string = '';
-  // Allergy-specific instruction entries (e.g., Peanuts/Nuts: use EpiPen now)
+
   specificInstructionEntries: { label: string; text: string }[] = [];
 
   /**
@@ -191,7 +186,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     const trimmedResolved = resolved.trim();
     const trimmedProfile = this.profileEmergencyInstruction.trim();
 
-    // Avoid showing duplicate box when event instruction matches profile plan
     if (trimmedResolved && trimmedProfile && trimmedResolved === trimmedProfile) {
       return '';
     }
@@ -245,11 +239,11 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     private emergencyService: EmergencyService,
     private allergyService: AllergyService,
     private medicalService: MedicalService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private navCtrl: NavController
   ) {}
 
   async ngOnInit() {
-    // Read navigation state if responderData wasn't injected as @Input (page navigation)
     if (!this.responderData) {
       const navState = history.state;
       if (navState?.emergencyData) {
@@ -257,9 +251,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       }
     }
 
-    // If modal provided responderData, seed currentEmergency for immediate interaction
     if (this.responderData && this.responderData.alert) {
-      // Merge minimal fields to match EmergencyAlert shape
+
       this.currentEmergency = {
         id: this.responderData.emergencyId || this.responderData.alert.id,
         userId: this.responderData.alert.userId,
@@ -271,7 +264,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         timestamp: this.responderData.alert.timestamp
       } as EmergencyAlert;
       await this.loadProfileInstructionFallback(this.currentEmergency.userId);
-      // Preload address and allergies if possible
       if (this.currentEmergency?.location) {
         await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
       }
@@ -292,15 +284,11 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     try {
       const user = await this.authService.waitForAuthInit();
       if (user) {
-        // Start listening for emergency alerts for this buddy
         this.buddyService.listenForEmergencyAlerts(user.uid);
 
-        // Subscribe to emergency alerts
         this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
-          // Include both 'active' and 'responding' so UI persists after response
           this.activeEmergencies = alerts.filter(alert => alert.status === 'active' || alert.status === 'responding');
 
-          // Set current emergency to the most recent active one
           if (this.activeEmergencies.length > 0) {
             const nextEmergency = this.activeEmergencies[0];
             const isNewEmergency = !this.currentEmergency || (nextEmergency.id && nextEmergency.id !== this.currentEmergency.id);
@@ -310,11 +298,10 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
             if (isNewEmergency) {
               this.playEmergencyNotificationSound();
             }
-            this.loadMiniMap(); // Ensure map renders when emergency changes
-            // Fetch address for patient location
+            this.loadMiniMap();
             if (this.currentEmergency.location) {
               await this.fetchAddressFromCoords(this.currentEmergency.location.latitude, this.currentEmergency.location.longitude);
-             // Fetch allergies for patient
+
              if (this.currentEmergency.userId) {
                this.isAllergiesLoading = true;
                const allergyDocs = await this.allergyService.getUserAllergies(this.currentEmergency.userId);
@@ -325,7 +312,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
                  this.emergencyAllergies = [];
                }
 
-               // Load allergy-specific emergency instructions from medical profile
                try {
                  const emergencyInstructions = await this.medicalService.getEmergencyInstructions(this.currentEmergency.userId);
                  this.specificInstructionEntries = (emergencyInstructions || [])
@@ -342,7 +328,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
              }
             }
           } else {
-            // If we have already responded and local status is responding, keep showing it
+
             if (this.currentEmergency && this.hasResponded && this.currentEmergency.status === 'responding') {
               return;
             }
@@ -412,11 +398,10 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
   private playEmergencyNotificationSound() {
     try {
-      // Play notification sound for new emergency
+      
       const audio = new Audio('assets/sounds/emergency-alert.wav');
       audio.play().catch(e => console.log('Could not play audio:', e));
-      
-      // Vibrate if available
+    
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200, 100, 200]);
       }
@@ -430,11 +415,10 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       try {
         const user = await this.authService.waitForAuthInit();
         if (user && this.currentEmergency.id) {
-          // Get current user profile for name
+
           const userProfile = await this.userService.getUserProfile(user.uid);
           const buddyName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Buddy';
           
-          // Respond to emergency with ETA calculation
           await this.emergencyService.respondToEmergency(
             this.currentEmergency.id, 
             user.uid, 
@@ -445,7 +429,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           this.currentEmergency.status = 'responding';
           console.log('Buddy marked as responded with ETA calculation');
 
-          // Close this dashboard modal and pass data so the caller (tabs) can open responder-map
           await this.modalController.dismiss(
             {
               openMap: true,
@@ -469,30 +452,45 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     }
 
     try {
+      const emergencySnapshot = this.currentEmergency;
+
       const user = await this.authService.waitForAuthInit();
       if (!user) {
         console.log('No authenticated user, cannot record cannot-respond status');
         return;
       }
 
-      // Resolve buddy name from profile for clearer patient notification
       const userProfile = await this.userService.getUserProfile(user.uid);
       const buddyName = userProfile
         ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || 'Buddy'
         : 'Buddy';
 
-      // Record that this buddy cannot respond to the emergency
       await this.emergencyService.recordBuddyCannotRespond(
-        this.currentEmergency.id,
+        emergencySnapshot.id!,
         user.uid,
         buddyName
       );
 
+      this.buddyService.dismissEmergencyForUser(user.uid, emergencySnapshot.id!);
+      this.buddyService.saveDismissedAlertData(user.uid, {
+        id: emergencySnapshot.id,
+        status: emergencySnapshot.status,
+        timestamp: emergencySnapshot.timestamp,
+        location: emergencySnapshot.location,
+        patientId: emergencySnapshot.userId,
+        patientName: emergencySnapshot.userName,
+        responderId: user.uid,
+        responderName: buddyName
+      });
+
       this.hasResponded = false;
       console.log('Buddy marked as cannot respond to the emergency.');
 
-      // Close the responder dashboard modal and return to the main app
-      await this.dismissIfModal();
+      try {
+        await this.modalController.dismiss(null, 'cancel');
+      } catch {}
+
+      this.navCtrl.navigateRoot('tabs/home');
     } catch (error) {
       console.error('Error recording cannot-respond status:', error);
     }
@@ -500,7 +498,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
   async navigate() {
     if (this.currentEmergency && this.currentEmergency.location) {
-      // Resolve responder's display name from user profile for clarity
+      
       let responderName = 'Responder';
       try {
         const user = await this.authService.waitForAuthInit();
@@ -515,7 +513,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
         }
       } catch {}
 
-      // Open responder-map as a modal
       const mapModal = await this.modalController.create({
         component: ResponderMapPage,
         componentProps: {
@@ -548,17 +545,13 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     }
 
     try {
-      // Mark the emergency as resolved
       await this.emergencyService.resolveEmergency(this.currentEmergency.id);
       console.log('Emergency marked as resolved');
       
-      // Clear current emergency state
       this.currentEmergency = null;
       this.hasResponded = false;
       
-      // Show confirmation
       alert('Emergency has been marked as resolved.');
-      // Dismiss modal so user returns to app context
       this.dismissIfModal();
     } catch (error) {
       console.error('Error marking emergency as resolved:', error);
@@ -572,21 +565,17 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       return;
     }
 
-    // Build real emergency message from actual data
     let emergencyText = `Emergency alert from ${this.currentEmergency.userName || 'unknown person'}.`;
 
-    // Add allergies if available
     if (this.emergencyAllergies && this.emergencyAllergies.length > 0) {
       const allergyLabels = this.emergencyAllergies.map(a => a.label || a.name || '').filter(l => !!l);
       emergencyText += ` They are allergic to ${allergyLabels.join(', ')}.`;
     }
 
-    // Add specific instructions if available
     if (this.hasEmergencyInstruction) {
       emergencyText += ` Emergency instructions: ${this.displayedEmergencyInstruction}`;
     }
 
-    // Add location information (reverse geocoded address)
     if (this.address) {
       emergencyText += ` Location: ${this.address}.`;
     }
@@ -594,13 +583,12 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     emergencyText += ' Please respond immediately.';
 
     const message = new SpeechSynthesisUtterance(emergencyText);
-    message.rate = 0.9; // Slightly slower for clarity
-    message.volume = 1.0; // Maximum volume
+    message.rate = 0.9;
+    message.volume = 1.0;
     window.speechSynthesis.speak(message);
     console.log('Speaking real emergency alert:', emergencyText);
   }
 
-  // New methods for mobile responsive dashboard
   refreshDashboard() {
     this.setupRealTimeListeners();
     console.log('Dashboard refreshed');
@@ -618,7 +606,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
   private async dismissIfModal() {
     try {
-      // If presented as a modal, this will close it; otherwise no-op
       await this.modalController.dismiss(null, 'navigate');
     } catch {}
   }

@@ -13,7 +13,7 @@ const routes: Routes = [
         path: 'home', 
         loadChildren: () => import('../../features/dashboard/home-dashboard/home.module').then(m => m.HomePageModule),
         canActivate: [RoleGuard],
-        data: { roles: ['user'] }
+        data: { roles: ['user', 'buddy'] }
       },
       {
         path: 'scan',
