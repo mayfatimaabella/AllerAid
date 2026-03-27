@@ -590,3 +590,48 @@ ion-modal.responder-map-modal {
   --border-radius: 16px 16px 0 0;
   --box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
+
+.aqi-custom-alert {
+  /* PM10 & PM2.5 Definitions Font Size */
+  .alert-message {
+    text-align: left;
+    font-size: 13px !important; // Keeps the adjusted small size
+    line-height: 1.4;
+    color: #333; // Standard dark gray for text
+    font-style: normal !important;
+    white-space: pre-wrap !important; 
+    line-height: 1.5;
+    padding-bottom: 10px;
+  }
+
+  /* Note Styling (Italic) */
+  .aqi-note {
+    font-size: 11px !important;
+    font-style: italic !important;
+    color: #666;
+    display: block;
+    margin-top: 8px;
+  }
+
+  /* Legend Dot Sizing and Reverting Colors */
+  .alert-radio-group {
+    border-top: 1px solid #f0f0f0;
+
+    .alert-radio-icon {
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    /* Restoring the original solid colors */
+    button:nth-child(1) .alert-radio-icon { background: #126d61 !important; border-color: #126d61 !important; }
+    button:nth-child(2) .alert-radio-icon { background: #ffc409 !important; border-color: #ffc409 !important; }
+    button:nth-child(3) .alert-radio-icon { background: #f7a01c !important; border-color: #f7a01c !important; }
+    button:nth-child(4) .alert-radio-icon { background: #eb445a !important; border-color: #eb445a !important; }
+    button:nth-child(5) .alert-radio-icon { background: #8932b2 !important; border-color: #8932b2 !important; }
+
+    .alert-radio-label {
+      font-size: 13px !important; // Matches the message font size
+      color: #333 !important;
+    }
+  }
+}

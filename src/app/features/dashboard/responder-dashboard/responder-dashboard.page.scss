@@ -1,558 +1,202 @@
-ion-toolbar {
-  --background: #036a5d;
-  --color: white;
-}
+/* --- 1. Global & Header --- */
+ion-toolbar { --background: #036a5d; --color: white; }
 
-ion-content {
-  --background: #ffffff !important;
-}
-
-// Mobile-first responsive container
-.mobile-container {
-  padding: 8px;
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-.emergency-section {
-  width: 100%;
-}
-
-// Emergency card improvements
-.emergency-card {
-  margin: 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.emergency-pulse {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-  }
-}
-
-// Emergency header responsive design
 .emergency-header {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: #ef4444; 
   color: white;
-  padding: 16px;
-  border-radius: 0;
-}
-
-.emergency-title-row {
+  padding: 8px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 
-.time-badge {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-}
-
-// Content spacing
-.emergency-content {
-  padding: 16px;
-  
-  @media (min-width: 768px) {
-    padding: 24px;
+  .alert-title { font-size: 0.9rem; font-weight: 700; }
+  .time-badge {
+    background: #ffffff;
+    color: #000;
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 12px;
   }
 }
 
-// Patient info section
-.patient-info {
-  margin-bottom: 20px;
-}
-
-.patient-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  padding: 12px;
-  // Force solid white background for the patient header row
-  --background: #ffffff;
+/* --- 2. Identity Bar: Stacked Name & Type + CRITICAL Badge --- */
+.patient-identity-card {
+  margin: 12px 16px 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  padding: 10px 14px; 
   background: #ffffff;
   border-radius: 12px;
-}
+  border: 1px solid #f1f5f9;
 
-.patient-avatar {
-  background: var(--ion-color-primary);
-  color: white;
-  width: 48px;
-  height: 48px;
-}
+  .patient-info-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1; 
+    min-width: 0; 
 
-.patient-item ion-avatar {
-  margin-left: 8px;
-}
+    ion-avatar { width: 40px; height: 40px; flex-shrink: 0; }
+    
+    .name-wrapper {
+      display: flex;
+      flex-direction: column; // Forces Medical Emergency BELOW the name
+      overflow: hidden;
 
-.patient-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #000000;
-}
+      .patient-name {
+        font-size: 1.05rem; 
+        font-weight: 700;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+      }
 
-.emergency-type {
-  color: #000000;
-  font-size: 0.9rem;
-}
-
-.critical-badge {
-  margin-right: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 20px;
-}
-
-// Info sections
-.info-section {
-  margin-bottom: 24px;
-}
-
-// Compact variant used in Allergies section
-.info-section-compact {
-  margin-top: 8px;
-}
-
-// Force black text for allergy chips regardless of theme
-.allergy-chips {
-  ion-chip {
-    --color: #000000;
+      .emergency-type {
+        font-size: 0.75rem;
+        color: #64748b; // Muted gray for secondary info
+        white-space: nowrap;
+        margin-top: 2px;
+      }
+    }
   }
 
-  ion-label,
-  span {
-    color: #000000;
+  .status-badge {
+    background: #fee2e2; // Light red background
+    color: #ef4444;      // Bright red text
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    margin-left: 8px;
+    flex-shrink: 0; 
+    text-transform: uppercase;
   }
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #000000; // force black section titles
-  margin-bottom: 12px;
-  
-  ion-icon {
-    color: var(--ion-color-primary);
-  }
-}
-
-// Smaller title variant
-.section-title-small {
-  font-size: 1rem;
-  margin-bottom: 4px;
-}
-
-// Map container responsive
-.map-container {
-  position: relative;
-  height: 120px;
-  width: 100%;
+/* --- 3. Map & Info: Optimized Horizontal Layout --- */
+.map-location-card {
+  margin: 0 16px 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr; // Balanced split for map and text
+  height: 140px; 
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 8px;
-  background: #222;
-  border: 2px solid var(--ion-color-light);
-  
-  @media (min-width: 768px) {
-    height: 220px;
+  border: 1px solid #e2e8f0;
+
+  .map-container {
+    height: 100%;
+    position: relative;
+    .mini-map { height: 100%; width: 100%; }
+    .map-reset-btn { 
+      width: 32px; 
+      height: 32px; 
+      bottom: 8px; 
+      left: 8px; 
+      --padding-start: 0;
+      --padding-end: 0;
+    }
   }
-}
 
-.mini-map {
-  height: 100%;
-  width: 100%;
-}
-
-.map-reset-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
-  --background: #fff;
-  --color: #3880ff;
-  opacity: 0.9;
-  border-radius: 50%;
-  min-width: 36px;
-  min-height: 36px;
-  padding: 0;
-}
-
-.location-content {
-  .location-text {
-    margin-top: 8px;
-  }
-}
-
-.location-note {
-  font-style: italic;
-  color: #888;
-  font-size: 0.9em;
-}
-
-// Instruction box
-.instruction-box {
-  background: var(--ion-color-light);
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--ion-color-dark);
-  border-left: 4px solid var(--ion-color-primary);
-}
-
-.emergency-info-section {
-  margin-top: 8px;
-}
-
-.emergency-info-box {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 12px 16px;
-  border-left: 3px solid #036a5d;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-
-  p {
-    margin: 4px 0;
-    font-size: 0.95rem;
-    color: #000000;
-  }
-}
-
-// Voice section
-.voice-section {
-  margin: 16px 0;
-  text-align: center;
-}
-
-.voice-button {
-  font-size: 1rem;
-  --padding-start: 20px;
-  --padding-end: 20px;
-}
-
-// Actions section - Mobile first
-.actions-section {
-  margin-top: 24px;
-}
-
-.action-grid {
-  padding: 0;
-}
-
-.action-row {
-  margin: 0;
-}
-
-.action-col {
-  padding: 6px;
-}
-
-.action-button {
-  height: 56px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-radius: 12px;
-  margin: 0;
-  
-  // Better touch targets
-  --padding-start: 16px;
-  --padding-end: 16px;
-  
-  ion-icon {
-    font-size: 1.2rem;
-  }
-  
-  @media (min-width: 768px) {
-    font-size: 1rem;
-    height: 60px;
-  }
-}
-
-.primary-action {
-  --background: var(--ion-color-success);
-  --background-hover: var(--ion-color-success-shade);
-  box-shadow: 0 4px 12px rgba(var(--ion-color-success-rgb), 0.3);
-}
-
-.speak-alert {
-  --background: #a855f7;
-  --background-hover: #9333ea;
-  color: white;
-  margin-top: 8px;
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
-}
-
-// Confirmation card
-.confirmation-card {
-  margin-top: 20px;
-  border-radius: 16px;
-  --background: #d1fae5;
-  color: #065f46;
-  overflow: hidden;
-}
-
-.confirmation-content {
-  text-align: center;
-  padding: 20px;
-}
-
-.confirmation-icon {
-  margin-bottom: 12px;
-}
-
-.confirmation-content h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.confirmation-content p {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-// No emergency state
-.no-emergency-card {
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  background: #f5f5f5; /* light gray background for no-emergency state */
-  border: 1px solid #cecece;
-
-  
-  ion-icon,
-  .empty-state,
-  .empty-state h3,
-  .empty-state p,
-  .empty-state ion-label,
-  .empty-state ion-chip {
-    color: #6f6f6f !important;
-  }
-}
-
-.no-emergency-header {
-  padding: 20px 20px 0 20px;
-}
-
-.no-emergency-content {
-  padding: 20px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 20px 0;
-}
-
-.empty-icon {
-  margin-bottom: 16px;
-}
-
-.empty-state h3 {
-  margin: 0 0 12px 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--ion-color-dark);
-}
-
-.empty-state p {
-  margin: 0 0 24px 0;
-  color: var(--ion-color-medium);
-  line-height: 1.5;
-}
-
-.quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  
-  @media (min-width: 480px) {
-    flex-direction: row;
+  .location-info-section {
+    padding: 10px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    gap: 8px;
+
+    .location-row {
+      font-size: 0.725rem;
+      display: flex;
+      gap: 6px;
+      
+      ion-icon { font-size: 1rem; color: #3b82f6; flex-shrink: 0; }
+      
+      div { 
+        line-height: 1.3;
+        color: #334155;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; // Allows address to wrap slightly
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        strong { color: #1e293b; display: block; margin-bottom: 1px; }
+      }
+    }
   }
 }
 
-.quick-action-btn {
-  height: 48px;
-  border-radius: 12px;
-  font-weight: 500;
+/* --- 4. Instructions: Border-Left Accents --- */
+.instructions-card {
+  margin: 0 16px 16px 16px;
   
-  @media (min-width: 480px) {
-    flex: 0 1 auto;
-    min-width: 160px;
+  .action-required-header { 
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px; 
+    font-size: 0.8rem; 
+    font-weight: 700;
+    color: #475569;
   }
-}
 
-// Updated button styles to match screenshot
-.voice-available {
-  margin: 12px 0;
-  text-align: center;
-  
-  ion-chip {
-    --background: rgba(66, 165, 245, 0.1);
-    --color: #42a5f5;
-    font-weight: 500;
-  }
-}
-
-.primary-actions {
-  margin: 20px 0 16px 0;
-  
-  .response-button {
-    height: 48px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  .emergency-plan-box {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: #fff;
     border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #036a5d; // Teal accent
     
-    &[color="success"] {
-      --background: #4caf50;
-      --background-hover: #43a047;
+    .plan-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #036a5d;
+      margin-bottom: 3px;
     }
-    
-    &[color="medium"] {
-      --background: #757575;
-      --background-hover: #616161;
-    }
-  }
-}
 
-.secondary-actions {
-  margin: 16px 0;
-  
-  .action-button {
-    height: 44px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    border-radius: 8px;
-    
-    &[color="primary"] {
-      --background: #2196f3;
-      --background-hover: #1976d2;
-    }
-    
-    &[color="success"] {
-      --background: #4caf50;
-      --background-hover: #43a047;
+    .plan-text {
+      font-size: 0.875rem;
+      line-height: 1.4;
+      color: #0f172a;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; 
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 }
 
-.speak-section {
-  margin: 16px 0 20px 0;
-  
-  .speak-button {
-    height: 48px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-radius: 8px;
-    --background: #9c27b0;
-    --background-hover: #7b1fa2;
-    color: white;
+/* --- 5. Action Buttons --- */
+.footer-actions {
+  padding: 0 16px 20px 16px;
+
+  .btn-respond { 
+    --background: #22c55e; 
+    height: 48px; 
+    margin-bottom: 10px; 
+    font-weight: 700; 
+    font-size: 1rem;
   }
-}
 
-// Enhanced instruction box
-.instruction-box {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 12px 0;
-  font-style: italic;
-  color: #000000; // force black body text
-  line-height: 1.4;
-}
-
-// Specific instructions list (allergy-specific)
-.instruction-subtitle {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 12px 0 6px 0;
-  color: #111111;
-}
-
-.specific-instructions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.specific-instruction-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #ffffff;
-  border-left: 4px solid #036a5d;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-}
-
-.specific-instruction-item .instruction-icon {
-  font-size: 1rem;
-  color: #036a5d;
-  margin-top: 3px;
-}
-
-.specific-instruction-text {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.9rem;
-  color: #111111;
-}
-
-.specific-instruction-text strong {
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.specific-instruction-detail {
-  font-size: 0.85rem;
-  color: #4b5563;
-  line-height: 1.4;
-}
-
-// Responsive breakpoints
-@media (min-width: 768px) {
-  .mobile-container {
-    padding: 16px;
-    max-width: 800px;
+  .secondary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+    ion-button { height: 44px; font-size: 0.85rem; font-weight: 700; }
   }
-  
-  .action-grid {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-}
 
-@media (min-width: 1024px) {
-  .mobile-container {
-    padding: 24px;
-    max-width: 900px;
+  .speak-button { 
+    height: 44px; 
+    font-size: 0.85rem; 
+    --background: #7c3aed; 
+    font-weight: 700;
   }
 }

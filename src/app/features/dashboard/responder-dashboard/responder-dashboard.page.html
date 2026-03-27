@@ -1,267 +1,109 @@
 <ion-content [fullscreen]="true">
   <div class="mobile-container">
-    <!-- Emergency Alert Card -->
-    <div class="emergency-section">
-      <ion-card class="emergency-card emergency-pulse" *ngIf="currentEmergency">
-          <ion-card-header class="emergency-header">
-            <div class="emergency-title-row">
-              <ion-card-title>EMERGENCY ALERT</ion-card-title>
-                <ion-badge color="light" class="time-badge">{{ currentEmergency.timestamp?.toDate() | date:'short' }}</ion-badge>
-            </div>
-          </ion-card-header>
-
-          <ion-card-content class="emergency-content">
-            <!-- Patient Info -->
-            <div class="patient-info">
-              <ion-item lines="none" class="patient-item">
-                <ion-avatar slot="start" class="patient-avatar">
-                  <img
-                    [src]="patientAvatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
-                    [alt]="currentEmergency.userName || 'Patient avatar'"
-                  />
-                </ion-avatar>
-                <ion-label>
-                  <h2 class="patient-name">{{ currentEmergency.userName || 'Patient' }}</h2>
-                  <p class="emergency-type">Medical Emergency</p>
-                </ion-label>
-                <ion-badge color="danger" class="critical-badge">CRITICAL</ion-badge>
-              </ion-item>
-              
-              <!-- Emergency Information Summary -->
-              <div class="info-section info-section-compact emergency-info-section">
-                <h3 class="section-title section-title-small">
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                  Emergency Information
-                </h3>
-                <div class="emergency-info-box">
-                  <p><strong>Contact:</strong> {{ emergencyContactPhone || 'Not specified' }}</p>
-                  <p><strong>Date of Birth:</strong> {{ formattedDateOfBirth }}</p>
-                  <p><strong>Blood Type:</strong> {{ bloodType || 'Not specified' }}</p>
-                </div>
-              </div>
-              
-              <!-- Allergies Section -->
-              <div class="info-section info-section-compact">
-                <h3 class="section-title section-title-small">
-                  <ion-icon name="alert-outline"></ion-icon>
-                  Allergies
-                </h3>
-                <div class="allergy-chips">
-                  <ng-container *ngIf="isAllergiesLoading; else allergiesLoaded">
-                    <ion-chip color="medium" outline="true">
-                      <ion-label>Loading allergies...</ion-label>
-                    </ion-chip>
-                  </ng-container>
-                  <ng-template #allergiesLoaded>
-                    <ion-chip *ngFor="let allergy of emergencyAllergies">
-                      <ion-label>{{ allergy.label || allergy.name }}<span *ngIf="allergy.value"> - {{ allergy.value }}</span></ion-label>
-                    </ion-chip>
-                    <span *ngIf="!emergencyAllergies.length">None</span>
-                  </ng-template>
-                </div>
-              </div>
-            </div>
-
-            <!-- Location Section -->
-            <div class="info-section">
-              <h3 class="section-title">
-                <ion-icon name="location-outline"></ion-icon>
-                Patient Location
-              </h3>
-              <div class="location-content">
-                <div class="map-container">
-                  <div #miniMap id="miniMap" class="mini-map"></div>
-                  <ion-button size="small" (click)="resetMiniMapView()" class="map-reset-btn">
-                    <ion-icon name="locate"></ion-icon>
-                  </ion-button>
-                </div>
-                <div class="location-text">
-                  <ion-chip color="primary" outline="true" title="This location is synced with the map views">
-                    <ion-icon name="location"></ion-icon>
-                    <ion-label>
-                      <div>
-                        <strong>Patient:</strong>
-                        <ng-container *ngIf="isAddressLoading; else patientAddressResolved">
-                          Resolving address...
-                        </ng-container>
-                        <ng-template #patientAddressResolved>
-                          {{ patientAddress || 'Location unavailable' }}
-                        </ng-template>
-                      </div>
-                      <div style="margin-top: 4px;">
-                        <strong>Responder:</strong>
-                        <ng-container *ngIf="isResponderAddressLoading; else responderAddressResolved">
-                          Resolving address...
-                        </ng-container>
-                        <ng-template #responderAddressResolved>
-                          {{ responderAddress || 'Location unavailable' }}
-                        </ng-template>
-                      </div>
-                    </ion-label>
-                  </ion-chip>
-                </div>
-              </div>
-            </div>
-
-            <!-- Emergency Details -->
-            <div class="info-section">
-              <h3 class="section-title">
-                <ion-icon name="medical-outline"></ion-icon>
-                Emergency Instructions
-              </h3>
-                <!-- General profile emergency plan -->
-                <div *ngIf="profileEmergencyInstruction">
-                  <h4 class="instruction-subtitle">Patient Emergency Plan</h4>
-                  <div class="instruction-box">{{ profileEmergencyInstruction }}</div>
-                </div>
-
-                <!-- Specific instructions for this alert (free-text) -->
-                <div *ngIf="eventSpecificInstruction">
-                  <h4 class="instruction-subtitle">This Emergency</h4>
-                  <div class="instruction-box">{{ eventSpecificInstruction }}</div>
-                </div>
-
-                <!-- Allergy-specific instructions list -->
-                <div *ngIf="specificInstructionEntries?.length">
-                  <h4 class="instruction-subtitle">Specific Instructions</h4>
-                  <div class="specific-instructions-list">
-                    <div *ngFor="let instr of specificInstructionEntries" class="specific-instruction-item">
-                      <ion-icon name="information-circle-outline" class="instruction-icon"></ion-icon>
-                      <div class="specific-instruction-text">
-                        <strong>{{ instr.label }}</strong>
-                        <div class="specific-instruction-detail">{{ instr.text }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Fallback when nothing is available -->
-                <div class="instruction-box" *ngIf="!profileEmergencyInstruction && !eventSpecificInstruction && !specificInstructionEntries?.length">
-                  No instructions available
-                </div>
-              
-              <!-- Voice Message Available -->
-              <div class="voice-available" *ngIf="hasEmergencyInstruction">
-                <ion-chip color="primary" outline="true">
-                  <ion-icon name="play-outline"></ion-icon>
-                  <ion-label>VOICE MESSAGE AVAILABLE</ion-label>
-                </ion-chip>
-              </div>
-            </div>
-
-            <!-- Primary Response Actions -->
-            <div class="primary-actions">
-              <ion-grid>
-
-                <ion-row>
-
-                  <ion-col size="6">
-                    <ion-button 
-                      expand="block" 
-                      color="success" 
-                      (click)="responded()" 
-                      [disabled]="hasResponded"
-                      class="response-button">
-                      <ion-icon slot="start" name="checkmark-circle"></ion-icon>
-                      RESPOND
-                    </ion-button>
-                  </ion-col>
-
-                  <ion-col size="6">
-                    <ion-button 
-                      expand="block" 
-                      color="medium" 
-                      (click)="cannotRespond()" 
-                      class="response-button">
-                      <ion-icon slot="start" name="close-circle"></ion-icon>
-                      CANNOT RESPOND
-                    </ion-button>
-                  </ion-col>
-
-                </ion-row>
-
-              </ion-grid>
-            </div>
-
-            <!-- Secondary Actions -->
-            <div class="secondary-actions">
-              <ion-grid>
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-button 
-                      expand="block" 
-                      color="primary" 
-                      (click)="navigate()" 
-                      class="action-button">
-                      <ion-icon slot="start" name="navigate"></ion-icon>
-                      NAVIGATION
-                    </ion-button>
-                  </ion-col>
-                  <ion-col size="6">
-                    <ion-button 
-                      expand="block" 
-                      color="success" 
-                      (click)="markResolved()" 
-                      class="action-button">
-                      <ion-icon slot="start" name="checkmark-done"></ion-icon>
-                      MARK AS RESOLVED
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </div>
-
-            <!-- Speak Alert Button -->
-            <div class="speak-section">
-              <ion-button 
-                expand="block" 
-                color="tertiary" 
-                (click)="speakAlert()" 
-                class="speak-button">
-                <ion-icon slot="start" name="volume-high"></ion-icon>
-                SPEAK ALERT
-              </ion-button>
-            </div>
-
-            <!-- Response Confirmation -->
-            <ion-card color="success" class="confirmation-card" *ngIf="hasResponded">
-              <ion-card-content class="confirmation-content">
-                <div class="confirmation-icon">
-                  <ion-icon name="checkmark-circle" color="dark" size="large"></ion-icon>
-                </div>
-                <h3>Response Confirmed</h3>
-                <p>You have responded to this emergency. The patient has been notified.</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-card-content>
-        </ion-card>
-
-        <!-- No Emergency State -->
-        <ion-card *ngIf="!currentEmergency" class="no-emergency-card">
-          <ion-card-header class="no-emergency-header">
-          </ion-card-header>
-          <ion-card-content class="no-emergency-content">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <ion-icon name="shield-checkmark-outline" size="large" color="success"></ion-icon>
-              </div>
-              <h3>All Clear</h3>
-              <p>No active emergencies from your patients. You'll be notified immediately if any emergency occurs.</p>
-              
-              <!-- Quick Actions for No Emergency State -->
-              <div class="quick-actions">
-                <ion-button fill="outline" color="primary" (click)="viewPatients()" class="quick-action-btn">
-                  <ion-icon name="people-outline" slot="start"></ion-icon>
-                  View Patients
-                </ion-button>
-                <ion-button fill="outline" color="medium" (click)="viewHistory()" class="quick-action-btn">
-                  <ion-icon name="time-outline" slot="start"></ion-icon>
-                  Emergency History
-                </ion-button>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
+    
+    <div class="emergency-header" *ngIf="currentEmergency">
+      <div class="alert-title">EMERGENCY ALERT</div>
+      <div class="time-badge">{{ currentEmergency.timestamp?.toDate() | date:'short' }}</div>
     </div>
+
+    <div class="emergency-section" *ngIf="currentEmergency">
+      
+      <div class="patient-identity-card">
+        <div class="patient-info-left">
+          <ion-avatar>
+            <img [src]="patientAvatar || 'https://ionicframework.com/docs/img/demos/avatar.svg'" />
+          </ion-avatar>
+          <div class="name-wrapper">
+            <span class="patient-name">{{ currentEmergency.userName || 'Patient' }}</span>
+            <span class="emergency-type">Medical Emergency</span>
+          </div>
+        </div>
+        <div class="status-badge">CRITICAL</div>
+      </div>
+
+      <div class="map-location-card">
+        <div class="map-container">
+          <div #miniMap id="miniMap" class="mini-map"></div>
+          <ion-button size="small" (click)="resetMiniMapView()" class="map-reset-btn">
+            <ion-icon name="locate"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="location-info-section">
+          <div class="location-row">
+            <ion-icon name="location"></ion-icon>
+            <div><strong>Patient:</strong> {{ patientAddress || 'Resolving address...' }}</div>
+          </div>
+          <div class="location-row">
+            <ion-icon name="navigate-circle"></ion-icon>
+            <div><strong>Responder:</strong> {{ responderAddress || 'Resolving address...' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="instructions-card">
+        <div class="action-required-header">
+          <ion-icon name="alert-circle"></ion-icon>
+          <span>Emergency Instructions</span>
+        </div>
+
+        <div class="emergency-plan-box" *ngIf="profileEmergencyInstruction || eventSpecificInstruction">
+          <span class="plan-label main-label">Patient Emergency Plan</span>
+          <div class="plan-text">
+            {{ eventSpecificInstruction || profileEmergencyInstruction }}
+          </div>
+        </div>
+
+        <div class="specific-instructions-list" *ngIf="specificInstructionEntries?.length">
+          <div *ngFor="let instr of specificInstructionEntries" class="emergency-plan-box">
+            <span class="plan-label allergy-label">{{ instr.label }}</span>
+            <div class="plan-text">{{ instr.text }}</div>
+          </div>
+        </div>
+
+        <div class="emergency-plan-box" *ngIf="!profileEmergencyInstruction && !eventSpecificInstruction && !specificInstructionEntries?.length">
+          <div class="plan-text">No specific instructions provided.</div>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <div class="voice-btn-container" *ngIf="hasEmergencyInstruction">
+          <ion-chip class="voice-available-chip">
+            <ion-icon name="play-circle"></ion-icon>
+            <ion-label>VOICE MESSAGE AVAILABLE</ion-label>
+          </ion-chip>
+        </div>
+
+        <ion-button expand="block" (click)="responded()" [disabled]="hasResponded" class="btn-respond">
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+          I AM RESPONDING
+        </ion-button>
+
+        <div class="secondary-grid">
+          <ion-button expand="block" (click)="navigate()" class="nav-btn">
+            <ion-icon slot="start" name="navigate"></ion-icon>
+            NAVIGATION
+          </ion-button>
+          <ion-button expand="block" (click)="cannotRespond()" class="decline-btn">
+            <ion-icon slot="start" name="close-circle"></ion-icon>
+            DECLINE
+          </ion-button>
+        </div>
+
+        <ion-button expand="block" (click)="speakAlert()" class="speak-button">
+          <ion-icon slot="start" name="volume-high"></ion-icon>
+          SPEAK ALERT
+        </ion-button>
+      </div>
+
+    </div>
+
+    <div *ngIf="!currentEmergency" class="no-emergency-card">
+      <ion-icon name="shield-checkmark-outline" style="font-size: 64px; color: #10b981;"></ion-icon>
+      <h3>All Clear</h3>
+      <p>No active emergencies.</p>
+      <ion-button fill="outline" (click)="viewPatients()">View Patients</ion-button>
+    </div>
+
   </div>
-</ion-content>  
+</ion-content>

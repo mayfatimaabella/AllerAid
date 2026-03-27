@@ -5,20 +5,65 @@
   <ion-title>Pollen Map</ion-title>
 </ion-toolbar>
 
-<ion-content class="ion-padding" [scrollY]="true">
-  <div class="wrapper scrollable-content">
+<ion-content class="ion-padding">
+  <div class="wrapper">
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Pollen Map</ion-card-title>
-        <ion-card-subtitle>Local pollen levels and hotspots</ion-card-subtitle>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <ion-card-title>Air Quality Index</ion-card-title>
+          <ion-icon 
+            name="help-circle-outline" 
+            style="font-size: 24px; color: #126d61; cursor: pointer;" 
+            (click)="openHelpModal()">
+          </ion-icon>
+        </div>
+        <ion-card-subtitle>
+          <ion-icon name="location-outline"></ion-icon> {{ airQuality.locationName }} 
+          <span *ngIf="airQuality.loaded">| {{ airQuality.displayTime }}</span>
+        </ion-card-subtitle>
       </ion-card-header>
+
       <ion-card-content>
         <div class="pollen-map-preview">
-          <img src="assets/icon/pollen-map-placeholder.png" alt="Pollen Map" class="pollen-map-image" />
-          <p class="pollen-map-note">This is a placeholder pollen map. Tap "Open Map" to view an interactive map (coming soon).</p>
+          
+          <div class="live-data-row" *ngIf="airQuality.loaded">
+            <div class="data-badge" [class]="airQuality.statusClass">
+              Status: {{ airQuality.status }}
+            </div>
+            <div class="metric-group">
+              <p>Dust: <strong>{{ airQuality.dust }} µg/m³</strong></p>
+              <p>PM10: <strong>{{ airQuality.pm10 }} µg/m³</strong></p>
+              <p>PM2.5: <strong>{{ airQuality.pm2_5 }} µg/m³</strong></p>
+            </div>
+          </div>
+
+          <div style="position: relative;">
+            <div id="mapId" class="map-container" [hidden]="!airQuality.loaded"></div>
+            
+            <div class="map-legend-overlay" *ngIf="airQuality.loaded">
+              <div class="legend-item"><span class="dot g"></span> Good</div>
+              <div class="legend-item"><span class="dot y"></span> Moderate</div>
+              <div class="legend-item"><span class="dot o"></span> Sensible</div>
+              <div class="legend-item"><span class="dot r"></span> High</div>
+              <div class="legend-item"><span class="dot p"></span> Alert</div>
+            </div>
+          </div>
+
+          <div class="time-slider-container" *ngIf="airQuality.loaded">
+            <p class="time-label">Forecast for: {{ airQuality.displayTime }}</p>
+            <ion-range min="0" max="23" step="1" snaps="true" color="primary"
+                       (ionChange)="onTimeChange($event)">
+              <ion-icon slot="start" name="time-outline"></ion-icon>
+            </ion-range>
+          </div>
+          
+          <p class="pollen-map-note" *ngIf="airQuality.loaded">
+            Last updated at {{ airQuality.displayTime }} local time.
+          </p>
+          
           <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
-            <ion-icon name="map" slot="start"></ion-icon>
-            Open Map
+            <ion-icon name="locate-outline" slot="start"></ion-icon>
+            Recenter Map
           </ion-button>
         </div>
       </ion-card-content>
