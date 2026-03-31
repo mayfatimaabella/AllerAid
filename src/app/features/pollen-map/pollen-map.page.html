@@ -17,9 +17,10 @@
             (click)="openHelpModal()">
           </ion-icon>
         </div>
+        
         <ion-card-subtitle>
-          <ion-icon name="location-outline"></ion-icon> {{ airQuality.locationName }} 
-          <span *ngIf="airQuality.loaded">| {{ airQuality.displayTime }}</span>
+          <ion-icon name="location-outline"></ion-icon> 
+          {{ airQuality.locationName }} | {{ currentDate }} | <b>{{ currentTime }}</b>
         </ion-card-subtitle>
       </ion-card-header>
 
@@ -28,7 +29,7 @@
           
           <div class="live-data-row" *ngIf="airQuality.loaded">
             <div class="data-badge" [class]="airQuality.statusClass">
-              Status: {{ airQuality.status }}
+              STATUS: {{ airQuality.status | uppercase }}
             </div>
             <div class="metric-group">
               <p>Dust: <strong>{{ airQuality.dust }} µg/m³</strong></p>
@@ -49,16 +50,35 @@
             </div>
           </div>
 
-          <div class="time-slider-container" *ngIf="airQuality.loaded">
-            <p class="time-label">Forecast for: {{ airQuality.displayTime }}</p>
-            <ion-range min="0" max="23" step="1" snaps="true" color="primary"
-                       (ionChange)="onTimeChange($event)">
-              <ion-icon slot="start" name="time-outline"></ion-icon>
-            </ion-range>
+          <div class="logs-container" *ngIf="airQuality.loaded">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="margin: 0; font-size: 15px; color: #126d61; font-weight: bold;">
+                <ion-icon name="list-outline" style="vertical-align: middle;"></ion-icon> Recent Risk Logs
+              </h3>
+              <ion-button fill="clear" size="small" color="danger" (click)="clearLogs()" *ngIf="riskLogs.length > 0">
+                Clear
+              </ion-button>
+            </div>
+
+            <div *ngIf="riskLogs.length === 0" style="text-align: center; padding: 15px; color: #888; font-size: 13px;">
+              No high-risk levels detected recently.
+            </div>
+
+            <ion-list lines="full" *ngIf="riskLogs.length > 0" style="background: transparent;">
+              <ion-item *ngFor="let log of riskLogs" style="--background: transparent; --padding-start: 0;">
+                <ion-icon name="warning" slot="start" color="danger" style="font-size: 20px;"></ion-icon>
+                <ion-label>
+                  <h2 style="color: #eb445a; font-weight: bold; font-size: 14px;">{{ log.status }} Detected</h2>
+                  <p style="font-size: 12px; color: #444;">
+                    PM10: <b>{{ log.value }} µg/m³</b> | {{ log.date }} at {{ log.time }}
+                  </p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
           </div>
           
-          <p class="pollen-map-note" *ngIf="airQuality.loaded">
-            Last updated at {{ airQuality.displayTime }} local time.
+          <p class="pollen-map-note" *ngIf="airQuality.loaded" style="margin-top: 15px;">
+            Last updated at local time.
           </p>
           
           <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">

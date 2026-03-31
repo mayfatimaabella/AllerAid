@@ -4,13 +4,6 @@ ion-toolbar {
   --color: white;
 }
 
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 5px;
-}
-
 /* --- WRAPPER & CARD --- */
 .wrapper {
   position: relative;
@@ -28,18 +21,12 @@ ion-toolbar {
 ion-card {
   background: #e9f5f0;
   border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(229, 94, 118, 0.10);
+  box-shadow: 0 4px 16px rgba(18, 109, 97, 0.10);
   border: 1px solid #198476;
   margin: 12px 0;
 }
 
 /* --- MAP & LEGEND OVERLAY --- */
-.map-container-wrapper {
-  position: relative; // Needed for the floating legend
-  width: 100%;
-  margin: 10px 0;
-}
-
 .map-container {
   height: 250px;
   width: 100%;
@@ -55,113 +42,97 @@ ion-card {
   right: 12px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.9);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 
   .legend-item {
     display: flex;
     align-items: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    color: #444;
+    color: #333;
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      margin-right: 6px;
+      margin-right: 8px;
       &.g { background: #126d61; } // Good
-      &.y { background: #ffc107; } // Moderate
+      &.y { background: #ffc409; } // Moderate
       &.o { background: #f7a01c; } // Sensitive
-      &.r { background: #e55e76; } // High
-      &.p { background: #8932b2; } // Very Unhealthy
+      &.r { background: #eb445a; } // High
+      &.p { background: #8932b2; } // Alert
+    }
+  }
+}
+
+/* --- LOGS CONTAINER (Replaces Slider) --- */
+.logs-container {
+  margin-top: 15px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 132, 118, 0.2);
+  
+  ion-list {
+    padding: 0;
+    margin: 0;
+  }
+
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 4px;
+    
+    h2 {
+      margin-bottom: 2px;
     }
   }
 }
 
 /* --- STATUS COLORS & BADGES --- */
-.data-badge {
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-  text-transform: uppercase;
-}
-
-.pollen-low    { background-color: #126d61; } 
-.pollen-mod    { background-color: #ffc107; color: #333; } 
-.pollen-orange { background-color: #f7a01c; } 
-.pollen-high   { background-color: #e55e76; } 
-.pollen-purple { background-color: #8932b2; }
-
-/* --- HELP MODAL STYLING (Used in AlertController) --- */
-.aqi-guide-alert {
-  .guide-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 14px;
-    
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 10px;
-      display: inline-block;
-    }
-  }
-}
-
-/* --- REMAINDER OF YOUR STYLES --- */
 .live-data-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(25, 132, 118, 0.05);
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.time-slider-container {
-  margin-top: 5px;
-  padding: 8px;
-  background: white;
+  background: rgba(25, 132, 118, 0.08);
+  padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(25, 132, 118, 0.2);
-  
-  .time-label {
-    text-align: center;
-    font-weight: bold;
-    color: #126d61;
-    font-size: 13px;
-  }
-
-  /* Custom styling for the AQI Help Alert */
-.aqi-guide-alert {
-  .alert-message {
-    text-align: left !important;
-  }
-
-  .dot {
-    font-size: 1.2em;
-    margin-right: 8px;
-    
-    &.low   { color: #126d61; }
-    &.mod   { color: #ffc409; }
-    &.sens  { color: #f7a01c; }
-    &.high  { color: #eb445a; }
-    &.alert { color: #8932b2; }
-  }
-
-  hr {
-    border: 0;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    margin: 12px 0;
-  }
+  margin-bottom: 10px;
 }
+
+.data-badge {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  min-width: 110px;
+}
+
+/* Unified color palette for consistency */
+.pollen-low    { background-color: #126d61; } 
+.pollen-mod    { background-color: #ffc409; color: #333; } 
+.pollen-orange { background-color: #f7a01c; } 
+.pollen-high   { background-color: #eb445a; } 
+.pollen-purple { background-color: #8932b2; }
+
+/* --- NOTES & BUTTONS --- */
+.pollen-map-note {
+  font-size: 11px;
+  font-style: italic;
+  color: #666;
+  text-align: center;
+  margin: 15px 0;
+}
+
+ion-button[expand="block"] {
+  --border-radius: 10px;
+  font-weight: bold;
+  margin-top: 5px;
 }
