@@ -6,6 +6,7 @@ import { AuthService } from './core/services/auth.service';
 import { UserService } from './core/services/user.service';
 import { EmergencyDetectorService } from './core/services/emergency-detector.service';
 import { PatientNotificationService } from './core/services/patient-notification.service';
+import { MedicationReminderService } from './core/services/medication-reminder.service';
 
 @Component({
   selector: 'app-root',
@@ -23,13 +24,16 @@ export class AppComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private emergencyDetectorService: EmergencyDetectorService,
-    private patientNotificationService: PatientNotificationService
+    private patientNotificationService: PatientNotificationService,
+    private medicationReminderService: MedicationReminderService
   ) {
     this.allergyService.resetAllergyOptions();
     // Initialize emergency detection on app startup
     this.initializeEmergencyDetection();
     // Initialize patient notification listening
     this.initializePatientNotifications();
+    // Initialize medication notification listening
+    this.initializeMedicationNotifications();
   }
 
   async ngOnInit() {
@@ -89,6 +93,21 @@ export class AppComponent implements OnInit {
         // Stop listening when user logs out
         this.patientNotificationService.stopListeningForBuddyResponses();
         console.log('Patient notification service stopped');
+      }
+    });
+  }
+
+  private async initializeMedicationNotifications() {
+    // Wait for user authentication
+    this.authService.getCurrentUser$().subscribe((user) => {
+      if (user) {
+        // Start listening for medication notifications when user is authenticated
+        this.medicationReminderService.startListeningForNotifications();
+        console.log('Medication notification listener initialized');
+      } else {
+        // Stop listening when user logs out
+        this.medicationReminderService.stopListeningForNotifications();
+        console.log('Medication notification listener stopped');
       }
     });
   }

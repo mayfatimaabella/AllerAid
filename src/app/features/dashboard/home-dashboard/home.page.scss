@@ -12,7 +12,7 @@ ion-button [color="accent"] {
   font-size: 24px;
   font-weight: bold;
   color: #023f37;
-  margin: 10px 0;
+  margin: 5px 0;
   text-align: center;
 }
 
@@ -23,13 +23,13 @@ ion-content {
 .wrapper {
   position: relative;
   width: 100%;
-  min-height: 50vh;
+  min-height: auto;
   height: auto;
-  background-color: #d1dbd7;
+  background-color: #e8f4f1;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  padding-bottom: 25px;
+  padding: 15px;
+  padding-bottom: 10px;
   z-index: 1;
   border-radius: 5px;
   border: 1px solid #198476;
@@ -55,7 +55,7 @@ ion-card-title {
   font-size: 20px;
   font-weight: 700;
   color: #126d61;
-;
+  text-align: center;
   letter-spacing: 1px;
 }
 
@@ -81,32 +81,32 @@ ion-card-content p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 5px;
   text-align: center;
 }
 
 .circle-button {
   background-color: #e12826;
   border-radius: 50%;
-  width: 225px;
-  height: 225px;
+  width: 210px;
+  height: 210px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: white;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-  margin-bottom: 7px;
-  border: 5px solid rgba(232,242,240,0.9);
+  margin-bottom: 5px;
+  border: 5px solid rgba(95, 22, 44, 0.9);
 }
 
 .circle-button ion-icon {
-  font-size: 40px;
-  margin-bottom: 5px;
+  font-size: 60px;
+  margin-bottom: 0.5px;
 }
 
 .emergency-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   letter-spacing: 1px;
   text-shadow: 1px 1px black;
@@ -114,13 +114,13 @@ ion-card-content p {
 }
 
 .instruction-text {
-  font-size: 13px;
+  font-size: 11px;
   color: #fcfcfc;
   margin-top: 0;
 }
 
 .bottom-text {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #034f45;
 }
@@ -140,6 +140,79 @@ ion-tab-bar {
 /* Optional: add hover feedback on header button */
 ion-toolbar .ion-buttons[slot="end"] ion-button:hover {
   filter: brightness(1.1);
+}
+
+/* Health Overview Container */
+.health-overview-container {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.health-card ion-card-header {
+  background: transparent;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 6px 12px 2px 12px;
+}
+
+.health-card ion-card-content {
+  padding: 2px 12px 10px 12px;
+}
+
+.health-card {
+  flex: 1;
+  background: #036a5d;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: none;
+  padding: 6px 0 2px 0;
+}
+
+.allergen-title {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center !important;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.emergency-contact-title {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center !important;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.count-display {
+  text-align: center;
+  margin: 4px 0 2px 0;
+}
+
+.count-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  display: block;
+}
+
+.count-label {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.85) !important; 
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Spacing utilities */

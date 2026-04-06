@@ -8,7 +8,7 @@
 
     <ion-buttons slot="end">
       <ion-button fill="clear" [routerLink]="['/tabs/alerts']">
-        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-icon name="warning"></ion-icon>
       </ion-button>
 
       <ion-button fill="clear" size="small" (click)="openNotifications()">
@@ -100,18 +100,35 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Health Overview</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>
-          <strong>Allergens:</strong>
-          <span *ngIf="userAllergies.length > 0"> {{ userAllergies.length }} recorded</span>
-          <span *ngIf="userAllergies.length === 0">None recorded</span>
-        </p>
-        <p><strong>Emergency Contact:</strong> {{ getBuddiesCount() }}</p>
-      </ion-card-content>
-    </ion-card>
+    <div class="health-overview-container">
+      <ion-card class="health-card">
+        <ion-card-header>
+          <ion-card-title class="allergen-title">
+            ALLERGENS
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="count-display">
+            <span class="count-number" *ngIf="userAllergies.length > 0">{{ userAllergies.length }}</span>
+            <span class="count-number" *ngIf="userAllergies.length === 0">0</span>
+          </div>
+          <p class="count-label">recorded</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="health-card">
+        <ion-card-header>
+          <ion-card-title class="emergency-contact-title">
+            CONTACTS
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="count-display">
+            <span class="count-number">{{ getBuddiesCount() }}</span>
+          </div>
+          <p class="count-label">buddies</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
   </div>
 </ion-content>

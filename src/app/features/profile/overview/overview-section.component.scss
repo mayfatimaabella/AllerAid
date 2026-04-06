@@ -110,14 +110,15 @@
 
 .allergy-chips {
 	display:flex;
-	flex-wrap:nowrap;
+	flex-direction:column;
 	gap:6px;
-	overflow-x:auto;
-	overflow-y:hidden;
-	white-space:nowrap;
-	align-items:center;
+	overflow-y:auto;
+	overflow-x:hidden;
+	max-height:200px;
+	align-items:flex-start;
 	-webkit-overflow-scrolling:touch;
 	background: transparent !important;
+	padding-right: 6px;
 }
 
 .no-data { 

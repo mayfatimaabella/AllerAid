@@ -13,8 +13,18 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Main Segment Navigation -->
+  <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange()" class="main-segment">
+    <ion-segment-button value="active">
+      <ion-label>Active</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="history">
+      <ion-label>History</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
   <!-- Active Emergencies -->
-  <ion-card *ngIf="activeEmergencies.length > 0" color="danger">
+  <ion-card *ngIf="selectedTab === 'active' && activeEmergencies.length > 0" class="active-emergency-card">
     <ion-card-header>
       <ion-card-title style="display: flex; align-items: center; gap: 8px; color: white;">
         <ion-icon name="warning" size="large"></ion-icon>
@@ -60,8 +70,15 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- Empty State for Active Emergencies -->
+  <div *ngIf="selectedTab === 'active' && activeEmergencies.length === 0" class="empty-state">
+    <ion-icon name="checkmark-circle-outline" size="large"></ion-icon>
+    <p>No active emergencies</p>
+    <p>This is good news!</p>
+  </div>
+
   <!-- Emergency History -->
-  <ion-card>
+  <ion-card *ngIf="selectedTab === 'history'">
     <ion-card-header>
       <ion-card-title style="display: flex; align-items: center; gap: 8px;">
         <ion-icon name="time-outline"></ion-icon>
@@ -69,7 +86,7 @@
       </ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-segment [(ngModel)]="selectedFilter" (ionChange)="filterEmergencies()">
+      <ion-segment [(ngModel)]="selectedFilter" (ionChange)="filterEmergencies()" scrollable="true" class="main-segment">
         <ion-segment-button value="all">
           <ion-label>All</ion-label>
         </ion-segment-button>

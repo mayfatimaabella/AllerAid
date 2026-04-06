@@ -77,6 +77,10 @@ import { IonicModule } from '@ionic/angular';
                 <ion-icon name="chatbubble" slot="start"></ion-icon>
                 Send Message
               </ion-button>
+              <ion-button expand="block" fill="outline" class="edit-btn" (click)="editBuddy()">
+                <ion-icon name="pencil" slot="start"></ion-icon>
+                Edit Buddy Info
+              </ion-button>
             </div>
           </div>
           <div *ngIf="!buddy" class="no-buddy">
@@ -240,6 +244,13 @@ import { IonicModule } from '@ionic/angular';
       font-weight: 500;
     }
 
+    .edit-btn {
+      --color: #036a5d !important;
+      --border-color: #036a5d !important;
+      height: 44px;
+      font-weight: 500;
+    }
+
     .no-buddy {
       text-align: center;
       padding: 40px 20px;
@@ -250,6 +261,7 @@ import { IonicModule } from '@ionic/angular';
 export class BuddyDetailsModalComponent {
   @Input() buddy: any;
   @Output() closeDetails = new EventEmitter<void>();
+  @Output() edit = new EventEmitter<any>();
 
   callBuddy() {
     const phoneNumber = this.buddy.contactNumber || this.buddy.contact;
@@ -267,5 +279,10 @@ export class BuddyDetailsModalComponent {
       const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
       window.open(`sms:${cleanNumber}`, '_system');
     }
+  }
+
+  editBuddy() {
+    this.edit.emit(this.buddy);
+    this.closeDetails.emit();
   }
 }
