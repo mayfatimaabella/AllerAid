@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BuddyService } from '../../../core/services/buddy.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { BuddyInvitationsModal } from '../components/buddy-invitations-modal.component';
 import { environment } from '../../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-buddy',
@@ -12,13 +13,16 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./buddy.page.scss'],
   standalone: false,
 })
-export class BuddyPage implements OnInit {
+export class BuddyPage implements OnInit, OnDestroy {
   showDetailsModal = false;
   buddyToShowDetails: any = null;
   
   // Loading states to prevent multiple calls
   private isLoadingBuddies = false;
   private isLoadingInvitations = false;
+  
+  // Subscription to buddy updates
+  private buddyUpdatesSubscription: Subscription | null = null;
 
   showBuddyDetails(buddy: any) {
     this.buddyToShowDetails = buddy;
@@ -50,7 +54,32 @@ export class BuddyPage implements OnInit {
 
   async ngOnInit() {
     await this.loadInvitationCount();
-    this.loadBuddies();
+    await this.loadBuddies();
+    
+    // Set up real-time listener for buddy updates
+    const currentUser = await this.authService.waitForAuthInit();
+    if (currentUser) {
+      // Start listening for buddy relation changes
+      this.buddyService.listenForBuddyUpdates(currentUser.uid);
+      
+      // Subscribe to buddy updates and reload when changes occur
+      this.buddyUpdatesSubscription = this.buddyService.buddyUpdates$.subscribe((update) => {
+        if (update) {
+          if (!environment.production) {
+            console.log('Buddy update received, reloading buddies:', update);
+          }
+          // Reload buddies when an update is detected
+          this.loadBuddies();
+        }
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up subscription when component is destroyed
+    if (this.buddyUpdatesSubscription) {
+      this.buddyUpdatesSubscription.unsubscribe();
+    }
   }
 
   async loadInvitationCount() {
