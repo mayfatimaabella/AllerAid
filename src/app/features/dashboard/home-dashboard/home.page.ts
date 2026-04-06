@@ -7,7 +7,6 @@ import { EmergencyService } from '../../../core/services/emergency.service';
 import { EmergencyNotificationService } from '../../../core/services/emergency-notification.service';
 import { UserService } from '../../../core/services/user.service';
 import { AllergyService } from '../../../core/services/allergy.service';
-import { ResponderMapPage } from '../../emergency/responder-map/responder-map.page';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -354,19 +353,18 @@ export class HomePage implements OnInit, OnDestroy {
   }
   
   async openResponderMap(response: any) {
-    // Open responder map as a bottom-sheet style modal
+    // Patient view: navigate to passive patient map that tracks responder
     const data = response || this.minimizedResponder;
-    if (!data) return;
-    const modal = await this.modalController.create({
-      component: ResponderMapPage,
-      componentProps: { responder: data },
-      cssClass: 'responder-map-modal',
-      initialBreakpoint: 0.95,
-      breakpoints: [0.12, 0.5, 0.75, 0.95],
-      handle: true,
-      handleBehavior: 'cycle'
+    if (!data || !data.emergencyId) {
+      return;
+    }
+
+    await this.router.navigate(['/tabs/patient-map'], {
+      state: {
+        emergencyId: data.emergencyId,
+        responderName: data.responderName || 'Responder'
+      }
     });
-    await modal.present();
   }
 
   /**
