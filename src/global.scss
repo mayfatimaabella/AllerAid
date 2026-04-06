@@ -591,47 +591,83 @@ ion-modal.responder-map-modal {
   --box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* --- AQI Custom Alert Styles --- */
 .aqi-custom-alert {
-  /* PM10 & PM2.5 Definitions Font Size */
+  --background: #f4fbf9; 
+  --width: 90%;
+  --max-width: 350px;
+
+  .alert-wrapper {
+    border-radius: 16px !important;
+  }
+
+  .alert-head {
+    padding-bottom: 8px;
+    .alert-title {
+      color: #126d61;
+      font-weight: 700;
+      font-size: 18px;
+    }
+  }
+
+  /* PM10 & PM2.5 Definitions */
   .alert-message {
     text-align: left;
-    font-size: 13px !important; // Keeps the adjusted small size
-    line-height: 1.4;
-    color: #333; // Standard dark gray for text
-    font-style: normal !important;
-    white-space: pre-wrap !important; 
+    font-size: 13px !important;
     line-height: 1.5;
-    padding-bottom: 10px;
+    color: #333;
+    white-space: pre-wrap !important; 
+    padding: 10px 15px !important;
+    
+    /* Targets the 'Note' part if it's at the end of the string */
+    font {
+       display: block;
+       margin-top: 10px;
+       font-size: 11px;
+       font-style: italic;
+       color: #666;
+    }
   }
 
-  /* Note Styling (Italic) */
-  .aqi-note {
-    font-size: 11px !important;
-    font-style: italic !important;
-    color: #666;
-    display: block;
-    margin-top: 8px;
-  }
-
-  /* Legend Dot Sizing and Reverting Colors */
+  /* Legend Dot Sizing and Colors */
   .alert-radio-group {
     border-top: 1px solid #f0f0f0;
+    margin-top: 5px;
+
+    .alert-radio-button {
+      height: 45px;
+    }
 
     .alert-radio-icon {
       width: 18px !important;
       height: 18px !important;
+      border-radius: 50%;
     }
 
-    /* Restoring the original solid colors */
-    button:nth-child(1) .alert-radio-icon { background: #126d61 !important; border-color: #126d61 !important; }
-    button:nth-child(2) .alert-radio-icon { background: #ffc409 !important; border-color: #ffc409 !important; }
-    button:nth-child(3) .alert-radio-icon { background: #f7a01c !important; border-color: #f7a01c !important; }
-    button:nth-child(4) .alert-radio-icon { background: #eb445a !important; border-color: #eb445a !important; }
-    button:nth-child(5) .alert-radio-icon { background: #8932b2 !important; border-color: #8932b2 !important; }
+    /* Solid Colors for the Legend dots */
+    .alert-radio-button:nth-child(1) .alert-radio-icon { background: #126d61 !important; border-color: #126d61 !important; }
+    .alert-radio-button:nth-child(2) .alert-radio-icon { background: #ffc409 !important; border-color: #ffc409 !important; }
+    .alert-radio-button:nth-child(3) .alert-radio-icon { background: #f7a01c !important; border-color: #f7a01c !important; }
+    .alert-radio-button:nth-child(4) .alert-radio-icon { background: #eb445a !important; border-color: #eb445a !important; }
+    .alert-radio-button:nth-child(5) .alert-radio-icon { background: #8932b2 !important; border-color: #8932b2 !important; }
+
+    /* Hide the inner checkmark dot so it stays as a solid color circle */
+    .alert-radio-inner {
+      display: none !important;
+    }
 
     .alert-radio-label {
-      font-size: 13px !important; // Matches the message font size
+      font-size: 13px !important;
       color: #333 !important;
+      font-weight: 500;
+    }
+  }
+
+  .alert-button-group {
+    padding: 10px;
+    .alert-button {
+      color: #126d61;
+      font-weight: bold;
     }
   }
 }

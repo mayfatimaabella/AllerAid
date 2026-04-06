@@ -22,7 +22,8 @@
       "es2018", 
       "dom"
     ],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "types": ["jest", "mocha"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

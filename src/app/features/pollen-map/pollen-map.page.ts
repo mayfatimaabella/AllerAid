@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as L from 'leaflet'; 
@@ -9,9 +9,15 @@ import * as L from 'leaflet';
   styleUrls: ['./pollen-map.page.scss'],
   standalone: false,
 })
-export class PollenMapPage implements OnInit {
+export class PollenMapPage implements OnInit, OnDestroy {
   map!: L.Map;
   marker!: L.CircleMarker;
+  
+  currentDate: string = '';
+  currentTime: string = '';
+  private clockInterval: any;
+
+  riskLogs: any[] = [];
 
   airQuality = {
     pm10: 0,
@@ -29,31 +35,92 @@ export class PollenMapPage implements OnInit {
 
   ngOnInit() {
     this.fetchAirData();
+    this.startLiveClock();
+    this.loadLogs();
+  }
+
+  ngOnDestroy() {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
   }
 
   ionViewDidEnter() {
     this.initMap();
   }
 
-  // New: Help Modal Guide
+  startLiveClock() {
+    const update = () => {
+      const now = new Date();
+      this.currentDate = now.toLocaleDateString('en-US', { 
+        month: 'long', day: 'numeric', year: 'numeric' 
+      });
+      this.currentTime = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', minute: '2-digit', second: '2-digit' 
+      });
+    };
+    update();
+    this.clockInterval = setInterval(update, 1000);
+  }
+
+  loadLogs() {
+    const saved = localStorage.getItem('aqi_risk_logs');
+    this.riskLogs = saved ? JSON.parse(saved).reverse().slice(0, 5) : [];
+    
+    // Force map to recalculate size when logs update the layout height
+    if (this.map) {
+      setTimeout(() => {
+        this.map.invalidateSize();
+      }, 200);
+    }
+  }
+
+  async logHighRiskArea(status: string, value: number) {
+    const log = { 
+      status, 
+      value, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' })
+    };
+    
+    const existingLogs = JSON.parse(localStorage.getItem('aqi_risk_logs') || '[]');
+    existingLogs.push(log);
+    localStorage.setItem('aqi_risk_logs', JSON.stringify(existingLogs));
+    
+    this.loadLogs(); 
+  }
+
+  clearLogs() {
+    localStorage.removeItem('aqi_risk_logs');
+    this.riskLogs = [];
+    
+    // Refresh map layout after clearing the list
+    if (this.map) {
+      setTimeout(() => {
+        this.map.invalidateSize();
+      }, 100);
+    }
+  }
+
   async openHelpModal() {
-  const alert = await this.alertController.create({
-    header: 'Air Quality Guide',
-    cssClass: 'aqi-custom-alert',
-    message: 'PM10: It measures coarse particulate matter (like dust and pollen) that is 10 micrometers or smaller. These can be inhaled into the lungs.\n\n' +
-      'PM2.5: Particles ≤ 2.5µm (Fine combustion/haze).\n\n' +
-    'Note: If the map looks blue/empty, it is a loading error.\nClick "Recenter Map" to fix it.',
-    inputs: [
-      { type: 'radio', label: 'Good: Safe air', value: 'g', checked: true, disabled: true },
-      { type: 'radio', label: 'Moderate: Acceptable', value: 'y', checked: true, disabled: true },
-      { type: 'radio', label: 'Sensitive: Limit stays', value: 'o', checked: true, disabled: true },
-      { type: 'radio', label: 'Unhealthy: Wear a mask', value: 'r', checked: true, disabled: true },
-      { type: 'radio', label: 'Very Unhealthy: Avoid outdoors', value: 'p', checked: true, disabled: true }
-    ],
-    buttons: ['UNDERSTOOD']
-  });
-  await alert.present();
-}
+    const alert = await this.alertController.create({
+      header: 'Air Quality Guide',
+      cssClass: 'aqi-custom-alert',
+      message: 'PM10: Measures coarse particles (dust/pollen) ≤ 10µm.\n\n' +
+               'PM2.5: Particles ≤ 2.5µm.\n\n' +
+               'Note: If the map looks blue/empty, click "Recenter Map" to fix it.',
+      inputs: [
+        { type: 'radio', label: 'Good: Safe air', value: 'g', checked: true, disabled: true },
+        { type: 'radio', label: 'Moderate: Acceptable', value: 'y', checked: true, disabled: true },
+        { type: 'radio', label: 'Sensitive: Limit stays', value: 'o', checked: true, disabled: true },
+        { type: 'radio', label: 'Unhealthy: Wear a mask', value: 'r', checked: true, disabled: true },
+        { type: 'radio', label: 'Very Unhealthy: Avoid outdoors', value: 'p', checked: true, disabled: true }
+      ],
+      buttons: ['UNDERSTOOD']
+    });
+    await alert.present();
+  }
+
   initMap() {
     const lat = 10.3167; 
     const lon = 123.8907;
@@ -82,12 +149,15 @@ export class PollenMapPage implements OnInit {
       weight: 2
     }).addTo(this.map);
 
+    // Initial load sync
     setTimeout(() => {
       this.airQuality.loaded = true; 
       setTimeout(() => {
-        this.map.invalidateSize();
-        this.map.setView([lat, lon], 13, { animate: true });
-        this.updateMapVisuals(); 
+        if (this.map) {
+          this.map.invalidateSize();
+          this.map.setView([lat, lon], 13, { animate: true });
+          this.updateMapVisuals(); 
+        }
       }, 300);
     }, 500);
   }
@@ -121,13 +191,14 @@ export class PollenMapPage implements OnInit {
       hour: '2-digit', minute: '2-digit' 
     });
 
-    // Added Logic for Purple, Orange, Red, Yellow
     if (this.airQuality.pm10 > 200) {
       this.airQuality.status = 'Very Unhealthy';
       this.airQuality.statusClass = 'pollen-purple';
+      this.logHighRiskArea('Very Unhealthy', this.airQuality.pm10);
     } else if (this.airQuality.pm10 > 150) {
       this.airQuality.status = 'High';
       this.airQuality.statusClass = 'pollen-high';
+      this.logHighRiskArea('High', this.airQuality.pm10);
     } else if (this.airQuality.pm10 > 100) {
       this.airQuality.status = 'Sensitive';
       this.airQuality.statusClass = 'pollen-orange';
@@ -143,11 +214,11 @@ export class PollenMapPage implements OnInit {
 
   updateMapVisuals() {
     if (!this.marker) return;
-    let color = '#126d61'; // Good
-    if (this.airQuality.status === 'Very Unhealthy') color = '#8932b2'; // Purple
-    if (this.airQuality.status === 'High') color = '#eb445a';           // Red
-    if (this.airQuality.status === 'Sensitive') color = '#f7a01c';      // Orange
-    if (this.airQuality.status === 'Moderate') color = '#ffc409';       // Yellow
+    let color = '#126d61'; 
+    if (this.airQuality.status === 'Very Unhealthy') color = '#8932b2';
+    if (this.airQuality.status === 'High') color = '#eb445a';
+    if (this.airQuality.status === 'Sensitive') color = '#f7a01c';
+    if (this.airQuality.status === 'Moderate') color = '#ffc409';
 
     this.marker.setStyle({ fillColor: color });
     this.marker.bindPopup(`

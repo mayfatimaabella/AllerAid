@@ -22,6 +22,7 @@ export class EmergenciesPage implements OnInit, OnDestroy {
   allEmergencies: EmergencyAlert[] = [];
   filteredEmergencies: EmergencyAlert[] = [];
   selectedFilter: string = 'all';
+  selectedTab: string = 'active';
   private dismissedEmergencyIds = new Set<string>();
   private dismissedHistoryIds = new Set<string>();
   private emergencySubscription: Subscription | null = null;
@@ -99,6 +100,12 @@ export class EmergenciesPage implements OnInit, OnDestroy {
       default:
         this.filteredEmergencies = this.allEmergencies;
     }
+  }
+
+  onTabChange() {
+    // Reset filter when switching tabs
+    this.selectedFilter = 'all';
+    this.filterEmergencies();
   }
 
   private getDismissedAlertsForCurrentUser(): EmergencyAlert[] {

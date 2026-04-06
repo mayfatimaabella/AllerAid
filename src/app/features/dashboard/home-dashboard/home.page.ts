@@ -403,7 +403,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
   
   getBuddiesCount(): string {
-    return `${this.userBuddies.length} added`;
+    return `${this.userBuddies.length}`;
   }
   
   /**
