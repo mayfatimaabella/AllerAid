@@ -74,10 +74,6 @@ export class BuddyService {
   private buddyRelationsSubject = new BehaviorSubject<any[]>([]);
   buddyRelations$ = this.buddyRelationsSubject.asObservable();
 
-  // Observable for buddy updates (real-time changes)
-  private buddyUpdatesSubject = new BehaviorSubject<any>(null);
-  buddyUpdates$ = this.buddyUpdatesSubject.asObservable();
-
   // Guards to prevent duplicate listener setup
   private activeListeners = new Set<string>();
   private relationListeners = new Set<string>();
@@ -144,32 +140,20 @@ export class BuddyService {
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  // UPDATE buddy - Store custom buddy info in buddy_relations collection
-  // Note: This stores custom fields (like edited contact info) per buddy relation
-  async updateBuddy(relationId: string, updatedData: any): Promise<void> {
+  // UPDATE buddy
+  async updateBuddy(id: string, updatedData: any): Promise<void> {
     try {
-      const relationDoc = doc(this.db, 'buddy_relations', relationId);
-      const snap = await getDoc(relationDoc);
+      const buddyDoc = doc(this.db, 'buddies', id);
+      const snap = await getDoc(buddyDoc);
 
       if (snap.exists()) {
-        // Store custom buddy info: extract the editable fields
-        const customFields: any = {
-          customContactNumber: updatedData.contactNumber || updatedData.contact || '',
-          customFirstName: updatedData.firstName,
-          customLastName: updatedData.lastName,
-          customEmail: updatedData.email,
-          customRelationship: updatedData.relationship,
-          lastUpdated: new Date()
-        };
-        
-        await updateDoc(relationDoc, customFields);
-        
-        if (!environment.production) {
-          console.log('Updated buddy relation custom fields:', relationId);
-        }
+        await updateDoc(buddyDoc, updatedData);
       } else {
-        console.error(`Buddy relation ${relationId} does not exist`);
-        throw new Error(`Buddy relation ${relationId} not found`);
+        // If the document doesn't exist, create it (fallback)
+        await setDoc(buddyDoc, { id, ...updatedData });
+        if (!environment.production) {
+          console.warn(`Buddy doc ${id} did not exist. Created new document.`);
+        }
       }
     } catch (error) {
       console.error('Error updating buddy:', error);
@@ -228,25 +212,19 @@ export class BuddyService {
           
           if (userProfile) {
             // Create buddy object with actual user profile data
-            // Override with custom fields if they exist in the relation
             const buddy = {
               id: relation.id,
               userId: userId, // Keep the current user's ID for compatibility
               relationId: relation.id,
               connectedUserId: otherUserId,
-              firstName: relation.customFirstName || userProfile.firstName || 'Unknown',
-              lastName: relation.customLastName || userProfile.lastName || 'User',
-              relationship: relation.customRelationship || (isPatient ? 'Emergency Buddy' : 'Protected Patient'),
-              contactNumber: relation.customContactNumber || userProfile.phone || '',
-              email: relation.customEmail || userProfile.email || '',
+              firstName: userProfile.firstName || 'Unknown',
+              lastName: userProfile.lastName || 'User',
+              relationship: isPatient ? 'Emergency Buddy' : 'Protected Patient',
+              contactNumber: userProfile.phone || '',
+              email: userProfile.email || '',
               status: relation.status,
               acceptedAt: relation.acceptedAt,
-              isFromRelation: true, // Flag to indicate this comes from buddy_relations
-              // Store original profile data for reference
-              originalFirstName: userProfile.firstName || 'Unknown',
-              originalLastName: userProfile.lastName || 'User',
-              originalPhone: userProfile.phone || '',
-              originalEmail: userProfile.email || ''
+              isFromRelation: true // Flag to indicate this comes from buddy_relations
             };
             
             buddies.push(buddy);
@@ -446,69 +424,6 @@ export class BuddyService {
     } catch (error) {
       console.error('Error responding to emergency:', error);
       throw error;
-    }
-  }
-
-  // Listen for real-time buddy relation updates for a specific user
-  listenForBuddyUpdates(userId: string): void {
-    try {
-      // Listen to buddy_relations where user is user1
-      const q1 = query(
-        collection(this.db, 'buddy_relations'),
-        where('user1Id', '==', userId),
-        where('status', '==', 'accepted')
-      );
-
-      // Listen to buddy_relations where user is user2
-      const q2 = query(
-        collection(this.db, 'buddy_relations'),
-        where('user2Id', '==', userId),
-        where('status', '==', 'accepted')
-      );
-
-      // Set up listeners for both queries
-      const unsubscribe1 = onSnapshot(q1, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          const buddyRelation = change.doc.data();
-          // Emit update event with the changed relation
-          this.buddyUpdatesSubject.next({
-            type: change.type, // 'added', 'modified', 'removed'
-            relationId: change.doc.id,
-            data: buddyRelation
-          });
-          
-          if (!environment.production) {
-            console.log('Buddy update detected (as user1):', change.type, change.doc.id);
-          }
-        });
-      });
-
-      const unsubscribe2 = onSnapshot(q2, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          const buddyRelation = change.doc.data();
-          // Emit update event with the changed relation
-          this.buddyUpdatesSubject.next({
-            type: change.type,
-            relationId: change.doc.id,
-            data: buddyRelation
-          });
-          
-          if (!environment.production) {
-            console.log('Buddy update detected (as user2):', change.type, change.doc.id);
-          }
-        });
-      });
-
-      if (!environment.production) {
-        console.log('Real-time buddy listener setup for user:', userId);
-      }
-
-      // Store unsubscribe functions for cleanup if needed
-      if (!this.relationListeners.has(userId)) {
-        this.relationListeners.add(userId);
-      }
-    } catch (error) {
-      console.error('Error setting up buddy listener:', error);
     }
   }
 
