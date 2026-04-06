@@ -67,6 +67,12 @@ const routes: Routes = [
         canActivate: [RoleGuard],
         data: { roles: ['buddy'] }
       },
+      {
+        path: 'patient-map',
+        loadChildren: () => import('../../features/emergency/patient-map/patient-map.module').then(m => m.PatientMapPageModule),
+        canActivate: [RoleGuard],
+        data: { roles: ['patient', 'user', 'default', 'all'] }
+      },
       
       // Shared Routes (Available to multiple roles)
       {

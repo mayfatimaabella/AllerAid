@@ -500,20 +500,20 @@ export class ResponderMapPage implements OnInit, OnDestroy {
     }
   }
 
-  /** Minimize to a small visible peek (12% height). */
-  async minimize() {
-    const topModal = await this.modalController.getTop();
-    if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
-      (topModal as any).setCurrentBreakpoint(0.12);
-    }
-  }
+  // /** Minimize to a small visible peek (12% height). */
+  // async minimize() {
+  //   const topModal = await this.modalController.getTop();
+  //   if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
+  //     (topModal as any).setCurrentBreakpoint(0.12);
+  //   }
+  // }
 
-  async expand() {
-    const topModal = await this.modalController.getTop();
-    if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
-      (topModal as any).setCurrentBreakpoint(0.95);
-    }
-  }
+  // async expand() {
+  //   const topModal = await this.modalController.getTop();
+  //   if (topModal && typeof (topModal as any).setCurrentBreakpoint === 'function') {
+  //     (topModal as any).setCurrentBreakpoint(0.95);
+  //   }
+  // }
 
   /** Stop tracking and mark the emergency as resolved, then close the modal. */
   async markResolved() {

@@ -2,20 +2,20 @@
   <ion-toolbar>
     <ion-title>Help is on the way</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openEmergencyInfo()" title="Emergency info">
+      <ion-button (click)="openEmergencyInfo()" title="Emergency Information">
         <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="markResolved()" color="success" title="Mark resolved">
+      <!-- <ion-button (click)="markResolved()" color="success" title="Help Completed">
         <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
-      </ion-button>
+      </ion-button> -->
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content fullscreen="true">
   <div class="map-container">
     <!-- Leaflet Maps -->
-    <div #map id="map" *ngIf="mapAvailable" style="height: 400px; width: 100%;"></div>
+    <div #map id="map" *ngIf="mapAvailable"></div>
     
     <!-- Fallback when map is not available -->
     <div class="map-fallback" *ngIf="!mapAvailable">
@@ -58,7 +58,7 @@
         </ion-button>
         <ion-button expand="block" color="success" (click)="markResolved()" class="resolve-btn">
           <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
-          Mark resolved
+          Help Completed
         </ion-button>
       </div>
     </div>

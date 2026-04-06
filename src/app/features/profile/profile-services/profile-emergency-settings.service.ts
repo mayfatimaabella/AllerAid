@@ -31,6 +31,23 @@ export class ProfileEmergencySettingsService {
     private userService: UserService
   ) {}
 
+  private parseName(name?: string): { firstName?: string; lastName?: string; fullName?: string } {
+    const raw = (name || '').trim();
+    if (!raw) {
+      return {};
+    }
+
+    const parts = raw.split(/\s+/);
+    const firstName = parts[0];
+    const lastName = parts.slice(1).join(' ');
+
+    return {
+      fullName: raw,
+      firstName,
+      lastName: lastName || undefined
+    };
+  }
+
   /**
    * Save emergency settings
    */
@@ -109,8 +126,12 @@ export class ProfileEmergencySettingsService {
     // Optimistic UI update
     onEmergencyMessageUpdate(emergencyMessage);
     if (userProfile) {
+      const parsedName = this.parseName(message?.name);
       onUserProfileUpdate({
         ...userProfile,
+        ...(parsedName.fullName ? { fullName: parsedName.fullName } : {}),
+        ...(parsedName.firstName ? { firstName: parsedName.firstName } : {}),
+        ...(parsedName.lastName ? { lastName: parsedName.lastName } : {}),
         emergencyContactName: message?.emergencyContactName || '',
         emergencyContactPhone: message?.emergencyContactPhone || '',
         dateOfBirth: message?.dateOfBirth || '',
@@ -122,9 +143,13 @@ export class ProfileEmergencySettingsService {
     if (userProfile?.uid) {
       const uid = userProfile.uid;
       try {
+        const parsedName = this.parseName(message?.name);
         await this.medicalService.updateEmergencyMessage(uid, emergencyMessage);
         await this.userService.updateUserProfile(uid, {
           emergencyMessage,
+          ...(parsedName.fullName ? { fullName: parsedName.fullName } : {}),
+          ...(parsedName.firstName ? { firstName: parsedName.firstName } : {}),
+          ...(parsedName.lastName ? { lastName: parsedName.lastName } : {}),
           emergencyContactName: message?.emergencyContactName || '',
           emergencyContactPhone: message?.emergencyContactPhone || '',
           dateOfBirth: message?.dateOfBirth || '',
@@ -164,9 +189,13 @@ export class ProfileEmergencySettingsService {
     const uid = userProfile.uid;
 
     try {
+      const parsedName = this.parseName(message?.name);
       await this.medicalService.updateEmergencyMessage(uid, emergencyMessage);
       await this.userService.updateUserProfile(uid, {
         emergencyMessage,
+        ...(parsedName.fullName ? { fullName: parsedName.fullName } : {}),
+        ...(parsedName.firstName ? { firstName: parsedName.firstName } : {}),
+        ...(parsedName.lastName ? { lastName: parsedName.lastName } : {}),
         emergencyContactName: message?.emergencyContactName || '',
         emergencyContactPhone: message?.emergencyContactPhone || '',
         dateOfBirth: message?.dateOfBirth || '',

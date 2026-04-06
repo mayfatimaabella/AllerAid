@@ -22,8 +22,9 @@
 }
 
 .allergy-chip { 
-	display:inline-block;
-	flex: 0 0 auto;
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
 	background: #036a5d; 
 	color: #ffffff; 
 	border-radius: 16px; 

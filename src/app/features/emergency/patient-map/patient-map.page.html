@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Track Responder</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="map-container">
+    <div #map id="patient-map" *ngIf="mapAvailable" style="height: 400px; width: 100%;"></div>
+
+    <div class="map-fallback" *ngIf="!mapAvailable">
+      <ion-icon name="map-outline" size="large" color="medium"></ion-icon>
+      <h3>Map view unavailable</h3>
+      <p>{{ responderName }} is on the way to your location.</p>
+      <p><em>Unable to load map. Please check your internet connection.</em></p>
+    </div>
+
+    <div class="responder-info-card">
+      <h2>{{ responderName }} is on the way</h2>
+      <p *ngIf="estimatedArrivalTime">ETA: {{ estimatedArrivalTime }}</p>
+      <p *ngIf="responderDistance">Distance: {{ responderDistance }}</p>
+    </div>
+  </div>
+</ion-content>
