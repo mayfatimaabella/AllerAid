@@ -30,6 +30,9 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   responderAddress: string = '';
   isResponderAddressLoading: boolean = false;
   hasResponded: boolean = false;
+  emergencyContactPhone: string | null = null;
+  formattedDateOfBirth: string = 'Not specified';
+  bloodType: string | null = null;
   
   activeEmergencies: EmergencyAlert[] = [];
   currentEmergency: EmergencyAlert | null = null;
@@ -294,6 +297,17 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       this.profileInstructionFallback = (profile as any)?.emergencyMessage?.instructions || (profile as any)?.emergencyInstruction || '';
       const rawAvatar = (profile as any)?.avatar;
       this.patientAvatar = (typeof rawAvatar === 'string' && rawAvatar.trim().length > 0) ? rawAvatar.trim() : null;
+
+      // Patient identity details for responder view
+      this.emergencyContactPhone = (profile as any)?.emergencyContactPhone || null;
+      const dob = (profile as any)?.dateOfBirth;
+      if (dob) {
+        const date = new Date(dob);
+        this.formattedDateOfBirth = isNaN(date.getTime()) ? dob : date.toLocaleDateString();
+      } else {
+        this.formattedDateOfBirth = 'Not specified';
+      }
+      this.bloodType = (profile as any)?.bloodType || null;
     } catch (error) {
       console.warn('Unable to load profile instructions:', error);
     }
