@@ -7,6 +7,7 @@ import { UserService } from './core/services/user.service';
 import { EmergencyDetectorService } from './core/services/emergency-detector.service';
 import { PatientNotificationService } from './core/services/patient-notification.service';
 import { MedicationReminderService } from './core/services/medication-reminder.service';
+import { PushNotificationService } from './core/services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private emergencyDetectorService: EmergencyDetectorService,
     private patientNotificationService: PatientNotificationService,
+    private pushNotificationService: PushNotificationService,
     private medicationReminderService: MedicationReminderService
   ) {
     this.allergyService.resetAllergyOptions();
@@ -61,6 +63,8 @@ export class AppComponent implements OnInit {
     this.authService.getCurrentUser$().subscribe(async (currentUser) => {
       if (currentUser) {
         await this.loadUserRole();
+        // Ensure push notifications are registered once the user is authenticated
+        await this.pushNotificationService.init();
       } else {
         this.userRole = '';
       }

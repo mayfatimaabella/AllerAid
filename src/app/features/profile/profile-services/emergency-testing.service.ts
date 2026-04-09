@@ -72,8 +72,8 @@ export class EmergencyTestingService {
   ): Promise<void> {
     if (!powerButtonAlertEnabled) {
       const alert = await this.alertController.create({
-        header: 'Power Button Alert Disabled',
-        message: 'Please enable "Power Button Alert" setting first',
+        header: 'Volume Button Alert Disabled',
+        message: 'Please enable "Volume Button Alert" setting first',
         buttons: ['OK']
       });
       await alert.present();
@@ -81,8 +81,8 @@ export class EmergencyTestingService {
     }
 
     const alert = await this.alertController.create({
-      header: 'Test Power Button Detection',
-      message: 'This will simulate triple power button press. Continue?',
+      header: 'Test Volume Button Detection',
+      message: 'This will simulate a volume button triple-press and trigger an emergency alert. Continue?',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {

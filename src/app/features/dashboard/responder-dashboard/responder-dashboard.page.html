@@ -21,6 +21,13 @@
         <div class="status-badge">CRITICAL</div>
       </div>
 
+      <div class="emergency-info-card">
+        <div class="emergency-info-title">EMERGENCY INFORMATION</div>
+        <p><strong>Contact:</strong> {{ emergencyContactPhone || 'Not specified' }}</p>
+        <p><strong>Date of Birth:</strong> {{ formattedDateOfBirth }}</p>
+        <p><strong>Blood Type:</strong> {{ bloodType || 'Not specified' }}</p>
+      </div>
+
       <div class="map-location-card">
         <div class="map-container">
           <div #miniMap id="miniMap" class="mini-map"></div>

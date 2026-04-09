@@ -552,29 +552,6 @@ export class EmergencyService {
         }
       });
 
-      // After updating, check if *all* notified buddies have marked
-      // cannot_respond and none have actually responded. If so,
-      // automatically resolve the emergency so it stops for the patient.
-      const snapshot = await getDoc(emergencyRef);
-      if (snapshot.exists()) {
-        const data = snapshot.data() as any;
-        const buddyIds: string[] = Array.isArray(data.buddyIds) ? data.buddyIds : [];
-        const responses: any = data.buddyResponses || {};
-
-        if (buddyIds.length > 0) {
-          const anyResponded = Object.values(responses).some((r: any) => r && r.status === 'responded');
-          const allCannotRespond = buddyIds.every((id: string) => {
-            const r = responses[id];
-            return r && r.status === 'cannot_respond';
-          });
-
-          if (!anyResponded && allCannotRespond && data.status !== 'resolved') {
-            await updateDoc(emergencyRef, { status: 'resolved' });
-            console.log(`All buddies cannot respond. Auto-resolved emergency ${emergencyId}`);
-          }
-        }
-      }
-
       console.log(`Recorded cannot_respond for buddy ${buddyName} on emergency ${emergencyId}`);
     } catch (error) {
       console.error('Error recording buddy cannot respond:', error);

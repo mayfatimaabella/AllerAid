@@ -3,6 +3,7 @@ import { ModalController, ToastController } from '@ionic/angular';
 import { MedicalService, EmergencyMessage } from '../../../core/services/medical.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
 import { EditEmergencyMessageModalComponent } from '../overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
+import { EmergencyDetectorService } from '../../../core/services/emergency-detector.service';
 
 interface EmergencyMessageFormData {
   name?: string;
@@ -28,7 +29,8 @@ export class ProfileEmergencySettingsService {
     private modalController: ModalController,
     private toastController: ToastController,
     private medicalService: MedicalService,
-    private userService: UserService
+    private userService: UserService,
+    private emergencyDetectorService: EmergencyDetectorService
   ) {}
 
   private parseName(name?: string): { firstName?: string; lastName?: string; fullName?: string } {
@@ -51,8 +53,39 @@ export class ProfileEmergencySettingsService {
   /**
    * Save emergency settings
    */
-  saveEmergencySettings(): void {
-    // TODO: Implement save logic
+  async saveEmergencySettings(): Promise<void> {
+    try {
+      const profile = await this.userService.getCurrentUserProfile();
+      if (!profile?.uid) {
+        return;
+      }
+
+      const uid = profile.uid;
+
+      // Normalize settings payload
+      const settings = {
+        shakeToAlert: !!this.emergencySettings?.shakeToAlert,
+        powerButtonAlert: !!this.emergencySettings?.powerButtonAlert,
+        // Default to true unless explicitly turned off
+        audioInstructions: this.emergencySettings?.audioInstructions !== false
+      };
+
+      // Persist to Firestore via medical service
+      await this.medicalService.saveEmergencySettings(uid, settings);
+
+      // Also store on the user profile document so other services see it
+      await this.userService.updateUserProfile(uid, {
+        emergencySettings: settings
+      } as Partial<UserProfile>);
+
+      // Immediately notify the detector service so current session uses new settings
+      await this.emergencyDetectorService.updateEmergencySettings(settings as any);
+
+      await this.presentToast('Emergency settings saved');
+    } catch (error) {
+      console.error('Error saving emergency settings:', error);
+      await this.presentToast('Failed to save emergency settings');
+    }
   }
 
   /**
