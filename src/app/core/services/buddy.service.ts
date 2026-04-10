@@ -114,7 +114,8 @@ export class BuddyService {
         createdAt: alert.createdAt || alert.timestamp || new Date().toISOString(),
         location: alert.location || null,
         patientId: alert.patientId || null,
-        patientName: alert.patientName || null,
+        // Prefer explicit patientName, then userName so history can show a label
+        patientName: alert.patientName || alert.userName || 'Unknown',
         responderId: alert.responderId || null,
         responderName: alert.responderName || null,
         dismissedAt: new Date().toISOString()

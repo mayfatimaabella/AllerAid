@@ -38,7 +38,7 @@
           <ion-badge color="light">{{ emergency.status }}</ion-badge>
         </div>
         <div class="emergency-details">
-          <p><strong>Location:</strong> {{ getLocationDisplay(emergency.location) }}</p>
+          <p><strong>Location:</strong> {{ emergency.displayAddress || getLocationDisplay(emergency.location) }}</p>
           <p><strong>Time:</strong> {{ getTimeAgo(emergency.timestamp) }}</p>
           <p><strong>Allergies:</strong> {{ emergency.allergies?.join(', ') || 'None listed' }}</p>
           <p *ngIf="emergency.instruction"><strong>Instructions:</strong> {{ emergency.instruction }}</p>
@@ -105,8 +105,10 @@
         <ion-item *ngFor="let emergency of filteredEmergencies" (click)="viewEmergencyDetails(emergency)">
           <ion-label>
             <h2>{{ emergency.userName }}</h2>
-            <p>{{ emergency.location.latitude }}, {{ emergency.location.longitude }}</p>
-            <p>{{ emergency.timestamp?.toDate() | date:'short' }}</p>
+            <p><strong>Location:</strong> {{ emergency.displayAddress || getLocationDisplay(emergency.location) }}</p>
+            <p><strong>Date &amp; Time:</strong>
+              {{ emergency.timestamp?.toDate ? emergency.timestamp.toDate() : emergency.timestamp | date:'short' }}
+            </p>
           </ion-label>
           <ion-badge slot="end" [color]="getStatusColor(getStatusDisplay(emergency))">
             {{ getStatusDisplay(emergency) | titlecase }}

@@ -11,7 +11,8 @@ import {
   where,
   onSnapshot,
   Timestamp,
-  getDoc
+  getDoc,
+  getDocs
 } from 'firebase/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
@@ -44,6 +45,7 @@ export interface EmergencyAlert {
   estimatedArrival?: number; // Minutes until arrival
   responseTimestamp?: any; // When responder clicked "on my way"
   distance?: number; // Distance in kilometers
+  displayAddress?: string;
   buddyResponses?: {
     [buddyId: string]: {
       status: 'responded' | 'cannot_respond';
@@ -598,6 +600,33 @@ export class EmergencyService {
     });
     
     return emergenciesSubject.asObservable();
+  }
+
+  /**
+   * Get emergencies for a buddy by status (e.g. resolved, responding)
+   */
+  async getBuddyEmergenciesByStatus(
+    buddyId: string,
+    statuses: ('active' | 'responding' | 'resolved')[]
+  ): Promise<EmergencyAlert[]> {
+    try {
+      const emergenciesRef = collection(this.db, 'emergencies');
+      const q = query(
+        emergenciesRef,
+        where('buddyIds', 'array-contains', buddyId),
+        where('status', 'in', statuses)
+      );
+
+      const snapshot = await getDocs(q);
+      const emergencies: EmergencyAlert[] = [];
+      snapshot.forEach((docSnap) => {
+        emergencies.push({ id: docSnap.id, ...(docSnap.data() as any) } as EmergencyAlert);
+      });
+      return emergencies;
+    } catch (error) {
+      console.error('Error getting buddy emergencies by status:', error);
+      return [];
+    }
   }
   
   /**
