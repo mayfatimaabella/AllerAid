@@ -26,54 +26,51 @@ ion-toolbar {
   }
 }
 
-/* --- 2. Map Section --- */
-.large-map-card {
-  margin: 0 0 12px 0;
-  border-bottom: 1px solid #e2e8f0;
+/* --- 2. Patient Identity Card (Keep as is) --- */
+.patient-identity-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: white;
 
   .patient-info-left {
     display: flex;
     align-items: center;
     gap: 12px;
     flex: 1; 
-    min-width: 0; 
 
-    ion-avatar { width: 40px; height: 40px; flex-shrink: 0; }
+    ion-avatar { 
+      width: 44px; 
+      height: 44px; 
+      border: 2px solid #ef4444;
+    }
     
     .name-wrapper {
       display: flex;
-      flex-direction: column; // Forces Medical Emergency BELOW the name
-      overflow: hidden;
-
+      flex-direction: column;
+      
       .patient-name {
-        font-size: 1.05rem; 
+        font-size: 1.1rem; 
         font-weight: 700;
         color: #1e293b;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.2;
       }
 
       .emergency-type {
         font-size: 0.75rem;
-        color: #64748b; // Muted gray for secondary info
-        white-space: nowrap;
-        margin-top: 2px;
+        color: #ef4444;
+        font-weight: 600;
       }
     }
   }
 
   .status-badge {
-    background: #fee2e2; // Light red background
-    color: #ef4444;      // Bright red text
+    background: #fee2e2;
+    color: #ef4444;
     font-size: 0.65rem;
     font-weight: 800;
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid #fecaca;
-    margin-left: 8px;
-    flex-shrink: 0; 
     text-transform: uppercase;
   }
 }
@@ -81,45 +78,42 @@ ion-toolbar {
 .emergency-info-card {
   margin: 0 16px 12px 16px;
   padding: 10px 14px;
-  background: #ffffff;
+  background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
 
   .emergency-info-title {
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #036a5d;
+    color: #64748b;
     margin-bottom: 6px;
   }
 
   p {
     margin: 2px 0;
-    font-size: 0.875rem;
-    color: #1f2933;
-
-    strong {
-      font-weight: 600;
-      margin-right: 4px;
-    }
+    font-size: 0.85rem;
+    color: #1e293b;
+    strong { font-weight: 600; }
   }
 }
 
-/* --- 3. Map & Info: Optimized Horizontal Layout --- */
+/* --- 3. Stacked Layout: Map on top, Info Side-by-Side below --- */
 .map-location-card {
   margin: 0 16px 12px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr; // Balanced split for map and text
-  height: 140px; 
+  display: flex;
+  flex-direction: column; /* Stacks Map (Top) and Info (Bottom) */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
+  background: #ffffff;
 
   .map-container {
-    height: 100%;
+    height: 180px; /* Full width map */
+    width: 100%;
     position: relative;
     background: #ebebeb;
+    border-bottom: 1px solid #f1f5f9;
 
     .mini-map { 
       height: 100%; 
@@ -128,33 +122,34 @@ ion-toolbar {
 
     .map-reset-btn { 
       position: absolute;
-      width: 36px; 
-      height: 36px; 
-      bottom: 12px; 
-      right: 12px;
+      width: 32px; 
+      height: 32px; 
+      bottom: 8px; 
+      right: 8px;
       z-index: 10;
       --padding-start: 0;
       --padding-end: 0;
       --border-radius: 50%;
-      --box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      --background: white;
+      --color: black;
     }
   }
 
-  /* --- Side-by-Side Location Grid --- */
+  /* --- Horizontal Location Section below the map --- */
   .location-info-section {
     padding: 12px 16px;
     background: #ffffff;
     
     .location-grid {
-      display: flex;
+      display: flex; /* Makes the children (Patient/Responder) horizontal */
       gap: 12px;
 
       .loc-col {
-        flex: 1;
+        flex: 1; /* Ensures both columns take up equal width */
         min-width: 0;
 
         &.divider {
-          border-right: 1px solid #f1f5f9;
+          border-right: 1px solid #f1f5f9; /* Vertical line between columns */
           padding-right: 8px;
         }
 
@@ -162,25 +157,28 @@ ion-toolbar {
           display: flex;
           align-items: center;
           gap: 6px;
-          margin-bottom: 4px;
+          margin-bottom: 2px;
 
           ion-icon { 
-            font-size: 1.2rem; 
-            color: #3b82f6; // Blue color for location icons
+            font-size: 1rem; 
+            color: #3b82f6; 
           }
 
           span {
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            color: #1e293b;
+            color: #64748b;
             text-transform: uppercase;
           }
         }
 
         .address-text {
-          font-size: 0.8rem;
-          color: #334155;
-          line-height: 1.4;
+          font-size: 0.75rem;
+          color: #1e293b;
+          line-height: 1.3;
+          font-weight: 500;
+          
+          /* Ensures long addresses don't break the side-by-side layout */
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -192,14 +190,14 @@ ion-toolbar {
   }
 }
 
-/* --- 3. Instructions & Allergy Chips --- */
+/* --- 4. Instructions & Action Buttons --- */
 .instructions-card {
   margin: 0 16px 16px 16px;
 
   .emergency-plan-box {
     padding: 10px 14px;
     margin-bottom: 10px;
-    background: #f8fafc;
+    background: #f0fdfa;
     border-radius: 8px;
     border-left: 4px solid #036a5d;
     
@@ -208,12 +206,12 @@ ion-toolbar {
       font-weight: 700;
       text-transform: uppercase;
       color: #036a5d;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       display: block;
     }
 
     .plan-text {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #0f172a;
       line-height: 1.4;
     }
@@ -223,98 +221,75 @@ ion-toolbar {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    
-    .allergy-chip {
-      --background: #f1f5f9;
-      --color: #475569;
-      height: 28px;
-      font-size: 0.75rem;
+    .allergy-chip { 
+      --background: #f1f5f9; 
+      --color: #475569; 
+      height: 26px; 
+      font-size: 0.7rem; 
       margin: 0;
     }
   }
 }
 
-/* --- 4. Action Buttons --- */
 .footer-actions {
   padding: 0 16px 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 
-  .btn-google-maps {
-    --border-color: #4285F4;
-    --color: #4285F4;
-    height: 48px;
-    font-weight: 700;
-    margin: 0;
+  .btn-google-maps { 
+    --border-color: #4285F4; 
+    --color: #4285F4; 
+    height: 46px; 
+    font-weight: 700; 
   }
 
-  .btn-completed {
-    --background: #10b981;
+  .btn-completed { 
+    --background: #10b981; 
     --background-activated: #059669;
-    height: 54px;
-    font-weight: 800;
-    font-size: 1.05rem;
-    margin: 0;
-    --border-radius: 12px;
+    height: 52px; 
+    font-weight: 800; 
+    font-size: 1rem;
+    --border-radius: 12px; 
   }
-
+  
   .secondary-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-
-    .btn-speak {
-      --background: #3b82f6;
-      --color: #ffffff;
-      height: 44px;
-      font-weight: 700;
+    gap: 10px;
+    .btn-speak { 
+      --background: #3b82f6; 
+      --color: #ffffff; 
+      height: 44px; 
+      font-weight: 700; 
       font-size: 0.8rem;
     }
-
-    .btn-decline {
-      --background: #ef4444;
-      --color: #ffffff;
-      height: 44px;
-      font-weight: 700;
+    .btn-decline { 
+      --background: #ef4444; 
+      --color: #ffffff; 
+      height: 44px; 
+      font-weight: 700; 
       font-size: 0.8rem;
     }
   }
 }
 
-/* --- 5. Empty State --- */
-.no-emergency-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 80vh;
-  text-align: center;
-  padding: 20px;
+/* --- 5. Global Overrides --- */
+::ng-deep .routing-instructions-container {
+  width: 100% !important;
+  max-height: 80px !important;
+  overflow-y: auto !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 1000 !important;
+  font-size: 0.7rem !important;
+  border-top: 1px solid #eee;
+}
 
-  ion-icon {
-    font-size: 4rem;
-    color: #10b981;
-    margin-bottom: 16px;
-  }
-
-  h3 {
-    color: #1e293b;
-    font-weight: 700;
-    margin-bottom: 20px;
-  }
-
-  .custom-emergency-alert {
+.custom-emergency-alert {
   --background: #fdfdfd;
-  
-  .alert-title {
-    color: #036a5d; // Matches your Emergency Plan header color
-  }
-
-  .submit-button {
-    color: #10b981 !important; // Success green
-    font-weight: bold;
-  }
-}
-
+  .alert-title { color: #036a5d; font-weight: 700; }
+  .submit-button { color: #10b981 !important; font-weight: bold; }
 }
