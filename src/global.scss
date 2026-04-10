@@ -591,7 +591,7 @@ ion-modal.responder-map-modal {
   --box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* --- AQI Custom Alert Styles --- */
+/* --- AQI CUSTOM ALERT (Must be in global.scss) --- */
 .aqi-custom-alert {
   --background: #f4fbf9; 
   --width: 90%;
@@ -610,7 +610,6 @@ ion-modal.responder-map-modal {
     }
   }
 
-  /* PM10 & PM2.5 Definitions */
   .alert-message {
     text-align: left;
     font-size: 13px !important;
@@ -619,7 +618,6 @@ ion-modal.responder-map-modal {
     white-space: pre-wrap !important; 
     padding: 10px 15px !important;
     
-    /* Targets the 'Note' part if it's at the end of the string */
     font {
        display: block;
        margin-top: 10px;
@@ -629,7 +627,6 @@ ion-modal.responder-map-modal {
     }
   }
 
-  /* Legend Dot Sizing and Colors */
   .alert-radio-group {
     border-top: 1px solid #f0f0f0;
     margin-top: 5px;
@@ -651,7 +648,6 @@ ion-modal.responder-map-modal {
     .alert-radio-button:nth-child(4) .alert-radio-icon { background: #eb445a !important; border-color: #eb445a !important; }
     .alert-radio-button:nth-child(5) .alert-radio-icon { background: #8932b2 !important; border-color: #8932b2 !important; }
 
-    /* Hide the inner checkmark dot so it stays as a solid color circle */
     .alert-radio-inner {
       display: none !important;
     }

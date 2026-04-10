@@ -337,53 +337,35 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   }
 
   async cannotRespond() {
-    const alert = await this.alertController.create({
-      header: 'Decline Emergency',
-      message: 'Are you sure you cannot respond to this emergency?',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Decline',
-          handler: async () => {
-            try {
-              if (this.currentEmergency?.id) {
-                const user = await this.authService.waitForAuthInit();
-                if (user) {
-                  // Resolve this buddy's display name from their profile so the
-                  // patient sees who cannot respond instead of a generic label.
-                  const userProfile = await this.userService.getUserProfile(user.uid);
-                  const buddyName = userProfile
-                    ? `${(userProfile as any).firstName || ''} ${(userProfile as any).lastName || ''}`.trim() || 'Buddy'
-                    : 'Buddy';
+  const emergencyId = this.currentEmergency?.id;
 
-                  await this.emergencyService.recordBuddyCannotRespond(
-                    this.currentEmergency.id,
-                    user.uid,
-                    buddyName
-                  );
+  try {
+    // 1. Immediately clear the local object to stop UI from trying to render it
+    const emergencyToDecline = emergencyId;
+    this.currentEmergency = null; 
 
-                  // Mark this emergency as dismissed for this buddy and
-                  // save a snapshot so it appears in the Emergencies history.
-                  this.buddyService.dismissEmergencyForUser(user.uid, this.currentEmergency.id);
-                  this.buddyService.saveDismissedAlertData(user.uid, this.currentEmergency as any);
-                }
-              }
-            } catch (error) {
-              console.error('Error declining:', error);
-            } finally {
-              const modal = await this.modalController.getTop();
-              if (modal) {
-                await modal.dismiss(null, 'cancel');
-              } else {
-                await this.navCtrl.navigateRoot(['/tabs/home'], { replaceUrl: true });
-              }
-            }
-          }
-        }
-      ]
-    });
-    await alert.present();
+    if (emergencyToDecline) {
+      const user = await this.authService.waitForAuthInit();
+      if (user) {
+        await this.emergencyService.recordBuddyCannotRespond(emergencyToDecline, user.uid, 'Buddy');
+      }
+    }
+  } catch (error) {
+    console.error('Error recording decline:', error);
+  } finally {
+    // 2. Ensure state variables are reset
+    this.hasResponded = false; 
+
+    // 3. Small timeout ensures navigation happens after the "try" logic finishes
+    setTimeout(() => {
+      this.navCtrl.navigateRoot('/tabs/home', { 
+        animated: true, 
+        animationDirection: 'back',
+        replaceUrl: true // This helps prevent the "back" stack from holding onto the emergency page
+      });
+    }, 100);
   }
+}
 
   viewPatients() { this.router.navigate(['/tabs/patients']); }
 }

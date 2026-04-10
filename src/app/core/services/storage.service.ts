@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
+import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private storage = getStorage(initializeApp(environment.firebaseConfig));
+
+  constructor(private authService: AuthService) {}
 
   /* ===============================
    * Firebase upload (UNCHANGED)
@@ -17,17 +20,23 @@ export class StorageService {
   }
 
   /* ===============================
-   * Recent Scans (LOCAL STORAGE)
+   * Recent Scans (LOCAL STORAGE - USER SPECIFIC)
    * =============================== */
 
-  private RECENT_SCANS_KEY = 'recent_scans';
+  private getRecentScansKey(): string {
+    // FIXED: Added () to call the getCurrentUser method
+    const userId = this.authService.getCurrentUser()?.uid || 'guest';
+    return `recent_scans_${userId}`;
+  }
 
   async getRecentScans(): Promise<any[]> {
-    const raw = localStorage.getItem(this.RECENT_SCANS_KEY);
+    const key = this.getRecentScansKey();
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : [];
   }
 
   async addRecentScan(scan: any): Promise<void> {
+    const key = this.getRecentScansKey();
     let scans = await this.getRecentScans();
 
     // 1. Find the index of an existing scan with the same barcode 'code'
@@ -46,20 +55,22 @@ export class StorageService {
 
     // 4. Keep only the latest 10 scans and save
     localStorage.setItem(
-      this.RECENT_SCANS_KEY,
+      key,
       JSON.stringify(scans.slice(0, 10))
     );
   }
 
   async deleteRecentScan(index: number): Promise<void> {
+    const key = this.getRecentScansKey();
     const scans = await this.getRecentScans();
     if (index > -1 && index < scans.length) {
       scans.splice(index, 1);
-      localStorage.setItem(this.RECENT_SCANS_KEY, JSON.stringify(scans));
+      localStorage.setItem(key, JSON.stringify(scans));
     }
   }
 
   async clearRecentScans(): Promise<void> {
-    localStorage.removeItem(this.RECENT_SCANS_KEY);
+    const key = this.getRecentScansKey();
+    localStorage.removeItem(key);
   }
 }

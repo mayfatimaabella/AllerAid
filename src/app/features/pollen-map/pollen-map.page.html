@@ -7,7 +7,7 @@
 
 <ion-content class="ion-padding">
   <div class="wrapper">
-    <ion-card>
+    <ion-card class="aqi-main-card">
       <ion-card-header>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <ion-card-title>Air Quality Index</ion-card-title>
@@ -25,67 +25,60 @@
       </ion-card-header>
 
       <ion-card-content>
-        <div class="pollen-map-preview">
-          
-          <div class="live-data-row" *ngIf="airQuality.loaded">
-            <div class="data-badge" [class]="airQuality.statusClass">
-              STATUS: {{ airQuality.status | uppercase }}
-            </div>
-            <div class="metric-group">
-              <p>Dust: <strong>{{ airQuality.dust }} µg/m³</strong></p>
-              <p>PM10: <strong>{{ airQuality.pm10 }} µg/m³</strong></p>
-              <p>PM2.5: <strong>{{ airQuality.pm2_5 }} µg/m³</strong></p>
-            </div>
+        <div class="live-data-row" *ngIf="airQuality.loaded">
+          <div class="data-badge" [class]="airQuality.statusClass">
+            STATUS: {{ airQuality.status | uppercase }}
           </div>
-
-          <div style="position: relative;">
-            <div id="mapId" class="map-container" [hidden]="!airQuality.loaded"></div>
-            
-            <div class="map-legend-overlay" *ngIf="airQuality.loaded">
-              <div class="legend-item"><span class="dot g"></span> Good</div>
-              <div class="legend-item"><span class="dot y"></span> Moderate</div>
-              <div class="legend-item"><span class="dot o"></span> Sensible</div>
-              <div class="legend-item"><span class="dot r"></span> High</div>
-              <div class="legend-item"><span class="dot p"></span> Alert</div>
-            </div>
+          <div class="metric-group">
+            <p>Dust: <strong>{{ airQuality.dust }} µg/m³</strong></p>
+            <p>PM10: <strong>{{ airQuality.pm10 }} µg/m³</strong></p>
+            <p>PM2.5: <strong>{{ airQuality.pm2_5 }} µg/m³</strong></p>
           </div>
-
-          <div class="logs-container" *ngIf="airQuality.loaded">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <h3 style="margin: 0; font-size: 15px; color: #126d61; font-weight: bold;">
-                <ion-icon name="list-outline" style="vertical-align: middle;"></ion-icon> Recent Risk Logs
-              </h3>
-              <ion-button fill="clear" size="small" color="danger" (click)="clearLogs()" *ngIf="riskLogs.length > 0">
-                Clear
-              </ion-button>
-            </div>
-
-            <div *ngIf="riskLogs.length === 0" style="text-align: center; padding: 15px; color: #888; font-size: 13px;">
-              No high-risk levels detected recently.
-            </div>
-
-            <ion-list lines="full" *ngIf="riskLogs.length > 0" style="background: transparent;">
-              <ion-item *ngFor="let log of riskLogs" style="--background: transparent; --padding-start: 0;">
-                <ion-icon name="warning" slot="start" color="danger" style="font-size: 20px;"></ion-icon>
-                <ion-label>
-                  <h2 style="color: #eb445a; font-weight: bold; font-size: 14px;">{{ log.status }} Detected</h2>
-                  <p style="font-size: 12px; color: #444;">
-                    PM10: <b>{{ log.value }} µg/m³</b> | {{ log.date }} at {{ log.time }}
-                  </p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-          </div>
-          
-          <p class="pollen-map-note" *ngIf="airQuality.loaded" style="margin-top: 15px;">
-            Last updated at local time.
-          </p>
-          
-          <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
-            <ion-icon name="locate-outline" slot="start"></ion-icon>
-            Recenter Map
-          </ion-button>
         </div>
+
+        <div class="map-wrapper">
+          <div id="mapId" class="map-container" [hidden]="!airQuality.loaded"></div>
+          
+          <div class="map-legend-overlay" *ngIf="airQuality.loaded">
+            <div class="legend-item"><span class="dot g"></span> Good</div>
+            <div class="legend-item"><span class="dot y"></span> Moderate</div>
+            <div class="legend-item"><span class="dot o"></span> Sensible</div>
+            <div class="legend-item"><span class="dot r"></span> High</div>
+            <div class="legend-item"><span class="dot p"></span> Alert</div>
+          </div>
+        </div>
+
+        <div class="logs-container" *ngIf="airQuality.loaded">
+          <div class="logs-header">
+            <h3><ion-icon name="list-outline"></ion-icon> Recent Risk Logs</h3>
+            <ion-button fill="clear" size="small" color="danger" (click)="clearLogs()" *ngIf="riskLogs.length > 0">
+              Clear
+            </ion-button>
+          </div>
+
+          <div *ngIf="riskLogs.length === 0" class="empty-logs">
+            No high-risk levels detected recently.
+          </div>
+
+          <ion-list lines="full" *ngIf="riskLogs.length > 0">
+            <ion-item *ngFor="let log of riskLogs">
+              <ion-icon name="warning" slot="start" color="danger"></ion-icon>
+              <ion-label>
+                <h2>{{ log.status }} Detected</h2>
+                <p>PM10: <b>{{ log.value }} µg/m³</b> | {{ log.date }} at {{ log.time }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+        
+        <p class="pollen-map-note" *ngIf="airQuality.loaded">
+          Last updated at local time.
+        </p>
+        
+        <ion-button expand="block" fill="outline" color="primary" (click)="openPollenMap()">
+          <ion-icon name="locate-outline" slot="start"></ion-icon>
+          Recenter Map
+        </ion-button>
       </ion-card-content>
     </ion-card>
   </div>

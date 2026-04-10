@@ -48,7 +48,7 @@ export class PushNotificationService {
         await this.saveTokenForCurrentUser(token.value);
       });
 
-      PushNotifications.addListener('registrationError', (error) => {
+      PushNotifications.addListener('registrationError', (error: any) => {
         console.error('PushNotificationService: registration error', error);
       });
 
