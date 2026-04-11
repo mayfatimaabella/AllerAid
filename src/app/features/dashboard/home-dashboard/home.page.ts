@@ -151,13 +151,23 @@ export class HomePage implements OnInit, OnDestroy {
   private subscribeToUserEmergency() {
     const sub = this.emergencyService.userEmergency$.subscribe(async (emergency) => {
       if (!emergency) {
-        this.respondingBuddy = null;
+        // No active emergency document – clear local state
+        this.clearEmergencyState();
         this.emergencyAddress = '';
         return;
       }
 
       // Track current emergency id for resolve actions
       this.currentEmergencyId = emergency.id || this.currentEmergencyId;
+
+       // Ensure emergency status card is shown whenever the backend
+       // reports a non-resolved emergency, even after app reload.
+       this.isEmergencyActive = emergency.status !== 'resolved';
+
+       // Derive start time from emergency timestamp if available
+       if (emergency.timestamp && typeof (emergency.timestamp as any).toDate === 'function') {
+         this.emergencyStartTime = (emergency.timestamp as any).toDate();
+       }
 
       // Show responding banner when a buddy is en route
       if (emergency.status === 'responding' && emergency.responderId) {

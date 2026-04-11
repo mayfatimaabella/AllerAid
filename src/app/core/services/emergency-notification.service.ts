@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { EmergencyAlert } from './emergency.service';
 import { BuddyService } from './buddy.service';
 import { UserService } from './user.service';
+import { environment } from '../../../environments/environment';
 
 export interface EmergencyNotificationData {
   patientName: string;
@@ -178,12 +179,23 @@ export class EmergencyNotificationService {
         click_action: `https://your-app-domain.com/tabs/responder-dashboard?emergency=${notificationData.emergencyId}`
       };
 
-      console.log('Push Notification Sent:');
-      console.log(`To: ${buddyProfile.fullName}`);
-      console.log(`Message:`, pushMessage);
+      const endpoint = environment.pushNotificationEndpoint;
 
-      // Simulate push notification delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (endpoint) {
+        // Real backend call: send the push payload to your Cloud Function / API
+        await firstValueFrom(
+          this.http.post(endpoint, {
+            targetUserId: buddyProfile.uid || buddyProfile.id,
+            message: pushMessage
+          })
+        );
+      } else {
+        // Fallback / development mode: log instead of sending
+        console.log('Push Notification (simulated):');
+        console.log(`To: ${buddyProfile.fullName}`);
+        console.log('Message:', pushMessage);
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
 
     } catch (error) {
       console.error('Push notification failed:', error);

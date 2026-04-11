@@ -11,7 +11,8 @@ import {
   where,
   onSnapshot,
   Timestamp,
-  getDoc
+  getDoc,
+  getDocs
 } from 'firebase/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
@@ -44,6 +45,7 @@ export interface EmergencyAlert {
   estimatedArrival?: number; // Minutes until arrival
   responseTimestamp?: any; // When responder clicked "on my way"
   distance?: number; // Distance in kilometers
+  displayAddress?: string;
   buddyResponses?: {
     [buddyId: string]: {
       status: 'responded' | 'cannot_respond';
@@ -552,29 +554,6 @@ export class EmergencyService {
         }
       });
 
-      // After updating, check if *all* notified buddies have marked
-      // cannot_respond and none have actually responded. If so,
-      // automatically resolve the emergency so it stops for the patient.
-      const snapshot = await getDoc(emergencyRef);
-      if (snapshot.exists()) {
-        const data = snapshot.data() as any;
-        const buddyIds: string[] = Array.isArray(data.buddyIds) ? data.buddyIds : [];
-        const responses: any = data.buddyResponses || {};
-
-        if (buddyIds.length > 0) {
-          const anyResponded = Object.values(responses).some((r: any) => r && r.status === 'responded');
-          const allCannotRespond = buddyIds.every((id: string) => {
-            const r = responses[id];
-            return r && r.status === 'cannot_respond';
-          });
-
-          if (!anyResponded && allCannotRespond && data.status !== 'resolved') {
-            await updateDoc(emergencyRef, { status: 'resolved' });
-            console.log(`All buddies cannot respond. Auto-resolved emergency ${emergencyId}`);
-          }
-        }
-      }
-
       console.log(`Recorded cannot_respond for buddy ${buddyName} on emergency ${emergencyId}`);
     } catch (error) {
       console.error('Error recording buddy cannot respond:', error);
@@ -621,6 +600,33 @@ export class EmergencyService {
     });
     
     return emergenciesSubject.asObservable();
+  }
+
+  /**
+   * Get emergencies for a buddy by status (e.g. resolved, responding)
+   */
+  async getBuddyEmergenciesByStatus(
+    buddyId: string,
+    statuses: ('active' | 'responding' | 'resolved')[]
+  ): Promise<EmergencyAlert[]> {
+    try {
+      const emergenciesRef = collection(this.db, 'emergencies');
+      const q = query(
+        emergenciesRef,
+        where('buddyIds', 'array-contains', buddyId),
+        where('status', 'in', statuses)
+      );
+
+      const snapshot = await getDocs(q);
+      const emergencies: EmergencyAlert[] = [];
+      snapshot.forEach((docSnap) => {
+        emergencies.push({ id: docSnap.id, ...(docSnap.data() as any) } as EmergencyAlert);
+      });
+      return emergencies;
+    } catch (error) {
+      console.error('Error getting buddy emergencies by status:', error);
+      return [];
+    }
   }
   
   /**
