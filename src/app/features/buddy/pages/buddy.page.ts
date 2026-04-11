@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BuddyService } from '../../../core/services/buddy.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { ToastController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { BuddyInvitationsModal } from '../components/buddy-invitations-modal.component';
@@ -42,6 +43,7 @@ export class BuddyPage implements OnInit {
 
   constructor(
     private buddyService: BuddyService,
+    private userService: UserService,
     private authService: AuthService,
     private toastController: ToastController,
     private modalController: ModalController,
@@ -122,11 +124,15 @@ export class BuddyPage implements OnInit {
     });
 
     modal.onDidDismiss().then((result) => {
-      if (result.data && result.data.refreshNeeded) {
-        this.loadBuddies(); // Refresh buddy list only if needed
-      }
-      if (result.data && result.data.invitationChanged) {
-        this.loadInvitationCount(); // Only refresh invitation count if changed
+      if (result.data) {
+        // Refresh buddy list if a relation was accepted or invitation was sent
+        if (result.data.action === 'accepted') {
+          this.loadBuddies(); // New buddy relation created
+        }
+        // Always refresh invitation count if something changed
+        if (result.data.invitationChanged) {
+          this.loadInvitationCount(); // Update badge count
+        }
       }
     });
 
@@ -155,35 +161,57 @@ export class BuddyPage implements OnInit {
   }
 
   onSaveEditBuddy(editedBuddy: any) {
-    // Save the edited buddy using buddyService (expects id and data)
-    this.buddyService.updateBuddy(editedBuddy.id, editedBuddy).then(async () => {
-      // Update local array instead of reloading from server
-      const index = this.buddies.findIndex(b => b.id === editedBuddy.id);
-      if (index !== -1) {
-        this.buddies[index] = editedBuddy;
-        this.filteredBuddies = [...this.buddies]; // Update filtered array
-      }
-      this.closeEditModal();
-      
-      // Show success toast
-      const toast = await this.toastController.create({
-        message: 'Buddy updated successfully!',
-        duration: 2000,
-        color: 'success'
+    // Update the connected user's profile with the changes
+    // The buddy's contact info is stored in the user's profile, so we update the user record
+    if (!editedBuddy.connectedUserId) {
+      console.error('No connectedUserId found in buddy object');
+      return;
+    }
+
+    // Prepare profile updates for the connected user
+    const profileUpdates = {
+      firstName: editedBuddy.firstName,
+      lastName: editedBuddy.lastName,
+      email: editedBuddy.email,
+      phone: editedBuddy.contactNumber || editedBuddy.contact
+    };
+
+    this.userService.updateUserProfile(editedBuddy.connectedUserId, profileUpdates)
+      .then(async () => {
+        // Clear cache so buddy list refreshes with latest data
+        this.userService.clearUserProfileCache(editedBuddy.connectedUserId);
+        
+        // Update local array with the changes
+        const index = this.buddies.findIndex(b => b.id === editedBuddy.id);
+        if (index !== -1) {
+          this.buddies[index] = editedBuddy;
+          this.filteredBuddies = [...this.buddies]; // Update filtered array
+        }
+        this.closeEditModal();
+        
+        // Show success toast
+        const toast = await this.toastController.create({
+          message: `${editedBuddy.firstName} ${editedBuddy.lastName}'s contact information updated successfully!`,
+          duration: 2000,
+          color: 'success'
+        });
+        await toast.present();
+        
+        // Reload buddies to ensure we have the latest data
+        await this.loadBuddies();
+      })
+      .catch(async (error) => {
+        console.error('Error updating buddy contact information:', error);
+        // Show error toast
+        const toast = await this.toastController.create({
+          message: 'Failed to update contact information. Please try again.',
+          duration: 3000,
+          color: 'danger'
+        });
+        await toast.present();
+        // Reload to ensure consistency
+        await this.loadBuddies();
       });
-      await toast.present();
-    }).catch(async (error) => {
-      console.error('Error updating buddy:', error);
-      // Show error toast
-      const toast = await this.toastController.create({
-        message: 'Failed to update buddy. Please try again.',
-        duration: 3000,
-        color: 'danger'
-      });
-      await toast.present();
-      // Fallback to reload if update fails
-      this.loadBuddies();
-    });
   }
 
   onDeleteBuddy(buddy: any) {
