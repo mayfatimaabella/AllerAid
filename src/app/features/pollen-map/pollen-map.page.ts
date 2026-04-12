@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Geolocation } from '@capacitor/geolocation'; 
 import * as L from 'leaflet'; 
 
 @Component({
@@ -19,6 +19,10 @@ export class PollenMapPage implements OnInit, OnDestroy {
 
   riskLogs: any[] = [];
 
+  // No longer hardcoded to Cebu coordinates
+  lat: number | null = null;
+  lon: number | null = null;
+
   airQuality = {
     pm10: 0,
     pm2_5: 0,
@@ -26,27 +30,77 @@ export class PollenMapPage implements OnInit, OnDestroy {
     status: 'Loading...',
     statusClass: 'pollen-low',
     displayTime: '',      
-    locationName: 'Cebu City, PH', 
+    locationName: 'Detecting...', 
     loaded: false,
     hourly: null as any
   };
 
-  constructor(private alertController: AlertController, private router: Router) { }
+  constructor(private alertController: AlertController) { }
 
-  ngOnInit() {
-    this.fetchAirData();
+  async ngOnInit() {
     this.startLiveClock();
     this.loadLogs();
+    await this.updateUserLocation();
   }
 
   ngOnDestroy() {
-    if (this.clockInterval) {
-      clearInterval(this.clockInterval);
+    if (this.clockInterval) clearInterval(this.clockInterval);
+    if (this.map) {
+      this.map.remove();
     }
   }
 
   ionViewDidEnter() {
-    this.initMap();
+    // Only init map if we have coordinates
+    if (this.lat && this.lon) {
+      this.initMap();
+    }
+  }
+
+  /* Fetches GPS coordinates and converts them to a readable area name.*/
+  async updateUserLocation() {
+    try {
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000 
+      });
+
+      this.lat = position.coords.latitude;
+      this.lon = position.coords.longitude;
+
+      // Reverse Geocoding to get the neighborhood name
+      try {
+        const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${this.lat}&lon=${this.lon}`;
+        const geoResponse = await fetch(geoUrl, {
+          headers: { 'User-Agent': 'PollenMapApp' } 
+        });
+        const geoData = await geoResponse.json();
+        
+        const addr = geoData.address;
+        // Setting the location name without the extra time string
+        this.airQuality.locationName = addr.neighbourhood || addr.suburb || addr.village || addr.city || 'Live Location';
+        
+      } catch (geoError) {
+        // Fallback if the naming service is unavailable
+        this.airQuality.locationName = 'Live Location';
+      }
+      
+      this.fetchAirData();
+      
+      if (this.map) {
+        if (!this.marker) {
+          this.initMap();
+        } else {
+          this.marker.setLatLng([this.lat, this.lon]);
+          this.map.setView([this.lat, this.lon], 13);
+          this.updateMapVisuals(); 
+        }
+      }
+    } catch (error) {
+      console.error('GPS Sensor failed:', error);
+      this.airQuality.locationName = 'GPS Error';
+      this.airQuality.status = 'Check GPS';
+    }
   }
 
   startLiveClock() {
@@ -66,12 +120,14 @@ export class PollenMapPage implements OnInit, OnDestroy {
   loadLogs() {
     const saved = localStorage.getItem('aqi_risk_logs');
     this.riskLogs = saved ? JSON.parse(saved).reverse().slice(0, 5) : [];
-    
-    // Force map to recalculate size when logs update the layout height
+    this.refreshMap();
+  }
+
+  private refreshMap() {
     if (this.map) {
       setTimeout(() => {
         this.map.invalidateSize();
-      }, 200);
+      }, 400); 
     }
   }
 
@@ -86,96 +142,60 @@ export class PollenMapPage implements OnInit, OnDestroy {
     const existingLogs = JSON.parse(localStorage.getItem('aqi_risk_logs') || '[]');
     existingLogs.push(log);
     localStorage.setItem('aqi_risk_logs', JSON.stringify(existingLogs));
-    
     this.loadLogs(); 
   }
 
   clearLogs() {
     localStorage.removeItem('aqi_risk_logs');
     this.riskLogs = [];
-    
-    // Refresh map layout after clearing the list
-    if (this.map) {
-      setTimeout(() => {
-        this.map.invalidateSize();
-      }, 100);
-    }
-  }
-
-  async openHelpModal() {
-    const alert = await this.alertController.create({
-      header: 'Air Quality Guide',
-      cssClass: 'aqi-custom-alert',
-      message: 'PM10: Measures coarse particles (dust/pollen) ≤ 10µm.\n\n' +
-               'PM2.5: Particles ≤ 2.5µm.\n\n' +
-               'Note: If the map looks blue/empty, click "Recenter Map" to fix it.',
-      inputs: [
-        { type: 'radio', label: 'Good: Safe air', value: 'g', checked: true, disabled: true },
-        { type: 'radio', label: 'Moderate: Acceptable', value: 'y', checked: true, disabled: true },
-        { type: 'radio', label: 'Sensitive: Limit stays', value: 'o', checked: true, disabled: true },
-        { type: 'radio', label: 'Unhealthy: Wear a mask', value: 'r', checked: true, disabled: true },
-        { type: 'radio', label: 'Very Unhealthy: Avoid outdoors', value: 'p', checked: true, disabled: true }
-      ],
-      buttons: ['UNDERSTOOD']
-    });
-    await alert.present();
+    this.refreshMap();
   }
 
   initMap() {
-    const lat = 10.3167; 
-    const lon = 123.8907;
-
-    if (this.map) {
-      setTimeout(() => {
-        this.map.invalidateSize();
-        this.map.setView([lat, lon], 13);
-      }, 400);
-      return;
-    }
+    if (!this.lat || !this.lon) return;
 
     const mapContainer = document.getElementById('mapId');
     if (!mapContainer) return;
 
-    this.map = L.map('mapId').setView([lat, lon], 13);
+    if (this.map) {
+      this.refreshMap();
+      this.map.setView([this.lat, this.lon], 13);
+      return;
+    }
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(this.map);
+    this.map = L.map('mapId', {
+      zoomControl: true,
+      attributionControl: false 
+    }).setView([this.lat, this.lon], 13);
 
-    this.marker = L.circleMarker([lat, lon], {
-      radius: 15,
-      fillOpacity: 0.7,
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+
+    this.marker = L.circleMarker([this.lat, this.lon], {
+      radius: 14,
+      fillOpacity: 0.8,
       color: '#ffffff',
       weight: 2
     }).addTo(this.map);
 
-    // Initial load sync
     setTimeout(() => {
       this.airQuality.loaded = true; 
-      setTimeout(() => {
-        if (this.map) {
-          this.map.invalidateSize();
-          this.map.setView([lat, lon], 13, { animate: true });
-          this.updateMapVisuals(); 
-        }
-      }, 300);
-    }, 500);
+      this.refreshMap();
+      this.updateMapVisuals();
+    }, 600);
   }
 
   async fetchAirData() {
-    const lat = 10.3167;
-    const lon = 123.8907;
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5,dust&timezone=Asia%2FManila&timeformat=iso8601`;
+    if (!this.lat || !this.lon) return;
+
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${this.lat}&longitude=${this.lon}&hourly=pm10,pm2_5,dust&timezone=Asia%2FManila&timeformat=iso8601`;
 
     try {
       const response = await fetch(url);
       const data = await response.json();
       this.airQuality.hourly = data.hourly;
-      const currentHour = new Date().getHours();
-      this.updateHour(currentHour);
+      this.updateHour(new Date().getHours());
     } catch (error) {
-      console.error("Failed to fetch data:", error);
-      this.airQuality.status = "Error loading";
+      this.airQuality.status = "Error";
     }
   }
 
@@ -186,22 +206,10 @@ export class PollenMapPage implements OnInit, OnDestroy {
     this.airQuality.pm2_5 = h.pm2_5[index];
     this.airQuality.dust = h.dust[index];
     
-    const rawTime = new Date(h.time[index]);
-    this.airQuality.displayTime = rawTime.toLocaleTimeString([], { 
-      hour: '2-digit', minute: '2-digit' 
-    });
-
-    if (this.airQuality.pm10 > 200) {
-      this.airQuality.status = 'Very Unhealthy';
-      this.airQuality.statusClass = 'pollen-purple';
-      this.logHighRiskArea('Very Unhealthy', this.airQuality.pm10);
-    } else if (this.airQuality.pm10 > 150) {
+    if (this.airQuality.pm10 > 150) {
       this.airQuality.status = 'High';
       this.airQuality.statusClass = 'pollen-high';
       this.logHighRiskArea('High', this.airQuality.pm10);
-    } else if (this.airQuality.pm10 > 100) {
-      this.airQuality.status = 'Sensitive';
-      this.airQuality.statusClass = 'pollen-orange';
     } else if (this.airQuality.pm10 > 50) {
       this.airQuality.status = 'Moderate';
       this.airQuality.statusClass = 'pollen-mod';
@@ -213,12 +221,9 @@ export class PollenMapPage implements OnInit, OnDestroy {
   }
 
   updateMapVisuals() {
-    if (!this.marker) return;
-    let color = '#126d61'; 
-    if (this.airQuality.status === 'Very Unhealthy') color = '#8932b2';
-    if (this.airQuality.status === 'High') color = '#eb445a';
-    if (this.airQuality.status === 'Sensitive') color = '#f7a01c';
-    if (this.airQuality.status === 'Moderate') color = '#ffc409';
+    if (!this.marker || !this.lat || !this.lon) return;
+    const colors: any = { 'High': '#eb445a', 'Moderate': '#ffc409', 'Good': '#126d61' };
+    const color = colors[this.airQuality.status] || '#126d61';
 
     this.marker.setStyle({ fillColor: color });
     this.marker.bindPopup(`
@@ -228,18 +233,26 @@ export class PollenMapPage implements OnInit, OnDestroy {
     `);
   }
 
-  onTimeChange(event: any) {
-    const hourIndex = event.detail.value;
-    this.updateHour(hourIndex);
-  }
-
   async openPollenMap() {
-    if (this.map) {
+    await this.updateUserLocation(); 
+    if (this.map && this.lat && this.lon) {
       this.map.invalidateSize();
-      this.map.flyTo([10.3167, 123.8907], 15, { animate: true, duration: 1.5 });
+      this.map.flyTo([this.lat, this.lon], 15, { animate: true, duration: 1.5 });
       setTimeout(() => { if (this.marker) this.marker.openPopup(); }, 1600);
     } else {
       this.initMap();
     }
+  }
+
+  async openHelpModal() {
+    const alert = await this.alertController.create({
+      header: 'Air Quality Guide',
+      cssClass: 'aqi-custom-alert',
+      message: 'PM10: Measures coarse particles (dust/pollen) ≤ 10µm.\n\n' +
+               'PM2.5: Particles ≤ 2.5µm.\n\n' +
+               'Note: If the map looks empty, click "Recenter Map".',
+      buttons: ['UNDERSTOOD']
+    });
+    await alert.present();
   }
 }

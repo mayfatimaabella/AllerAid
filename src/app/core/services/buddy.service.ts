@@ -54,6 +54,7 @@ export interface BuddyRelation {
   invitationId: string;
   createdAt: Date;
   acceptedAt?: Date;
+  deletedAt?: Date;
 }
 
 @Injectable({
@@ -61,6 +62,9 @@ export interface BuddyRelation {
 })
 export class BuddyService {
   private db;
+  
+  // Maximum number of buddy relations allowed per user
+  private readonly MAX_BUDDY_RELATIONS = 10;
   
   // Observable for active emergency alerts for the current user's buddies
   private activeEmergencyAlertsSubject = new BehaviorSubject<any[]>([]);
@@ -114,7 +118,8 @@ export class BuddyService {
         createdAt: alert.createdAt || alert.timestamp || new Date().toISOString(),
         location: alert.location || null,
         patientId: alert.patientId || null,
-        patientName: alert.patientName || null,
+        // Prefer explicit patientName, then userName so history can show a label
+        patientName: alert.patientName || alert.userName || 'Unknown',
         responderId: alert.responderId || null,
         responderName: alert.responderName || null,
         dismissedAt: new Date().toISOString()
@@ -427,8 +432,6 @@ export class BuddyService {
     }
   }
 
-  // INVITATION METHODS
-
   // Check if buddy relationship already exists by email
   async checkDuplicateBuddyByEmail(currentUserId: string, targetEmail: string): Promise<{ isDuplicate: boolean; type: string; details?: any }> {
     try {
@@ -536,6 +539,52 @@ export class BuddyService {
     }
   }
 
+  // Count the current accepted buddy relations for a user
+  async countUserBuddyRelations(userId: string): Promise<number> {
+    try {
+      // Query where user is user1 (patient)
+      const q1 = query(
+        collection(this.db, 'buddy_relations'),
+        where('user1Id', '==', userId),
+        where('status', '==', 'accepted')
+      );
+      
+      // Query where user is user2 (buddy)
+      const q2 = query(
+        collection(this.db, 'buddy_relations'),
+        where('user2Id', '==', userId),
+        where('status', '==', 'accepted')
+      );
+      
+      const [snapshot1, snapshot2] = await Promise.all([
+        getDocs(q1),
+        getDocs(q2)
+      ]);
+      
+      const totalBuddies = snapshot1.docs.length + snapshot2.docs.length;
+      
+      if (!environment.production) {
+        console.log(`User ${userId} has ${totalBuddies} buddy relations`);
+      }
+      
+      return totalBuddies;
+    } catch (error) {
+      console.error('Error counting buddy relations:', error);
+      return 0;
+    }
+  }
+
+  // Check if user has reached the maximum buddy relation limit
+  async hasReachedBuddyLimit(userId: string): Promise<boolean> {
+    const count = await this.countUserBuddyRelations(userId);
+    return count >= this.MAX_BUDDY_RELATIONS;
+  }
+
+  // Get the maximum buddy relation limit
+  getMaxBuddyLimit(): number {
+    return this.MAX_BUDDY_RELATIONS;
+  }
+
   // Send buddy invitation (updated for email-based invitations)
   async sendBuddyInvitation(
     toUserEmail: string, 
@@ -586,6 +635,12 @@ export class BuddyService {
 
       if (!targetUser || !targetUser.email) {
         throw new Error('Target user data is invalid');
+      }
+
+      // Check if user has reached the buddy limit
+      const hasReachedLimit = await this.hasReachedBuddyLimit(currentUser.uid);
+      if (hasReachedLimit) {
+        throw new Error(`You have reached the maximum number of buddy connections (${this.MAX_BUDDY_RELATIONS}). Please remove an existing buddy to add a new one.`);
       }
 
       const invitation: Omit<BuddyInvitation, 'id'> = {
@@ -730,6 +785,12 @@ export class BuddyService {
   // Accept buddy invitation with explicit user ID
   async acceptBuddyInvitationWithUser(invitationId: string, currentUserId: string): Promise<void> {
     try {
+      // Check if current user has reached the buddy limit
+      const hasReachedLimit = await this.hasReachedBuddyLimit(currentUserId);
+      if (hasReachedLimit) {
+        throw new Error(`You have reached the maximum number of buddy connections (${this.MAX_BUDDY_RELATIONS}). Please remove an existing buddy to accept a new invitation.`);
+      }
+
       // Update invitation status
       const invitationRef = doc(this.db, 'buddy_invitations', invitationId);
       await updateDoc(invitationRef, {
@@ -847,12 +908,18 @@ export class BuddyService {
       
       snapshot1.docs.forEach(doc => {
         const data = doc.data();
-        connectedUserIds.push(data['user2Id']);
+        // Exclude soft-deleted relations
+        if (!data['deletedAt']) {
+          connectedUserIds.push(data['user2Id']);
+        }
       });
       
       snapshot2.docs.forEach(doc => {
         const data = doc.data();
-        connectedUserIds.push(data['user1Id']);
+        // Exclude soft-deleted relations
+        if (!data['deletedAt']) {
+          connectedUserIds.push(data['user1Id']);
+        }
       });
       
       // Here you would typically fetch user details for these IDs
@@ -884,7 +951,9 @@ export class BuddyService {
       }
       
       // OPTIMIZATION: Batch user profile queries instead of individual calls
-      const patientIds = querySnapshot.docs.map(doc => doc.data()['user1Id']);
+      const patientIds = querySnapshot.docs
+        .filter(doc => !doc.data()['deletedAt']) // Exclude soft-deleted relations
+        .map(doc => doc.data()['user1Id']);
       const uniquePatientIds = [...new Set(patientIds)]; // Remove duplicates
       
       // Batch fetch user profiles (max 10 per batch due to Firestore 'in' query limit)
@@ -1038,11 +1107,21 @@ export class BuddyService {
               status: 'accepted',
               invitationId: invitationId,
               createdAt: invitation.createdAt || new Date(),
-              acceptedAt: invitation.respondedAt || new Date()
+              acceptedAt: invitation.respondedAt || new Date(),
+              deletedAt: undefined // Ensure new relations are not soft-deleted
             };
             
             await addDoc(collection(this.db, 'buddy_relations'), relation);
             console.log('Created buddy relation for invitation:', invitationId);
+          }
+        } else {
+          // Check if the existing relation is soft-deleted and restore it
+          const existingRelation = relationSnapshot.docs[0];
+          if (existingRelation.data()['deletedAt']) {
+            await updateDoc(existingRelation.ref, {
+              deletedAt: null // Remove soft-delete marker
+            });
+            console.log('Restored soft-deleted buddy relation for invitation:', invitationId);
           }
         }
       }
@@ -1144,12 +1223,16 @@ export class BuddyService {
       let user2Relations: any[] = [];
       
       const unsubscribe1 = onSnapshot(q1, (querySnapshot) => {
-        user1Relations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        user1Relations = querySnapshot.docs
+          .filter(doc => !doc.data()['deletedAt']) // Exclude soft-deleted relations
+          .map(doc => ({ id: doc.id, ...doc.data() }));
         this.handleOptimizedRelationSnapshot(user1Relations, user2Relations, userId);
       });
       
       const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
-        user2Relations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        user2Relations = querySnapshot.docs
+          .filter(doc => !doc.data()['deletedAt']) // Exclude soft-deleted relations
+          .map(doc => ({ id: doc.id, ...doc.data() }));
         this.handleOptimizedRelationSnapshot(user1Relations, user2Relations, userId);
       });
       

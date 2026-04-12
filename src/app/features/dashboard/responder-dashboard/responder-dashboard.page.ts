@@ -218,7 +218,12 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
               await this.emergencyService.resolveEmergency(this.currentEmergency.id);
               this.currentEmergency = null;
               this.hasResponded = false;
-              this.navCtrl.navigateRoot('tabs/home');
+              const modal = await this.modalController.getTop();
+              if (modal) {
+                await modal.dismiss(null, 'completed');
+              } else {
+                await this.navCtrl.navigateRoot(['/tabs/home'], { replaceUrl: true });
+              }
             }
           }
         }
@@ -236,16 +241,22 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
           this.activeEmergencies = alerts.filter(alert => alert.status === 'active' || alert.status === 'responding');
 
           if (this.activeEmergencies.length > 0) {
-            this.currentEmergency = this.activeEmergencies[0];
-            await this.loadProfileInstructionFallback(this.currentEmergency.userId);
+            const nextEmergency = this.activeEmergencies[0];
+            if (!nextEmergency || !nextEmergency.userId) {
+              this.currentEmergency = null;
+              return;
+            }
+
+            this.currentEmergency = nextEmergency;
+            await this.loadProfileInstructionFallback(nextEmergency.userId);
             this.loadMiniMap();
             
-            if (this.currentEmergency.userId) {
+            if (nextEmergency.userId) {
               this.isAllergiesLoading = true;
-              const allergyDocs = await this.allergyService.getUserAllergies(this.currentEmergency.userId);
+              const allergyDocs = await this.allergyService.getUserAllergies(nextEmergency.userId);
               this.emergencyAllergies = (allergyDocs && allergyDocs[0]) ? allergyDocs[0].allergies.filter((a: any) => a.checked) : [];
 
-              const emergencyInstructions = await this.medicalService.getEmergencyInstructions(this.currentEmergency.userId);
+              const emergencyInstructions = await this.medicalService.getEmergencyInstructions(nextEmergency.userId);
               this.specificInstructionEntries = (emergencyInstructions || [])
                 .filter((entry: any) => entry?.allergyName && entry?.instruction)
                 .map((entry: any) => ({ label: entry.allergyName, text: entry.instruction }));
@@ -326,15 +337,35 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   }
 
   async cannotRespond() {
-    if (this.currentEmergency?.id) {
+  const emergencyId = this.currentEmergency?.id;
+
+  try {
+    // 1. Immediately clear the local object to stop UI from trying to render it
+    const emergencyToDecline = emergencyId;
+    this.currentEmergency = null; 
+
+    if (emergencyToDecline) {
       const user = await this.authService.waitForAuthInit();
       if (user) {
-        await this.emergencyService.recordBuddyCannotRespond(this.currentEmergency.id, user.uid, 'Buddy');
-        this.currentEmergency = null;
-        this.navCtrl.navigateRoot('tabs/home');
+        await this.emergencyService.recordBuddyCannotRespond(emergencyToDecline, user.uid, 'Buddy');
       }
     }
+  } catch (error) {
+    console.error('Error recording decline:', error);
+  } finally {
+    // 2. Ensure state variables are reset
+    this.hasResponded = false; 
+
+    // 3. Small timeout ensures navigation happens after the "try" logic finishes
+    setTimeout(() => {
+      this.navCtrl.navigateRoot('/tabs/home', { 
+        animated: true, 
+        animationDirection: 'back',
+        replaceUrl: true // This helps prevent the "back" stack from holding onto the emergency page
+      });
+    }, 100);
   }
+}
 
   viewPatients() { this.router.navigate(['/tabs/patients']); }
 }

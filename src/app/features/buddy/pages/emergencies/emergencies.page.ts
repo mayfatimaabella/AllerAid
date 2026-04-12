@@ -23,9 +23,11 @@ export class EmergenciesPage implements OnInit, OnDestroy {
   filteredEmergencies: EmergencyAlert[] = [];
   selectedFilter: string = 'all';
   selectedTab: string = 'active';
+  private resolvedEmergencies: EmergencyAlert[] = [];
   private dismissedEmergencyIds = new Set<string>();
   private dismissedHistoryIds = new Set<string>();
   private emergencySubscription: Subscription | null = null;
+  private locationAddressCache = new Map<string, string>();
 
   constructor(
     private router: Router,
@@ -53,11 +55,16 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         this.buddyService.listenForEmergencyAlerts(user.uid);
         
         // Subscribe to the emergency alerts observable from buddy service
-        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(emergencies => {
+        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async emergencies => {
           this.activeEmergencies = emergencies
             .filter(e => (e.status === 'active' || e.status === 'responding'))
             .filter(e => !this.dismissedEmergencyIds.has(e.id!));
-          this.allEmergencies = emergencies;
+          // Load resolved emergencies for history segmentation
+          this.resolvedEmergencies = await this.emergencyService.getBuddyEmergenciesByStatus(user.uid, ['resolved']);
+          this.allEmergencies = [...emergencies, ...this.resolvedEmergencies];
+
+          // Enrich emergencies with human-readable addresses
+          await this.populateAddresses(this.allEmergencies);
           this.filterEmergencies();
         });
       }
@@ -98,7 +105,25 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         this.filteredEmergencies = this.getDismissedAlertsForCurrentUser();
         break;
       default:
-        this.filteredEmergencies = this.allEmergencies;
+        // All = active history (resolved/responding/etc.) + dismissed history
+        const dismissed = this.getDismissedAlertsForCurrentUser();
+        const merged = new Map<string, EmergencyAlert>();
+
+        this.allEmergencies.forEach(e => {
+          if (e.id) {
+            merged.set(e.id, e);
+          }
+        });
+
+        dismissed.forEach(e => {
+          if (e.id) {
+            // Dismissed entries override same-id entries so their status
+            // is shown as 'dismissed' in the All view
+            merged.set(e.id, e);
+          }
+        });
+
+        this.filteredEmergencies = Array.from(merged.values());
     }
   }
 
@@ -124,7 +149,8 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         const match = this.allEmergencies.find(e => e.id === a.id);
         return {
           id: a.id,
-          status: a.status || match?.status || 'resolved',
+          // Always mark these as 'dismissed' for the Dismissed segment label
+          status: 'dismissed',
           timestamp: match?.timestamp || a.createdAt,
           location: a.location || match?.location,
           responderId: a.responderId || match?.responderId,
@@ -204,6 +230,42 @@ export class EmergenciesPage implements OnInit, OnDestroy {
   viewEmergencyDetails(emergency: EmergencyAlert) {
     // Show detailed emergency information
     this.router.navigate(['/emergency-details', emergency.id]);
+  }
+
+  private async populateAddresses(emergencies: EmergencyAlert[]): Promise<void> {
+    const tasks: Promise<void>[] = [];
+
+    for (const e of emergencies) {
+      const loc: any = (e as any).location;
+      if (!loc || !loc.latitude || !loc.longitude) {
+        continue;
+      }
+
+      const key = `${loc.latitude},${loc.longitude}`;
+      if (this.locationAddressCache.has(key)) {
+        (e as any).displayAddress = this.locationAddressCache.get(key);
+        continue;
+      }
+
+      tasks.push((async () => {
+        try {
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loc.latitude}&lon=${loc.longitude}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          // Prefer human-readable address; fall back to coordinates
+          const address: string = data?.display_name || this.getLocationDisplay(loc);
+          this.locationAddressCache.set(key, address);
+          (e as any).displayAddress = address;
+        } catch {
+          // If reverse geocoding fails, still show coordinates
+          (e as any).displayAddress = this.getLocationDisplay(loc);
+        }
+      })());
+    }
+
+    if (tasks.length) {
+      await Promise.all(tasks);
+    }
   }
 
   getLocationDisplay(location: any): string {

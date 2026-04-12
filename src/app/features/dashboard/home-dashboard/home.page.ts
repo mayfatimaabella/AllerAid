@@ -36,6 +36,10 @@ export class HomePage implements OnInit, OnDestroy {
   // Notification status tracking
   notificationStatus: { [buddyId: string]: 'sending' | 'sent' | 'failed' | 'pending' } = {};
   
+  // Emergency confirmation timer
+  private emergencyConfirmationTimer: any = null;
+  emergencyConfirmationTimeLeft: number = 5;
+  
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -69,6 +73,8 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnDestroy() {
     // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    // Clean up emergency confirmation timer
+    this.clearEmergencyConfirmationTimer();
   }
 
   async loadUserData() {
@@ -332,24 +338,67 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async presentEmergencyConfirmation() {
+    // Reset timer to 5 seconds
+    this.clearEmergencyConfirmationTimer();
+    this.emergencyConfirmationTimeLeft = 5;
+
     const alert = await this.alertController.create({
       header: 'EMERGENCY ALERT!',
-      message: 'Your emergency alert is about to be sent. Are you sure?',
+      message: `Your emergency alert is about to be sent. Are you sure?\n\nAuto-sending in: ${this.emergencyConfirmationTimeLeft}s`,
       buttons: [
         {
           text: 'SEND ALERT',
           handler: () => {
+            this.clearEmergencyConfirmationTimer();
             this.sendEmergencyAlert();
           }
         },
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
+          handler: () => {
+            this.clearEmergencyConfirmationTimer();
+          }
         }
       ]
     });
 
     await alert.present();
+
+    // Start the countdown timer
+    this.startEmergencyConfirmationTimer(alert);
+  }
+
+  /**
+   * Start the emergency confirmation timer.
+   * Auto-sends alert when timer reaches 0.
+   */
+  private startEmergencyConfirmationTimer(alert: any) {
+    this.emergencyConfirmationTimer = setInterval(() => {
+      this.emergencyConfirmationTimeLeft--;
+
+      // Update the alert message with the current countdown
+      const messageElement = document.querySelector('ion-alert .alert-message');
+      if (messageElement) {
+        messageElement.textContent = `Your emergency alert is about to be sent. Are you sure?\n\nAuto-sending in: ${this.emergencyConfirmationTimeLeft}s`;
+      }
+
+      if (this.emergencyConfirmationTimeLeft <= 0) {
+        this.clearEmergencyConfirmationTimer();
+        alert.dismiss(); // Close the alert
+        this.sendEmergencyAlert();
+      }
+    }, 1000);
+  }
+
+  /**
+   * Clear and reset the emergency confirmation timer.
+   */
+  private clearEmergencyConfirmationTimer() {
+    if (this.emergencyConfirmationTimer) {
+      clearInterval(this.emergencyConfirmationTimer);
+      this.emergencyConfirmationTimer = null;
+    }
   }
   
   async showResponderAlert(response: any) {
