@@ -17,4 +17,12 @@ export class EmergencySettingsCardComponent {
   @Input() getAudioSourceText!: () => string;
   @Input() openVoiceRecordingModal!: () => void;
   @Input() saveEmergencySettings!: () => void;
+  @Input() isEmergencyInstructionsEmpty!: () => boolean;
+  @Input() openEditEmergencyMessageModal!: () => void;
+  @Input() testEmergencyAlert!: () => void;
+  @Input() testShakeDetection!: () => void;
+  @Input() testPowerButtonDetection!: () => void;
+  @Input() testAudioInstructions!: () => void;
+  @Input() requestMotionPermissions!: () => void;
+  @Input() showEmergencyExamples!: () => void;
 }

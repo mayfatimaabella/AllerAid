@@ -6,8 +6,6 @@ import { AuthService } from './core/services/auth.service';
 import { UserService } from './core/services/user.service';
 import { EmergencyDetectorService } from './core/services/emergency-detector.service';
 import { PatientNotificationService } from './core/services/patient-notification.service';
-import { MedicationReminderService } from './core/services/medication-reminder.service';
-import { PushNotificationService } from './core/services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -25,46 +23,23 @@ export class AppComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private emergencyDetectorService: EmergencyDetectorService,
-    private patientNotificationService: PatientNotificationService,
-    private pushNotificationService: PushNotificationService,
-    private medicationReminderService: MedicationReminderService
+    private patientNotificationService: PatientNotificationService
   ) {
     this.allergyService.resetAllergyOptions();
     // Initialize emergency detection on app startup
     this.initializeEmergencyDetection();
     // Initialize patient notification listening
     this.initializePatientNotifications();
-    // Initialize medication notification listening
-    this.initializeMedicationNotifications();
   }
 
   async ngOnInit() {
-    // Wait for Firebase Auth to finish restoring any saved session
-    const user = await this.authService.waitForAuthInit();
+    // Load user role when app initializes
+    await this.loadUserRole();
 
-    if (user) {
-      // Ensure role is loaded for an authenticated user
-      await this.loadUserRole();
-
-      // If the app started on the login screen, redirect to the main area
-      if (this.router.url === '/login' || this.router.url === '/') {
-        await this.router.navigate(['/tabs'], { replaceUrl: true });
-      }
-    } else {
-      this.userRole = '';
-
-      // If there is no authenticated user, make sure we are on the login page
-      if (this.router.url !== '/login') {
-        await this.router.navigate(['/login'], { replaceUrl: true });
-      }
-    }
-
-    // Keep reacting to auth changes (e.g., after login/logout while app is open)
-    this.authService.getCurrentUser$().subscribe(async (currentUser) => {
-      if (currentUser) {
+    // Listen for auth state changes to update role
+    this.authService.getCurrentUser$().subscribe(async (user) => {
+      if (user) {
         await this.loadUserRole();
-        // Ensure push notifications are registered once the user is authenticated
-        await this.pushNotificationService.init();
       } else {
         this.userRole = '';
       }
@@ -97,21 +72,6 @@ export class AppComponent implements OnInit {
         // Stop listening when user logs out
         this.patientNotificationService.stopListeningForBuddyResponses();
         console.log('Patient notification service stopped');
-      }
-    });
-  }
-
-  private async initializeMedicationNotifications() {
-    // Wait for user authentication
-    this.authService.getCurrentUser$().subscribe((user) => {
-      if (user) {
-        // Start listening for medication notifications when user is authenticated
-        this.medicationReminderService.startListeningForNotifications();
-        console.log('Medication notification listener initialized');
-      } else {
-        // Stop listening when user logs out
-        this.medicationReminderService.stopListeningForNotifications();
-        console.log('Medication notification listener stopped');
       }
     });
   }

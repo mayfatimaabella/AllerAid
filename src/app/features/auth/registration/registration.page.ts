@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { ToastController, NavController, LoadingController } from '@ionic/angular';
+import { ToastController, NavController } from '@ionic/angular';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { StorageService } from '../../../core/services/storage.service';
@@ -45,8 +45,7 @@ export class RegistrationPage {
     private navCtrl: NavController,
     private userService: UserService,
     private authService: AuthService,
-    private storageService: StorageService,
-    private loadingController: LoadingController
+    private storageService: StorageService
   ) {}
 
   triggerFileInput() {
@@ -85,12 +84,6 @@ export class RegistrationPage {
     }
 
     try {
-      const loading = await this.loadingController.create({
-        message: 'Creating your account...',
-        spinner: 'crescent'
-      });
-      await loading.present();
-
       //  Create user in Firebase Auth
       const userCredential = await this.authService.signUp(this.email, this.password);
 
@@ -104,7 +97,7 @@ export class RegistrationPage {
         if (this.role === 'doctor' && this.selectedFile) {
           try {
             this.licenseURL = await this.storageService.uploadLicense(this.selectedFile, uid);
-            this.presentToast('License uploaded successfully.', 'success', 2500);
+            this.presentToast('License uploaded successfully.');
           } catch (uploadErr) {
             console.error('License upload failed:', uploadErr);
             this.presentToast('License upload failed. Please try again.');
@@ -134,7 +127,7 @@ export class RegistrationPage {
         }
 
         // Navigate to verify-email page
-        this.presentToast('Registration successful! Check your email to verify your account.', 'success', 3000);
+        this.presentToast('Registration successful! Check your email to verify your account.');
         this.navCtrl.navigateForward('/verify-email');
       }
     } catch (error: any) {
@@ -144,21 +137,15 @@ export class RegistrationPage {
       } else {
         this.presentToast(`Registration failed: ${error.message}`);
       }
-    } finally {
-      const top = await this.loadingController.getTop();
-      if (top) {
-        await top.dismiss();
-      }
     }
   }
 
-  async presentToast(message: string, color: string = 'medium', duration: number = 3000, icon?: string) {
+  async presentToast(message: string) {
     const toast = await this.toastController.create({
       message,
-      duration,
+      duration: 3000,
       position: 'bottom',
-      color,
-      icon
+      color: 'medium',
     });
     toast.present();
   }

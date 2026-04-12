@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,20 +8,19 @@ import { ProfilePageRoutingModule } from './profile-routing.module';
 
 import { ProfilePage } from './profile.page';
 import { EHRSectionCardsComponent } from './ehr/ehr-section-cards.component';
-import { AddMedicationModal } from './health/modals/add-edit-medication/add-edit-medication.modal';
-import { AddDoctorVisitModal } from './ehr/modals/add-edit-doctor-visit/add-edit-doctor-visit.modal';
-import { AddMedicalHistoryModal } from './ehr/modals/add-edit-medical-history/add-edit-medical-history.modal';
-import { DoctorProfileComponent } from './components-doctor-profile/doctor-profile.component';
+import { AddMedicationModal } from './health/modals/add-medication.modal';
+import { AddDoctorVisitModal } from './ehr/modals/add-doctor-visit/add-doctor-visit.modal';
+import { AddMedicalHistoryModal } from './ehr/modals/add-medical-history/add-medical-history.modal';
+import { DoctorProfileComponent } from './components/doctor-profile.component';
 import { EmergencyDetailsModalComponent } from './overview/modals/emergency-details-modal/emergency-details-modal.component';
 import { EmergencySpecificInstructionsModalComponent } from './overview/modals/emergency-specific-instructions-modal/emergency-specific-instructions-modal.component';
-import { ImageViewerModal } from './change-password/image-viewer.modal';
+import { ImageViewerModal } from './modal/image-viewer.modal';
 import { OverviewSectionComponent } from './overview/overview-section.component';
 import { HealthSectionComponent } from './health/health-section.component';
-import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
+import { MedicationDetailsModal } from './health/modals/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EditEmergencyMessageModalComponent } from './overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
-import { ChangePasswordModal } from './change-password/change-password.modal';
-import { ProfileSettingsComponent } from './emergency/voice-settings-section/profile-settings.component';
+import { EmergencyMessageCardComponent } from './emergency/emergency-message-card/emergency-message-card.component';
+import { EmergencyExamplesModalComponent } from './emergency/emergency-examples-modal.component';
 
 @NgModule({
   imports: [
@@ -29,16 +28,16 @@ import { ProfileSettingsComponent } from './emergency/voice-settings-section/pro
     FormsModule,
     IonicModule,
     ProfilePageRoutingModule,
-    DoctorProfileComponent,  
-    EmergencyDetailsModalComponent,  
-    OverviewSectionComponent,
-    HealthSectionComponent,
-    MedicationDetailsModal,
-    EHRSectionCardsComponent,
+    DoctorProfileComponent,  // Standalone component
+    EmergencyDetailsModalComponent,  // Standalone component
+    OverviewSectionComponent, // Standalone component
+    HealthSectionComponent, // Standalone component
+    MedicationDetailsModal, // Standalone modal
+    EHRSectionCardsComponent, // Import EHR section cards standalone component
     EmergencySettingsCardComponent,
-    ProfileSettingsComponent,
+    EmergencyMessageCardComponent, // Standalone component
     EmergencySpecificInstructionsModalComponent,
-    EditEmergencyMessageModalComponent
+    EmergencyExamplesModalComponent
   ],
 
 
@@ -47,9 +46,12 @@ import { ProfileSettingsComponent } from './emergency/voice-settings-section/pro
     AddMedicationModal,
     AddDoctorVisitModal,
     AddMedicalHistoryModal,
-    ImageViewerModal,
-    ChangePasswordModal
+    ImageViewerModal
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProfilePageModule {}
+
+
+
+

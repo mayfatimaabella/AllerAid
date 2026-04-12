@@ -39,8 +39,16 @@ export class BuddyInvitationsModal implements OnInit {
     try {
       const currentUser = await this.userService.getCurrentUserProfile();
       if (currentUser) {
-        // Service already handles fallback logic (userId -> email), so just call once
-        this.receivedInvitations = await this.buddyService.getReceivedInvitations(currentUser.uid);
+        // First try to get invitations by userId
+        let receivedInvitations = await this.buddyService.getReceivedInvitations(currentUser.uid);
+        
+        // If no invitations found by userId, try by email
+        if (receivedInvitations.length === 0 && currentUser.email) {
+          console.log('No invitations found by userId, trying email...');
+          receivedInvitations = await this.buddyService.getReceivedInvitationsByEmail(currentUser.email);
+        }
+        
+        this.receivedInvitations = receivedInvitations;
         this.sentInvitations = await this.buddyService.getSentInvitations(currentUser.uid);
       }
     } catch (error) {
@@ -50,8 +58,8 @@ export class BuddyInvitationsModal implements OnInit {
   }
 
   onSegmentChange() {
-    // Data is already loaded, no need to reload on tab switch
-    // Only refresh if explicitly needed (handled by individual action handlers)
+    // Refresh data when switching tabs
+    this.loadInvitations();
   }
 
   async sendInvitation() {
@@ -131,16 +139,12 @@ export class BuddyInvitationsModal implements OnInit {
       // Refresh sent invitations
       await this.loadInvitations();
       
-      // Notify parent that invitation count may have changed
-      this.dismiss(true, 'sent');
-      
       // Switch to sent tab to show the sent invitation
       this.selectedSegment = 'sent';
 
     } catch (error) {
       console.error('Error sending invitation:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error sending invitation. Please try again.';
-      this.showToast(errorMessage, 'danger');
+      this.showToast('Error sending invitation. Please try again.', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -169,11 +173,10 @@ export class BuddyInvitationsModal implements OnInit {
               await this.buddyService.acceptBuddyInvitationWithUser(invitationId, currentUser.uid);
               this.showToast('Buddy invitation accepted!', 'success');
               await this.loadInvitations();
-              this.dismiss(true, 'accepted'); // Close modal and refresh parent with action type
+              this.dismiss(true); // Close modal and refresh parent
             } catch (error) {
               console.error('Error accepting invitation:', error);
-              const errorMessage = error instanceof Error ? error.message : 'Error accepting invitation';
-              this.showToast(errorMessage, 'danger');
+              this.showToast('Error accepting invitation', 'danger');
             }
           }
         }
@@ -199,7 +202,6 @@ export class BuddyInvitationsModal implements OnInit {
               await this.buddyService.declineBuddyInvitation(invitationId);
               this.showToast('Invitation declined', 'medium');
               await this.loadInvitations();
-              this.dismiss(true, 'declined'); // Notify parent of change
             } catch (error) {
               console.error('Error declining invitation:', error);
               this.showToast('Error declining invitation', 'danger');
@@ -268,11 +270,9 @@ export class BuddyInvitationsModal implements OnInit {
     await toast.present();
   }
 
-  dismiss(refreshNeeded: boolean = false, actionType?: string) {
+  dismiss(refreshNeeded: boolean = false) {
     this.modalController.dismiss({
-      refreshNeeded: refreshNeeded,
-      invitationChanged: actionType ? true : false, // Flag for parent to refresh invitation count
-      action: actionType // Type of action that occurred (accepted, declined, sent, etc.)
+      refreshNeeded: refreshNeeded
     });
   }
 }

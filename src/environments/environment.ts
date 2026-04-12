@@ -6,9 +6,7 @@ import { firebaseConfig } from '../app/core/services/firebase.config';
 
 export const environment = {
   production: false,
-  firebaseConfig,
-  // Backend endpoint for sending emergency push notifications (Cloud Function / API).
-  pushNotificationEndpoint: 'https://us-central1-alleraid-8d519.cloudfunctions.net/sendEmergencyPush'
+  firebaseConfig
   // Note: Using Leaflet for map visualization and Google Maps API for live location tracking
 };
 

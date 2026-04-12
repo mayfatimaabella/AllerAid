@@ -22,6 +22,7 @@ export class BuddyEditModalComponent implements OnInit {
       this.editFirstName = this.buddy.firstName;
       this.editLastName = this.buddy.lastName;
       this.editEmail = this.buddy.email || '';
+      this.editRelationship = this.buddy.relationship;
       this.editContact = this.buddy.contactNumber || this.buddy.contact || '';
     }
   }
@@ -33,7 +34,7 @@ export class BuddyEditModalComponent implements OnInit {
       lastName: this.editLastName,
       email: this.editEmail,
       relationship: this.editRelationship,
-      contactNumber: this.editContact,
+      contactNumber: this.editContact, // Use contactNumber for consistency
       contact: this.editContact // Keep both for backward compatibility
     });
   }

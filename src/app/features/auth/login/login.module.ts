@@ -5,7 +5,6 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
 
 import { LoginPage } from './login.page';
-import { ForgotPasswordModal } from './forgot-password.modal';
 
 const routes: Routes = [
   {
@@ -21,7 +20,7 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [LoginPage, ForgotPasswordModal],
+  declarations: [LoginPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginPageModule {}

@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  background: transparent;
+}
+
+.buddy-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buddy-modal-content {
+  width: 90vw;
+  max-width: 400px;
+  height: 57vh;
+  max-height: 80vh;
+  z-index: 1001;
+}
+
+ion-content{
+  --background: #f3f8f6 !important;
+  color: #000 !important;
+  border-radius: 5px;
+}
+
+ion-item{
+  --background: #e8e8e8 !important;
+  color: #000 !important;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+ion-select-option {
+  --background: #ebf1ef !important;
+  color: #000 !important;
+}
+
+.add-buddy{
+    --background: #036a5d !important;
+    --color: #fff !important;
+}

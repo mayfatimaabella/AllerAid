@@ -1,300 +1,3 @@
-// /* Global font styling */
-@import 'leaflet/dist/leaflet.css';
-@import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
-
-body,
-html,
-ion-app {
-  font-family: 'Comfortaa', sans-serif !important;
-}
-
-.ecc-row.allergy-row {
-  margin-top: -6px;
-  margin-bottom: 8px;
-}
-.allergy-pill {
-  background: #20a893 !important;
-  color: #fff;
-  border-radius: 20px;
-  padding: 4px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 2px;
-  display: inline-block;
-}
-.ecc-header {
-  background: #20a893 !important;
-}
-.ecc-label {
-  color: #20a893 !important;
-}
-.emergency-contact-card-presentable.uniform {
-  background: #eaf7f4;
-  border: 1.5px solid #1ca086;
-  border-radius: 14px;
-  padding: 18px 20px 10px 20px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(28, 160, 134, 0.08);
-  font-size: 15px;
-}
-.ecc-header {
-  display: flex;
-  align-items: center;
-  background: #1ca086;
-  color: #fff;
-  border-radius: 10px 10px 0 0;
-  padding: 8px 12px 7px 12px;
-  margin: -18px -20px 16px -20px;
-}
-.ecc-header-icon {
-  font-size: 20px;
-  margin-right: 8px;
-}
-.ecc-header-title {
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-}
-.ecc-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.ecc-label {
-  min-width: 90px;
-  font-weight: 600;
-  color: #1ca086;
-  text-transform: uppercase;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-}
-.ecc-value {
-  flex: 1;
-  color: #222;
-  word-break: break-word;
-  font-size: 15px;
-}
-.allergy-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-}
-.allergy-pill {
-  background: #1ca086;
-  color: #fff;
-  border-radius: 20px;
-  padding: 4px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 2px;
-  display: inline-block;
-}
-.ecc-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b2b2b2;
-  font-size: 13px;
-  margin-top: 8px;
-  padding-bottom: 2px;
-}
-.ecc-footer-icon {
-  font-size: 16px;
-  margin-right: 5px;
-}
-.ecc-footer-text {
-  font-size: 13px;
-  letter-spacing: 0.2px;
-}
-
-/* Unified Emergency Contact Wrapper */
-.emergency-contact-wrapper-card {
-  background: var(--app-color-primary-bg);
-  border: 1px solid var(--app-color-border);
-  border-radius: var(--app-radius-lg);
-  box-shadow: var(--app-shadow-sm);
-  margin: 8px 0 18px;
-  overflow: hidden;
-}
-.emergency-contact-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--app-color-primary);
-  color: #fff;
-  padding: 10px 14px 9px 14px;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: .5px;
-}
-.emergency-contact-header-bar ion-icon { font-size: 18px; }
-.emergency-contact-header-bar .header-left { display:flex; align-items:center; gap:8px; }
-.emergency-contact-header-bar .header-actions { display:flex; flex-wrap:wrap; gap:8px; }
-.contact-action-btn { --border-radius: var(--app-radius-sm); }
-.emergency-contact-body { padding: 12px 16px 10px 16px; }
-.emergency-contact-body .ecc-row { margin-bottom:10px; border-bottom:1px solid var(--app-color-border); padding-bottom:6px; }
-.emergency-contact-body .ecc-row:last-of-type { border-bottom:none; }
-.tappable-hint { justify-content:center; border-top:1px dashed var(--app-color-border); margin-top:4px; padding-top:6px; }
-.tappable-hint .ecc-footer-text { font-size:12px; color: var(--app-color-muted); }
-
-/* Emergency Contact Section Enhancements */
-.emergency-section-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 4px;
-  padding: 4px 4px 2px 4px;
-}
-.emergency-section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: #045d53;
-  font-size: 15px;
-  letter-spacing: .5px;
-}
-.emergency-section-title ion-icon {
-  font-size: 20px;
-  color: #0a8c7a;
-}
-.emergency-section-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.emergency-section-actions .action-btn {
-  --border-radius: 10px;
-  --padding-start: 12px;
-  --padding-end: 12px;
-  font-weight: 500;
-  letter-spacing: .3px;
-}
-.emergency-contact-card-presentable.elevated {
-  position: relative;
-  border-top: 4px solid #20a893;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-}
-.emergency-contact-card-presentable.elevated .ecc-header {
-  border-radius: 0;
-}
-.emergency-contact-card-presentable.uniform .ecc-row:not(.allergy-row) {
-  border-bottom: 1px solid #d3ece7;
-  padding-bottom: 6px;
-}
-.emergency-contact-card-presentable.uniform .ecc-row:last-of-type {
-  border-bottom: none;
-}
-
-.emergency-contact-card-presentable {
-  background: #f4faff;
-  border: 1.5px solid #b3e0ff;
-  border-radius: 12px;
-  padding: 18px 20px 14px 20px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.06);
-  font-size: 15px;
-}
-.emergency-contact-row {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-.emergency-contact-label {
-  font-weight: 600;
-  min-width: 90px;
-  color: #0077b6;
-  margin-right: 8px;
-}
-.emergency-contact-value {
-  flex: 1;
-  color: #222;
-  word-break: break-word;
-}
-.profile-page-bg {
-  --background: #fff !important;
-  background: #fff !important;
-}
-
-/* Force dark readable colors for AlertController overlays regardless of system theme */
-.fixed-dark-alert {
-  --background: #ffffff;
-  --color: #1f4a42;
-  --backdrop-opacity: 0.4;
-}
-
-.fixed-dark-alert .alert-wrapper {
-  background: #ffffff !important;
-  color: #1f4a42 !important;
-}
-
-.fixed-dark-alert .alert-head,
-.fixed-dark-alert .alert-title,
-.fixed-dark-alert .alert-sub-title,
-.fixed-dark-alert .alert-message,
-.fixed-dark-alert .alert-input,
-.fixed-dark-alert .alert-radio-label,
-.fixed-dark-alert .alert-checkbox-label {
-  color: #1f4a42 !important;
-}
-
-.fixed-dark-alert .alert-button {
-  color: #1f4a42 !important;
-}
-
-/* Profile menu popover: enforce white background regardless of app theme */
-.profile-menu-popover {
-  --background: #ffffff;
-  --color: #000000;
-}
-
-.profile-menu-popover::part(content) {
-  background: #ffffff !important;
-}
-
-.profile-menu-popover ion-content,
-.profile-menu-popover ion-list,
-.profile-menu-popover ion-item {
-  --background: #ffffff !important;
-  background: #ffffff !important;
-}
-
-.profile-menu-popover ion-item,
-.profile-menu-popover ion-label,
-.profile-menu-popover ion-icon {
-  color: #000000 !important;
-  --color: #000000 !important;
-}
-
-/* Reusable Card Style */
-.app-card {
-  background: var(--app-color-surface);
-  border: 1px solid var(--app-color-border);
-  border-radius: var(--app-radius-lg);
-  padding: 16px 18px 16px 18px;
-  box-shadow: var(--app-shadow-sm);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.app-card.elevated { box-shadow: var(--app-shadow-md); }
-.app-card .card-title {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: .4px;
-  color: var(--app-color-primary);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.app-card .card-subtext { font-size: 12px; color: var(--app-color-muted); }
-.app-card-divider { height:1px; background: var(--app-color-border); margin:4px 0 6px; }
-
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -335,7 +38,7 @@ ion-app {
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-// @import "@ionic/angular/css/palettes/dark.system.css";
+@import "@ionic/angular/css/palettes/dark.system.css";
 
 // For the alert interface (used by ion-select on mobile)
 ion-alert .alert-wrapper,
@@ -343,12 +46,6 @@ ion-alert .alert-radio-group,
 ion-alert .alert-checkbox-group {
   --background: #e8f2f0 !important;
   background: #e8f2f0 !important;
-}
-ion-alert .alert-head,
-ion-alert .alert-title,
-ion-alert .alert-sub-title {
-  color: #1f4a42 !important;
-  font-weight: 700 !important;
 }
 ion-alert .alert-radio-label,
 ion-alert .alert-checkbox-label {
@@ -416,7 +113,8 @@ ion-alert .alert-checkbox-label {
   --width: 95%;
   --max-width: 600px;
   --height: 80%;
-  --border-radius: 12px;  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  --border-radius: 12px;
+  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .route-map-modal .modal-wrapper {
@@ -463,7 +161,33 @@ ion-modal.force-white-modal .inner-scroll {
 }
 
 /* Toolbar is NOT forced to white - it should use teal-modal-toolbar class */
-/* Teal toolbar utility (works with or without force-white-modal) */
+/* Teal toolbar styling for modals (works with or without force-white-modal) */
+ion-modal ion-toolbar.teal-modal-toolbar,
+ion-modal .teal-modal-toolbar,
+.teal-modal-toolbar {
+  --background: #036a5d !important;
+  background: #036a5d !important;
+  --color: #ffffff !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #004d42;
+}
+
+ion-modal ion-toolbar.teal-modal-toolbar ion-title,
+ion-modal .teal-modal-toolbar ion-title,
+.teal-modal-toolbar ion-title {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+ion-modal ion-toolbar.teal-modal-toolbar ion-button,
+ion-modal .teal-modal-toolbar ion-button,
+.teal-modal-toolbar ion-button,
+ion-modal ion-toolbar.teal-modal-toolbar ion-icon,
+ion-modal .teal-modal-toolbar ion-icon,
+.teal-modal-toolbar ion-icon {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
 
 ion-modal.force-white-modal ion-item,
 ion-modal.force-white-modal ion-item::part(native),
@@ -551,8 +275,7 @@ ion-modal.force-white-modal::part(backdrop) {
   --backdrop-opacity: 0.32;
 }
 
-/* Reusable teal toolbar utility */
-.toolbar--teal, ion-toolbar.toolbar--teal,
+/* Reusable teal toolbar for white modals */
 .teal-modal-toolbar, ion-toolbar.teal-modal-toolbar {
   --background: #036a5d !important;
   background: #036a5d !important;
@@ -561,8 +284,7 @@ ion-modal.force-white-modal::part(backdrop) {
   border-bottom: 1px solid #004d42;
   width: 100%;
 }
-.toolbar--teal ion-title, .teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
-.toolbar--teal ion-button, .toolbar--teal ion-icon,
+.teal-modal-toolbar ion-title { color:#ffffff !important; font-weight:700; letter-spacing:.4px; }
 .teal-modal-toolbar ion-button, .teal-modal-toolbar ion-icon { --color:#ffffff !important; color:#ffffff !important; }
 
 /* Modal styling for better display */
@@ -583,87 +305,4 @@ ion-modal {
   --background-hover: #00796b;
   --color: #fff;
   --border-radius: 8px;
-}
-
-/* Responder-map sheet modal */
-ion-modal.responder-map-modal {
-  --border-radius: 16px 16px 0 0;
-  --box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* --- AQI CUSTOM ALERT (Must be in global.scss) --- */
-.aqi-custom-alert {
-  --background: #f4fbf9; 
-  --width: 90%;
-  --max-width: 350px;
-
-  .alert-wrapper {
-    border-radius: 16px !important;
-  }
-
-  .alert-head {
-    padding-bottom: 8px;
-    .alert-title {
-      color: #126d61;
-      font-weight: 700;
-      font-size: 18px;
-    }
-  }
-
-  .alert-message {
-    text-align: left;
-    font-size: 13px !important;
-    line-height: 1.5;
-    color: #333;
-    white-space: pre-wrap !important; 
-    padding: 10px 15px !important;
-    
-    font {
-       display: block;
-       margin-top: 10px;
-       font-size: 11px;
-       font-style: italic;
-       color: #666;
-    }
-  }
-
-  .alert-radio-group {
-    border-top: 1px solid #f0f0f0;
-    margin-top: 5px;
-
-    .alert-radio-button {
-      height: 45px;
-    }
-
-    .alert-radio-icon {
-      width: 18px !important;
-      height: 18px !important;
-      border-radius: 50%;
-    }
-
-    /* Solid Colors for the Legend dots */
-    .alert-radio-button:nth-child(1) .alert-radio-icon { background: #126d61 !important; border-color: #126d61 !important; }
-    .alert-radio-button:nth-child(2) .alert-radio-icon { background: #ffc409 !important; border-color: #ffc409 !important; }
-    .alert-radio-button:nth-child(3) .alert-radio-icon { background: #f7a01c !important; border-color: #f7a01c !important; }
-    .alert-radio-button:nth-child(4) .alert-radio-icon { background: #eb445a !important; border-color: #eb445a !important; }
-    .alert-radio-button:nth-child(5) .alert-radio-icon { background: #8932b2 !important; border-color: #8932b2 !important; }
-
-    .alert-radio-inner {
-      display: none !important;
-    }
-
-    .alert-radio-label {
-      font-size: 13px !important;
-      color: #333 !important;
-      font-weight: 500;
-    }
-  }
-
-  .alert-button-group {
-    padding: 10px;
-    .alert-button {
-      color: #126d61;
-      font-weight: bold;
-    }
-  }
 }

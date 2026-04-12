@@ -7,15 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { TabsPageRoutingModule } from './tabs-routing.module';
 
 import { TabsPage } from './tabs.page';
-import { ResponderDashboardPageModule } from '../../features/dashboard/responder-dashboard/responder-dashboard.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    TabsPageRoutingModule,
-    ResponderDashboardPageModule
+    TabsPageRoutingModule
   ],
   declarations: [TabsPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

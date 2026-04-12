@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController, AlertController, ModalController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { BuddyService } from '../../core/services/buddy.service';
@@ -15,11 +15,9 @@ import { Subscription } from 'rxjs';
 })
 export class TabsPage implements OnInit, OnDestroy {
   userRole: string = 'user';
-  userProfile: any = null;
+  userProfile: any = null;  // Cache user profile to avoid duplicate API calls
   invitationCount: number = 0;
   emergencyCount: number = 0;
-  // Track which emergency IDs have already shown a modal to avoid repeats
-  private shownEmergencyIds: Set<string> = new Set<string>();
   
   // Initialization guards to prevent duplicate calls
   private isInitialized: boolean = false;
@@ -35,9 +33,7 @@ export class TabsPage implements OnInit, OnDestroy {
     private buddyService: BuddyService,
     private roleRedirectService: RoleRedirectService,
     private router: Router,
-    private toastController: ToastController,
-    private alertController: AlertController,
-    private modalController: ModalController
+    private toastController: ToastController
   ) { }
 
   async ngOnInit() {
@@ -92,32 +88,16 @@ export class TabsPage implements OnInit, OnDestroy {
       if (user && this.userProfile) {
         // Use cached user profile instead of making another API call
         
-        // Listen for emergency alerts for ALL users with accepted connections
-        // The backend stores connected user IDs in `buddyIds`, so any connected user
-        // should receive real-time alerts regardless of role.
-        this.buddyService.listenForEmergencyAlerts(user.uid);
-        // Listen for emergency alerts and notify with sound/vibration when new active alerts arrive
-        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async alerts => {
-          const previousCount = this.emergencyCount;
-          const activeAlerts = alerts.filter((alert: any) => alert.status === 'active');
-          this.emergencyCount = activeAlerts.length;
-          if (this.emergencyCount > previousCount && activeAlerts.length > 0) {
-            // New emergency: pick the latest by timestamp (newest first)
-            const sorted = [...activeAlerts].sort((a: any, b: any) => {
-              const ta = a.timestamp?.toDate?.()?.getTime() ?? a.timestamp ?? 0;
-              const tb = b.timestamp?.toDate?.()?.getTime() ?? b.timestamp ?? 0;
-              return tb - ta;
-            });
-            const latest = sorted[0];
-            const alreadyShown = latest?.id && this.shownEmergencyIds.has(latest.id);
-            if (latest?.id && !alreadyShown) {
-              this.shownEmergencyIds.add(latest.id);
-              // Show full dashboard modal first so it isn't lost
-              await this.showEmergencyPopup(latest);
-            }
-            this.playEmergencyNotificationFeedback();
-          }
-        });
+        // For buddy users, listen for emergency alerts
+        if (this.userRole === 'buddy') {
+          // Start listening for emergency alerts for this buddy
+          this.buddyService.listenForEmergencyAlerts(user.uid);
+          
+          // Listen for emergency alerts count
+          this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(alerts => {
+            this.emergencyCount = alerts.filter(alert => alert.status === 'active').length;
+          });
+        }
         
         // Set up real-time invitation listener for all users
         if (this.userProfile?.email) {
@@ -159,111 +139,12 @@ export class TabsPage implements OnInit, OnDestroy {
     }
   }
 
-  private playEmergencyNotificationFeedback() {
-    try {
-      // Attempt to play sound
-      const audio = new Audio('assets/sounds/emergency-alert.wav');
-      audio.play().catch(err => console.log('Could not play audio:', err));
-      // Vibrate on supported devices
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
-      }
-      
-    } catch (e) {
-      console.log('Notification feedback error:', e);
-    }
-  }
-
-  private async showEmergencyPopup(alert: any) {
-    try {
-      const { ResponderDashboardPage } = await import('../../features/dashboard/responder-dashboard/responder-dashboard.page');
-      const modal = await this.modalController.create({
-        component: ResponderDashboardPage,
-        componentProps: {
-          responderData: {
-            emergencyId: alert.id,
-            userName: alert.userName || (alert as any).patientName,
-            instruction: alert.emergencyInstruction || alert.instruction || (alert as any).instructions || '',
-            alert: {
-              id: alert.id,
-              userId: alert.userId,
-              userName: alert.userName || (alert as any).patientName,
-              instruction: alert.emergencyInstruction || alert.instruction,
-              emergencyInstruction: alert.emergencyInstruction || alert.instruction,
-              location: alert.location,
-              status: alert.status,
-              timestamp: alert.timestamp
-            }
-          }
-        },
-        cssClass: 'responder-dashboard-modal',
-        backdropDismiss: false
-      });
-      await modal.present();
-      modal.onDidDismiss().then(async (detail) => {
-        if (alert?.id) {
-          this.shownEmergencyIds.add(alert.id);
-        }
-        const role = (detail && (detail as any).role) || '';
-        const data = (detail && (detail as any).data) || {};
-        if (role === 'responded' && data.openMap) {
-          await this.openResponderMapModal(data);
-          return;
-        }
-        if (!role || role === 'cancel') {
-          this.router.navigate(['/tabs/home']);
-        }
-      });
-    } catch (e) {
-      console.error('Failed to show responder dashboard modal:', e);
-      try {
-        const fallback = await this.alertController.create({
-          header: 'Emergency Alert',
-          message: `${alert.userName || (alert as any).patientName || 'A connection'} needs help.${(alert.emergencyInstruction || alert.instruction) ? '<br/><small>' + (alert.emergencyInstruction || alert.instruction) + '</small>' : ''}`,
-          cssClass: 'emergency-alert-modal',
-          buttons: [
-            { text: 'View dashboard', handler: () => this.router.navigate(['/tabs/responder-dashboard']) },
-            { text: 'Dismiss', role: 'cancel' }
-          ]
-        });
-        await fallback.present();
-        fallback.onDidDismiss().then(() => this.router.navigate(['/tabs/home']));
-      } catch (inner) {
-        console.error('Also failed to show fallback alert:', inner);
-      }
-    }
-  }
-
-  private async openResponderMapModal(data: { responderName: string; emergencyId: string; patientLocation?: any }) {
-    try {
-      const { ResponderMapPage } = await import('../../features/emergency/responder-map/responder-map.page');
-      const mapModal = await this.modalController.create({
-        component: ResponderMapPage,
-        componentProps: {
-          responder: {
-            responderName: data.responderName,
-            emergencyId: data.emergencyId,
-            patientLocation: data.patientLocation
-          }
-        },
-        cssClass: 'responder-map-modal',
-        initialBreakpoint: 0.95,
-        breakpoints: [0.12, 0.5, 0.75, 0.95],
-        handle: true,
-        handleBehavior: 'cycle'
-      });
-      await mapModal.present();
-    } catch (e) {
-      console.error('Failed to open responder map:', e);
-    }
-  }
-
   private async showNewInvitationNotification() {
     // Show toast notification for new invitation
     console.log('New buddy invitation received!');
     
     const toast = await this.toastController.create({
-      message: 'New buddy invitation received!',
+      message: '🔔 New buddy invitation received!',
       duration: 4000,
       position: 'top',
       color: 'primary',

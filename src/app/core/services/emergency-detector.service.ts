@@ -6,7 +6,7 @@ import { Platform } from '@ionic/angular';
 
 export interface EmergencySettings {
   shakeToAlert: boolean;
-  powerButtonAlert: boolean; // Stored as powerButtonAlert in profile, used for volume button alert
+  powerButtonAlert: boolean;
   audioInstructions: boolean;
 }
 
@@ -16,24 +16,17 @@ export interface EmergencySettings {
 export class EmergencyDetectorService {
   
   private isShakeDetectionActive = false;
-  private isVolumeButtonDetectionActive = false;
+  private isPowerButtonDetectionActive = false;
   
   // Shake detection variables
-  private lastShakeTime = 0; // Timestamp of last counted shake event (for debouncing)
-  private shakeThreshold = 15; // Acceleration threshold for a single shake
-  private shakeTimeThreshold = 300; // Minimum time between counting separate shakes (ms)
-  private shakeCount = 0; // Number of shakes detected in the current window
-  private shakeDetectionWindow = 2000; // Time window to detect multiple shakes (ms)
-  private shakeWindowTimer: any = null;
-
-  // Shake emergency rate limiting
-  private lastShakeEmergencyTime = 0; // Timestamp of last shake-triggered emergency
-  private shakeEmergencyCooldown = 60000; // Minimum time between shake emergencies (ms)
+  private lastShakeTime = 0;
+  private shakeThreshold = 15; // Acceleration threshold for shake
+  private shakeTimeThreshold = 1000; // Minimum time between shake detections (ms)
   
-  // Volume button detection variables
-  private volumeButtonPresses = 0;
-  private volumeButtonTimer: any = null;
-  private volumeButtonWindow = 2000; // Time window for triple press (ms)
+  // Power button detection variables
+  private powerButtonPresses = 0;
+  private powerButtonTimer: any = null;
+  private powerButtonWindow = 2000; // Time window for triple press (ms)
   
   // Current user settings
   private emergencySettings: EmergencySettings = {
@@ -108,11 +101,11 @@ export class EmergencyDetectorService {
    */
   private updateDetectorStates(): void {
     this.isShakeDetectionActive = this.emergencySettings.shakeToAlert;
-    this.isVolumeButtonDetectionActive = this.emergencySettings.powerButtonAlert;
+    this.isPowerButtonDetectionActive = this.emergencySettings.powerButtonAlert;
     
     console.log('Detector states updated:', {
       shake: this.isShakeDetectionActive,
-      volumeButton: this.isVolumeButtonDetectionActive
+      powerButton: this.isPowerButtonDetectionActive
     });
   }
   
@@ -152,118 +145,101 @@ export class EmergencyDetectorService {
       const acceleration = event.accelerationIncludingGravity;
       if (!acceleration) return;
       
+      const currentTime = Date.now();
+      
+      // Prevent multiple rapid shake detections
+      if (currentTime - this.lastShakeTime < this.shakeTimeThreshold) {
+        return;
+      }
+      
       // Calculate total acceleration magnitude
       const x = acceleration.x || 0;
       const y = acceleration.y || 0;
       const z = acceleration.z || 0;
+      
       const totalAcceleration = Math.sqrt(x * x + y * y + z * z);
-
-      // Only continue if this event represents a strong shake
-      if (totalAcceleration <= this.shakeThreshold) {
-        return;
-      }
-
-      const currentTime = Date.now();
-
-      // Debounce so we count at most one shake every shakeTimeThreshold ms
-      if (currentTime - this.lastShakeTime < this.shakeTimeThreshold) {
-        return;
-      }
-
-      this.lastShakeTime = currentTime;
-
-      // Start or reuse a detection window for multi-shake detection
-      if (!this.shakeWindowTimer) {
-        this.shakeCount = 0;
-        this.shakeWindowTimer = setTimeout(() => {
-          this.shakeCount = 0;
-          this.shakeWindowTimer = null;
-        }, this.shakeDetectionWindow);
-      }
-
-      this.shakeCount++;
-
-      // Require three distinct shakes within the detection window
-      if (this.shakeCount >= 3) {
-        clearTimeout(this.shakeWindowTimer);
-        this.shakeWindowTimer = null;
-        this.shakeCount = 0;
-
-        // Rate limit actual emergencies from shakes
-        const sinceLastEmergency = currentTime - this.lastShakeEmergencyTime;
-        if (sinceLastEmergency < this.shakeEmergencyCooldown) {
-          console.log('Shake emergency ignored due to cooldown');
-          return;
-        }
-
-        this.lastShakeEmergencyTime = currentTime;
-
+      
+      // Detect significant shake motion
+      if (totalAcceleration > this.shakeThreshold) {
+        this.lastShakeTime = currentTime;
         this.ngZone.run(() => {
           this.triggerShakeEmergency();
         });
       }
     });
     
-    console.log('Shake detection listener activated (requires 3 shakes with cooldown)');
+    console.log('Shake detection listener activated');
   }
   
   /**
-   * Setup volume button detection (triple-press)
+   * Setup power button detection
    */
   private setupPowerButtonDetection(): void {
-    // Listen for hardware volume button events (works on some devices/emulators)
+    // Listen for hardware button events (works on some devices)
     document.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (!this.isVolumeButtonDetectionActive) return;
+      if (!this.isPowerButtonDetectionActive) return;
       
-      // Check for volume button key codes
+      // Check for power button key codes
       if (this.isPowerButtonKey(event)) {
         this.handlePowerButtonPress();
       }
     });
     
-    console.log('Volume button detection listener activated');
+    // Listen for volume button combinations as fallback
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (!this.isPowerButtonDetectionActive) return;
+      
+      // Volume down + Volume up combo for testing
+      if (event.code === 'VolumeDown' || event.code === 'VolumeUp') {
+        this.handlePowerButtonPress();
+      }
+    });
+    
+    console.log('Power button detection listener activated');
   }
   
   /**
-   * Check if the key event is a volume button press
+   * Check if the key event is a power button press
    */
   private isPowerButtonKey(event: KeyboardEvent): boolean {
-    const volumeButtonCodes = [
-      'VolumeUp',        // Volume up key
-      'VolumeDown',      // Volume down key
-      24,                // Android KEYCODE_VOLUME_UP
-      25                 // Android KEYCODE_VOLUME_DOWN
+    const powerButtonCodes = [
+      'Power',           // Standard power button
+      'Wake',            // Some devices
+      'Sleep',           // Some devices
+      26,                // Android power button keycode
+      116,               // Some devices
+      'F4'               // Testing fallback
     ];
     
-    return volumeButtonCodes.includes(event.code) || 
-           volumeButtonCodes.includes(event.key) || 
-           volumeButtonCodes.includes(event.keyCode);
+    return powerButtonCodes.includes(event.code) || 
+           powerButtonCodes.includes(event.key) || 
+           powerButtonCodes.includes(event.keyCode);
   }
   
   /**
    * Handle power button press for triple-press detection
    */
   private handlePowerButtonPress(): void {
-    this.volumeButtonPresses++;
+    this.powerButtonPresses++;
     
     // Clear existing timer
-    if (this.volumeButtonTimer) {
-      clearTimeout(this.volumeButtonTimer);
+    if (this.powerButtonTimer) {
+      clearTimeout(this.powerButtonTimer);
     }
     
     // Check for triple press
-    if (this.volumeButtonPresses >= 3) {
+    if (this.powerButtonPresses >= 3) {
       this.ngZone.run(() => {
         this.triggerPowerButtonEmergency();
       });
-      this.volumeButtonPresses = 0;
+      this.powerButtonPresses = 0;
       return;
     }
     
     // Reset counter after time window
-    this.volumeButtonTimer = setTimeout(() => {
-      this.volumeButtonPresses = 0;
-    }, this.volumeButtonWindow);
+    this.powerButtonTimer = setTimeout(() => {
+      this.powerButtonPresses = 0;
+    }, this.powerButtonWindow);
   }
   
   /**
@@ -283,7 +259,7 @@ export class EmergencyDetectorService {
    */
   private async triggerPowerButtonEmergency(): Promise<void> {
     try {
-      console.log('Volume button emergency detected!');
+      console.log('Power button emergency detected!');
       await this.emergencyAlertService.triggerEmergencyAlert('power-button');
     } catch (error) {
       console.error('Error triggering power button emergency:', error);
@@ -339,7 +315,7 @@ export class EmergencyDetectorService {
    * Enable/disable power button detection for testing
    */
   setPowerButtonDetectionActive(active: boolean): void {
-    this.isVolumeButtonDetectionActive = active;
+    this.isPowerButtonDetectionActive = active;
   }
   
   /**

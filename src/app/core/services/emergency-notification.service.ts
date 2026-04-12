@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { EmergencyAlert } from './emergency.service';
 import { BuddyService } from './buddy.service';
 import { UserService } from './user.service';
-import { environment } from '../../../environments/environment';
 
 export interface EmergencyNotificationData {
   patientName: string;
@@ -149,7 +148,21 @@ export class EmergencyNotificationService {
       
       // Simulate SMS sending delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-    
+      
+      // TODO: Implement actual SMS service integration
+      // Example Twilio integration:
+      /*
+      await this.http.post('https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json', {
+        To: phoneNumber,
+        From: 'YOUR_TWILIO_PHONE_NUMBER',
+        Body: smsMessage
+      }, {
+        headers: {
+          'Authorization': 'Basic ' + btoa('YOUR_ACCOUNT_SID:YOUR_AUTH_TOKEN'),
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }).toPromise();
+      */
       
     } catch (error) {
       console.error('SMS sending failed:', error);
@@ -179,23 +192,30 @@ export class EmergencyNotificationService {
         click_action: `https://your-app-domain.com/tabs/responder-dashboard?emergency=${notificationData.emergencyId}`
       };
 
-      const endpoint = environment.pushNotificationEndpoint;
+      console.log('Push Notification Sent:');
+      console.log(`To: ${buddyProfile.fullName}`);
+      console.log(`Message:`, pushMessage);
 
-      if (endpoint) {
-        // Real backend call: send the push payload to your Cloud Function / API
-        await firstValueFrom(
-          this.http.post(endpoint, {
-            targetUserId: buddyProfile.uid || buddyProfile.id,
-            message: pushMessage
-          })
-        );
-      } else {
-        // Fallback / development mode: log instead of sending
-        console.log('Push Notification (simulated):');
-        console.log(`To: ${buddyProfile.fullName}`);
-        console.log('Message:', pushMessage);
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
+      // Simulate push notification delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // TODO: Implement actual push notification service
+      // Example Firebase Cloud Messaging integration:
+      /*
+      await this.http.post('https://fcm.googleapis.com/fcm/send', {
+        to: buddyProfile.fcmToken, // You'd need to store FCM tokens
+        notification: {
+          title: pushMessage.title,
+          body: pushMessage.body
+        },
+        data: pushMessage.data
+      }, {
+        headers: {
+          'Authorization': 'key=YOUR_SERVER_KEY',
+          'Content-Type': 'application/json'
+        }
+      }).toPromise();
+      */
 
     } catch (error) {
       console.error('Push notification failed:', error);
