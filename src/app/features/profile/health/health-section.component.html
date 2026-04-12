@@ -63,15 +63,15 @@
         </ion-chip>
 
         <div class="action-buttons">
-          <ion-button 
-            fill="clear" 
-            color="medium" 
+          <ion-button
+            fill="outline"
+            color="medium"
             size="small"
             *ngIf="medication.id"
-            (click)="$event.stopPropagation(); presentMedicationActions(medication)"
-            aria-label="Medication actions"
-            title="More actions">
-            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+            (click)="$event.stopPropagation(); toggleStatus.emit(medication.id)"
+            [attr.aria-label]="getToggleStatusLabel(medication)"
+          >
+            {{ getToggleStatusLabel(medication) }}
           </ion-button>
         </div>
       </div>

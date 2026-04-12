@@ -201,10 +201,13 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.profileMedicationManager.openMedicationDetails(medication, this);
   }
 
-  readonly openEditEmergencyMessageModal = async (): Promise<void> => {
+ openEditProfileModal = async (): Promise<void> => {
     await this.closeEmergencyModalIfOpen();
 
-    await this.profileEmergencySettings.openEditEmergencyMessageModal(
+    //Adto profileEmergencySettings para i open modal
+    //Dala emergency message (updated kay naay listener) or way sud
+    //Dala user profile naa say listener
+    await this.profileEmergencySettings.openEditProfileModal(
       this.profileDataLoader.emergencyMessageValue || EMPTY_EMERGENCY_MESSAGE,
       this.profileDataLoader.userProfileValue,
       (message: EmergencyMessageFormData) => this.saveEditedEmergencyMessage(message),

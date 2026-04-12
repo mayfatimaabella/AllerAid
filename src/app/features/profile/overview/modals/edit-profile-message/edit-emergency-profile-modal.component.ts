@@ -1,17 +1,17 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ModalController, IonicModule, AlertController } from '@ionic/angular';
+import { ModalController, IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-edit-emergency-message-modal',
+  selector: 'app-edit-emergency-profile-modal',
   templateUrl: './edit-emergency-profile-modal.component.html',
   styleUrls: ['./edit-emergency-profile-modal.component.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, ReactiveFormsModule]
 })
-export class EditEmergencyMessageModalComponent implements OnInit {
+export class EditEmergencyProfileModalComponent implements OnInit {
   @Input() emergencyMessage: any;
   @Input() userProfile: any;
   @Input() mode: 'add' | 'edit' = 'edit';
@@ -23,11 +23,14 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   avatarPreview: string | null = null;
   readonly defaultAvatarUrl = 'https://ionicframework.com/docs/img/demos/avatar.svg';
   isUploadingAvatar: boolean = false;
+  isSaving: boolean = false;
 
   constructor(
     private modalCtrl: ModalController,
     private fb: FormBuilder,
     private alertController: AlertController,
+    private toastController: ToastController,
+    private loadingController: LoadingController,
     private router: Router
   ) {}
 
@@ -55,31 +58,25 @@ export class EditEmergencyMessageModalComponent implements OnInit {
   }
 
   async save() {
+    // If the user hasn't changed anything, show feedback and skip saving
+    if (this.form.pristine) {
+      await this.presentToast('You have not made any changes to your profile.', 'warning');
+      return;
+    }
+
     const phoneValue = (this.form.get('emergencyContactPhone')?.value || '').toString();
     if (phoneValue.length !== 11) {
-      const validationAlert = await this.alertController.create({
-        header: 'Invalid Phone Number',
-        message: 'Emergency Contact Phone must be exactly 11 digits.',
-        cssClass: 'fixed-dark-alert',
-        buttons: ['OK']
-      });
-      await validationAlert.present();
+      await this.presentToast('Emergency Contact Phone must be exactly 11 digits.', 'danger');
       return;
     }
 
     const dobValue = (this.form.get('dateOfBirth')?.value || '').toString();
     if (dobValue && !this.isValidDateOfBirth(dobValue)) {
-      const dobAlert = await this.alertController.create({
-        header: 'Invalid Date of Birth',
-        message: `Date of Birth must be between ${this.minDate} and ${this.maxDate}.`,
-        cssClass: 'fixed-dark-alert',
-        buttons: ['OK']
-      });
-      await dobAlert.present();
+      await this.presentToast(`Date of Birth must be between ${this.minDate} and ${this.maxDate}.`, 'danger');
       return;
     }
 
-    // Confirm before saving changes
+    // Ask for confirmation first
     const alert = await this.alertController.create({
       header: 'Confirm Save',
       message: 'Save changes to the emergency message?',
@@ -95,14 +92,37 @@ export class EditEmergencyMessageModalComponent implements OnInit {
       return;
     }
 
-    // Use getRawValue to include disabled controls without allowing edits
-    const formValues = this.form.getRawValue();
-    const updated = {
-      ...this.emergencyMessage,
-      ...formValues
-    };
-    this.saveModal.emit(updated);
-    this.modalCtrl.dismiss(updated);
+    // User confirmed: show a loading spinner while saving changes
+    this.isSaving = true;
+    const loading = await this.loadingController.create({
+      message: 'Saving changes...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      // Use getRawValue to include disabled controls without allowing edits
+      const formValues = this.form.getRawValue();
+      const updated = {
+        ...this.emergencyMessage,
+        ...formValues
+      };
+      this.saveModal.emit(updated);
+      this.modalCtrl.dismiss(updated);
+    } finally {
+      this.isSaving = false;
+      await loading.dismiss();
+    }
+  }
+
+  private async presentToast(message: string, color: 'success' | 'danger' | 'warning' = 'warning'): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+      color
+    });
+    await toast.present();
   }
 
   get allergyLabels(): string[] {

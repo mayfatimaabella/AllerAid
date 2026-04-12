@@ -83,8 +83,12 @@
       </ion-item>
     </ion-list>
     <ion-footer>
-      <ion-button expand="block" type="submit" [disabled]="form.invalid || isUploadingAvatar">
-        {{ mode === 'add' ? 'Create' : 'Save' }}
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="form.invalid || isUploadingAvatar || isSaving">
+        <span *ngIf="!isSaving">{{ mode === 'add' ? 'Create' : 'Save' }}</span>
+        <ion-spinner *ngIf="isSaving" name="crescent"></ion-spinner>
       </ion-button>
     </ion-footer>
   </form>

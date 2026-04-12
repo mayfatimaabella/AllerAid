@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { MedicalService, EmergencyMessage } from '../../../core/services/medical.service';
 import { UserService, UserProfile } from '../../../core/services/user.service';
-import { EditEmergencyMessageModalComponent } from '../overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
+import { EditEmergencyProfileModalComponent } from '../overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
 import { EmergencyDetectorService } from '../../../core/services/emergency-detector.service';
 
 interface EmergencyMessageFormData {
@@ -91,14 +91,14 @@ export class ProfileEmergencySettingsService {
   /**
    * Open edit emergency message modal
    */
-  async openEditEmergencyMessageModal(
+  async openEditProfileModal(
     emergencyMessage: EmergencyMessage,
     userProfile: UserProfile | null,
     onSave: (message: any) => Promise<void>,
     onRefresh: () => Promise<void>
   ): Promise<void> {
     const modal = await this.modalController.create({
-      component: EditEmergencyMessageModalComponent,
+      component: EditEmergencyProfileModalComponent,
       componentProps: {
         emergencyMessage,
         userProfile

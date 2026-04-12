@@ -19,7 +19,7 @@ import { OverviewSectionComponent } from './overview/overview-section.component'
 import { HealthSectionComponent } from './health/health-section.component';
 import { MedicationDetailsModal } from './health/modals/medication-details/medication-details.modal';
 import { EmergencySettingsCardComponent } from './emergency/emergency-settings-card.component';
-import { EditEmergencyMessageModalComponent } from './overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
+import { EditEmergencyProfileModalComponent } from './overview/modals/edit-profile-message/edit-emergency-profile-modal.component';
 import { ChangePasswordModal } from './change-password/change-password.modal';
 import { ProfileSettingsComponent } from './emergency/voice-settings-section/profile-settings.component';
 
@@ -38,7 +38,7 @@ import { ProfileSettingsComponent } from './emergency/voice-settings-section/pro
     EmergencySettingsCardComponent,
     ProfileSettingsComponent,
     EmergencySpecificInstructionsModalComponent,
-    EditEmergencyMessageModalComponent
+    EditEmergencyProfileModalComponent
   ],
 
 

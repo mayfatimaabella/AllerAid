@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActionSheetController, IonicModule } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-profile-health-section',
@@ -32,8 +32,7 @@ export class HealthSectionComponent {
   @Output() viewDetails = new EventEmitter<any>();
 
   trackByMedication = (i: number, m: any) => m?.id ?? m?.name ?? i;
-
-  constructor(private actionSheetController: ActionSheetController) {}
+  constructor() {}
 
   /**
    * Helper to get status label (Used by HTML and ActionSheet)
@@ -56,58 +55,8 @@ export class HealthSectionComponent {
     return (label === 'Active') ? 'success' : 'danger';
   }
 
-  /**
-   * UPDATED: Action Sheet logic that forces a check on current math
-   */
-  async presentMedicationActions(medication: any): Promise<void> {
-    if (!medication?.id) return;
-
-    // We calculate these fresh every time the button is clicked
-    const label = this.getStatusLabel(medication);
-
-    // Allow toggling regardless of remaining pills/expiry.
-    // The math still drives the status label, but the user can
-    // always change Active/Inactive from the action sheet.
-    const showPauseButton = medication.isActive;
-
-    const actionSheet = await this.actionSheetController.create({
-      header: medication.name || 'Medication',
-      subHeader: `Current Status: ${label}`,
-      buttons: [
-        {
-          // Text is now derived from the 'showPauseButton' logic, not just the DB boolean
-          text: showPauseButton ? 'Pause Medication' : 'Activate Medication',
-          icon: showPauseButton ? 'pause-outline' : 'play-outline',
-          disabled: false,
-          handler: () => {
-            this.toggleStatus.emit(medication.id);
-          }
-        },
-        {
-          text: 'Edit Medication',
-          icon: 'create-outline',
-          handler: () => this.edit.emit(medication)
-        },
-        {
-          text: 'View Full Details',
-          icon: 'open-outline',
-          handler: () => this.viewDetails.emit(medication)
-        },
-        {
-          text: 'Delete Medication',
-          role: 'destructive',
-          icon: 'trash-outline',
-          handler: () => this.delete.emit(medication.id)
-        },
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          icon: 'close-outline'
-        }
-      ]
-    });
-
-    await actionSheet.present();
+  getToggleStatusLabel(medication: any): string {
+    return medication.isActive ? 'Mark as Inactive' : 'Mark as Active';
   }
 
   isEmergencyMedication(med: any): boolean {

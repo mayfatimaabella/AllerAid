@@ -247,28 +247,28 @@ ion-app {
 }
 
 /* Profile menu popover: enforce white background regardless of app theme */
-.profile-menu-popover {
-  --background: #ffffff;
-  --color: #000000;
-}
+// .profile-menu-popover {
+//   --background: #ffffff;
+//   --color: #000000;
+// }
 
-.profile-menu-popover::part(content) {
-  background: #ffffff !important;
-}
+// .profile-menu-popover::part(content) {
+//   background: #ffffff !important;
+// }
 
-.profile-menu-popover ion-content,
-.profile-menu-popover ion-list,
-.profile-menu-popover ion-item {
-  --background: #ffffff !important;
-  background: #ffffff !important;
-}
+// .profile-menu-popover ion-content,
+// .profile-menu-popover ion-list,
+// .profile-menu-popover ion-item {
+//   --background: #ffffff !important;
+//   background: #ffffff !important;
+// }
 
-.profile-menu-popover ion-item,
-.profile-menu-popover ion-label,
-.profile-menu-popover ion-icon {
-  color: #000000 !important;
-  --color: #000000 !important;
-}
+// .profile-menu-popover ion-item,
+// .profile-menu-popover ion-label,
+// .profile-menu-popover ion-icon {
+//   color: #000000 !important;
+//   --color: #000000 !important;
+// }
 
 /* Reusable Card Style */
 .app-card {
