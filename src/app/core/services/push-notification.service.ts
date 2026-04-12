@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications, Token } from '@capacitor/push-notifications';
+import { PushNotifications, Token, RegistrationError } from '@capacitor/push-notifications';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, setDoc, arrayUnion } from 'firebase/firestore';
 import { firebaseConfig } from './firebase.config';
