@@ -8,30 +8,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController } from '@ionic/angular';
 
-interface Patient {
-  id: string;
-  fullName: string;
-  relationship: string;
-  avatar?: string;
-  lastSeen: Date;
-}
-
-interface Emergency {
-  id: string;
-  patientName: string;
-  location: string;
-  timestamp: Date;
-  status: string;
-}
-
-interface Alert {
-  id: string;
-  patientName: string;
-  type: string;
-  timestamp: Date;
-  status: string;
-}
-
 @Component({
   selector: 'app-buddy-dashboard',
   templateUrl: './buddy-dashboard.page.html',
@@ -105,10 +81,10 @@ export class BuddyDashboardPage implements OnInit, OnDestroy {
           console.log('Active emergencies updated:', this.activeEmergencies);
         });
 
-        // Listen for buddy relation updates to refresh patient list
-        this.buddyRelationSubscription = this.buddyService.buddyRelations$.subscribe(() => {
-          this.loadPatients();
-        });
+    // Listen for buddy relation updates to refresh patient list
+    this.buddyRelationSubscription = this.buddyService.buddyRelations$.subscribe(() => {
+      this.loadPatients();
+    });
       }
     } catch (error) {
       console.error('Error setting up real-time listeners:', error);
@@ -269,13 +245,5 @@ export class BuddyDashboardPage implements OnInit, OnDestroy {
       });
       await errorToast.present();
     }
-  }
-
-  goToPatientProfile(patient: any) {
-    this.router.navigate(['/tabs/buddy/patient-profile', patient.id]);
-  }
-
-  goToInvitations() {
-    this.router.navigate(['/tabs/buddy/invitations']);
   }
 }

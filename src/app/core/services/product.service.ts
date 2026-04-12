@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root' // ✅ This is crucial
+  providedIn: 'root'
 })
 export class ProductService {
   constructor(private http: HttpClient) {}

@@ -1,17 +1,5 @@
-<div class="section-title">
-  Allergies <ion-icon name="settings-outline" (click)="onEditAllergiesClick()"></ion-icon>
-</div>
-
 <div class="allergy-list-container">
-  <div class="allergy-list-scrollable">
-    <span *ngFor="let allergy of userAllergies; trackBy: trackByAllergyName" class="allergy-chip">
-      {{ allergy.label || allergy.name }}
-    </span>
-    <span *ngIf="!userAllergies || userAllergies.length === 0" class="no-data">
-      No allergies recorded
-    </span>
-  </div>
-  
+
   <div class="section-title">Emergency Instructions & Message</div>
 
   <ion-card class="emergency-info-card" (click)="openEmergencyInfo.emit()">
@@ -23,9 +11,12 @@
     </ion-card-header>
     <ion-card-content>
       <div class="emergency-section">
-        <div class="emergency-label">NAME</div>
-        <div class="emergency-value">{{ getEmergencyMessageName() }}</div>
+        <div class="emergency-label">EMERGENCY INFORMATION</div>
+        <div class="emergency-value">
+          {{ userProfile?.emergencyContactPhone || 'Not specified' }}
+        </div>
       </div>
+
       <div class="emergency-section allergies-section">
         <div class="emergency-label">ALLERGIES</div>
         <div class="allergy-chips">
@@ -34,7 +25,8 @@
         </div>
       </div>
       <div class="emergency-section">
-        <div class="emergency-label">INSTRUCTIONS</div>
+        <div class="emergency-label">EMERGENCY ACTION PLAN</div>
+
         <div class="emergency-value instructions">
           <ng-container *ngIf="emergencyInstructionsCombined; else noInstructions">
             {{ emergencyInstructionsCombined }}
@@ -42,15 +34,21 @@
           <ng-template #noInstructions><i>No instructions set</i></ng-template>
         </div>
       </div>
-      <div class="emergency-section location-section">
-        <div class="emergency-label">LOCATION</div>
+
+      <div class="emergency-section"> 
+        <div class="emergency-label">SPECIFIC INSTRUCTIONS</div>
         <div class="emergency-value">
-          <ng-container *ngIf="emergencyLocation; else noLocation">
-            {{ emergencyLocation }}
+          <ng-container *ngIf="emergencyInstructions?.length; else noSpecificInstructions">
+            <div class="specific-instructions-list">
+              <div *ngFor="let instr of emergencyInstructions" class="specific-instruction-item">
+                <span class="specific-instruction-text">{{ instr.allergyName || instr.label || 'Allergy' }}: {{ instr.instruction || instr.text }}</span>
+              </div>
+            </div>
           </ng-container>
-          <ng-template #noLocation><i>Map Location</i></ng-template>
+          <ng-template #noSpecificInstructions><i>None</i></ng-template>
         </div>
       </div>
+
       <div class="tap-details">
         <ion-icon name="finger-print-outline"></ion-icon>
         TAP FOR FULL DETAILS
@@ -59,76 +57,4 @@
   </ion-card>
 </div>
 
-<!-- Instruction Details Modal -->
-<ion-modal [isOpen]="showInstructionDetailsModal" (didDismiss)="closeInstructionDetails()">
-  <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Emergency Instruction Details</ion-title>
-        <ion-buttons slot="start">
-          <ion-button (click)="closeInstructionDetails()" fill="clear">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button (click)="closeInstructionDetails()" fill="clear">
-            <ion-icon name="close"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding" *ngIf="selectedInstructionDetails">
-      <div class="instruction-details-container">
-        <div class="detail-section">
-          <div class="detail-header">
-            <ion-icon name="warning-outline" color="danger"></ion-icon>
-            <h3>Allergy Information</h3>
-          </div>
-          <div class="detail-content">
-            <div class="detail-row">
-              <span class="detail-label">Allergy:</span>
-              <span class="detail-value">{{ selectedInstructionDetails.allergyName }}</span>
-            </div>
-            <div class="detail-row" *ngIf="selectedInstructionDetails.allergyId !== selectedInstructionDetails.allergyName">
-              <span class="detail-label">ID:</span>
-              <span class="detail-value">{{ selectedInstructionDetails.allergyId }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-header">
-            <ion-icon name="medical-outline" color="primary"></ion-icon>
-            <h3>Emergency Instructions</h3>
-          </div>
-          <div class="detail-content">
-            <div class="instruction-full-text">
-              {{ selectedInstructionDetails.instruction }}
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-header">
-            <ion-icon name="settings-outline" color="medium"></ion-icon>
-            <h3>Quick Actions</h3>
-          </div>
-          <div class="detail-content">
-            <div class="action-buttons-grid">
-              <ion-button expand="block" fill="outline" color="primary" (click)="editInstructionFromDetails()">
-                <ion-icon name="create-outline" slot="start"></ion-icon>
-                Edit Instruction
-              </ion-button>
-              <ion-button expand="block" fill="outline" color="success" (click)="onTestInstructionAudio()">
-                <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-                Test Audio
-              </ion-button>
-              <ion-button expand="block" fill="outline" color="warning" (click)="onShareInstruction()">
-                <ion-icon name="share-outline" slot="start"></ion-icon>
-                Share
-              </ion-button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ion-content>
-  </ng-template>
-</ion-modal>
+

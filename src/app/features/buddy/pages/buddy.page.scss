@@ -79,7 +79,7 @@ ion-input.search-bar-input {
 }
 
 ion-button.search-bar-btn {
-  --background: #fff;
+  --background: transparent;
   --color: #036a5d;
   border-radius: 8px;
   margin-left: 8px;
@@ -91,6 +91,12 @@ ion-button.search-bar-btn {
   align-items: center;
   justify-content: center;
   padding: 0;
+}
+
+/* Ensure shadow DOM native element is transparent */
+ion-button.search-bar-btn::part(native) {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 ion-button.search-bar-btn ion-icon {

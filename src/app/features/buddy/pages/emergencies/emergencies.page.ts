@@ -6,27 +6,35 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
+import { ResponderMapPageModule } from '../../../emergency/responder-map/responder-map.module';
+import { ResponderMapPage } from '../../../emergency/responder-map/responder-map.page';
 
 @Component({
   selector: 'app-emergencies',
   templateUrl: './emergencies.page.html',
   styleUrls: ['./emergencies.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, ResponderMapPageModule]
 })
 export class EmergenciesPage implements OnInit, OnDestroy {
   activeEmergencies: EmergencyAlert[] = [];
   allEmergencies: EmergencyAlert[] = [];
   filteredEmergencies: EmergencyAlert[] = [];
   selectedFilter: string = 'all';
+  selectedTab: string = 'active';
+  private resolvedEmergencies: EmergencyAlert[] = [];
+  private dismissedEmergencyIds = new Set<string>();
+  private dismissedHistoryIds = new Set<string>();
   private emergencySubscription: Subscription | null = null;
+  private locationAddressCache = new Map<string, string>();
 
   constructor(
     private router: Router,
     private emergencyService: EmergencyService,
     private buddyService: BuddyService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalController: ModalController
   ) { }
 
   async ngOnInit() {
@@ -47,14 +55,41 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         this.buddyService.listenForEmergencyAlerts(user.uid);
         
         // Subscribe to the emergency alerts observable from buddy service
-        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(emergencies => {
-          this.activeEmergencies = emergencies.filter(e => e.status === 'active' || e.status === 'responding');
-          this.allEmergencies = emergencies;
+        this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async emergencies => {
+          this.activeEmergencies = emergencies
+            .filter(e => (e.status === 'active' || e.status === 'responding'))
+            .filter(e => !this.dismissedEmergencyIds.has(e.id!));
+          // Load resolved emergencies for history segmentation
+          this.resolvedEmergencies = await this.emergencyService.getBuddyEmergenciesByStatus(user.uid, ['resolved']);
+          this.allEmergencies = [...emergencies, ...this.resolvedEmergencies];
+
+          // Enrich emergencies with human-readable addresses
+          await this.populateAddresses(this.allEmergencies);
           this.filterEmergencies();
         });
       }
     } catch (error) {
       console.error('Error setting up emergency listener:', error);
+    }
+  }
+
+  async dismissEmergency(emergency: EmergencyAlert) {
+    try {
+      const user = await this.authService.waitForAuthInit();
+      if (user && emergency.id) {
+        // Persist dismissal so future pop-ups are suppressed
+        this.buddyService.dismissEmergencyForUser(user.uid, emergency.id);
+        // Save a snapshot of the dismissed alert for local history
+        this.buddyService.saveDismissedAlertData(user.uid, emergency);
+        // Update lists immediately without waiting for next snapshot
+        this.dismissedEmergencyIds.add(emergency.id);
+        this.activeEmergencies = this.activeEmergencies.filter(e => e.id !== emergency.id);
+        // Track in local dismissed history ids (no type change)
+        this.dismissedHistoryIds.add(emergency.id);
+        this.filterEmergencies();
+      }
+    } catch (error) {
+      console.error('Error dismissing emergency:', error);
     }
   }
 
@@ -66,8 +101,84 @@ export class EmergenciesPage implements OnInit, OnDestroy {
       case 'responding':
         this.filteredEmergencies = this.allEmergencies.filter(e => e.status === 'responding');
         break;
+      case 'dismissed':
+        this.filteredEmergencies = this.getDismissedAlertsForCurrentUser();
+        break;
       default:
-        this.filteredEmergencies = this.allEmergencies;
+        // All = active history (resolved/responding/etc.) + dismissed history
+        const dismissed = this.getDismissedAlertsForCurrentUser();
+        const merged = new Map<string, EmergencyAlert>();
+
+        this.allEmergencies.forEach(e => {
+          if (e.id) {
+            merged.set(e.id, e);
+          }
+        });
+
+        dismissed.forEach(e => {
+          if (e.id) {
+            // Dismissed entries override same-id entries so their status
+            // is shown as 'dismissed' in the All view
+            merged.set(e.id, e);
+          }
+        });
+
+        this.filteredEmergencies = Array.from(merged.values());
+    }
+  }
+
+  onTabChange() {
+    // Reset filter when switching tabs
+    this.selectedFilter = 'all';
+    this.filterEmergencies();
+  }
+
+  private getDismissedAlertsForCurrentUser(): EmergencyAlert[] {
+    try {
+      // Prefer auth service for reliable UID
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const uid = user?.uid;
+      if (!uid) {
+        return [];
+      }
+      const key = `dismissedAlerts_${uid}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '[]');
+      // Map stored minimal objects back to EmergencyAlert-like shape where possible,
+      // enrich with known fields from current allEmergencies list
+      return stored.map((a: any) => {
+        const match = this.allEmergencies.find(e => e.id === a.id);
+        return {
+          id: a.id,
+          // Always mark these as 'dismissed' for the Dismissed segment label
+          status: 'dismissed',
+          timestamp: match?.timestamp || a.createdAt,
+          location: a.location || match?.location,
+          responderId: a.responderId || match?.responderId,
+          responderName: a.responderName || match?.responderName,
+          userName: match?.userName || a.patientName || 'Unknown',
+          patientId: a.patientId || (match as any)?.patientId,
+          patientName: a.patientName || (match as any)?.patientName
+        } as any;
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  getStatusDisplay(emergency: EmergencyAlert): string {
+    if (emergency.id && this.dismissedHistoryIds.has(emergency.id)) {
+      return 'dismissed';
+    }
+    return emergency.status;
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'resolved': return 'success';
+      case 'responding': return 'warning';
+      case 'active': return 'danger';
+      case 'dismissed': return 'medium';
+      default: return 'medium';
     }
   }
 
@@ -92,16 +203,22 @@ export class EmergenciesPage implements OnInit, OnDestroy {
     }
   }
 
-  viewOnMap(emergency: EmergencyAlert) {
-    // Navigate to map view with emergency location
-    this.router.navigate(['/responder-map'], { 
-      state: { 
+  async viewOnMap(emergency: EmergencyAlert) {
+    const modal = await this.modalController.create({
+      component: ResponderMapPage,
+      componentProps: {
         responder: {
           emergencyId: emergency.id,
           responderName: emergency.responderName || 'Buddy Response'
         }
-      }
+      },
+      cssClass: 'responder-map-modal',
+      initialBreakpoint: 0.95,
+      breakpoints: [0.12, 0.5, 0.75, 0.95],
+      handle: true,
+      handleBehavior: 'cycle'
     });
+    await modal.present();
   }
 
   callPatient(emergency: EmergencyAlert) {
@@ -115,12 +232,39 @@ export class EmergenciesPage implements OnInit, OnDestroy {
     this.router.navigate(['/emergency-details', emergency.id]);
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'resolved': return 'success';
-      case 'responding': return 'warning';
-      case 'active': return 'danger';
-      default: return 'medium';
+  private async populateAddresses(emergencies: EmergencyAlert[]): Promise<void> {
+    const tasks: Promise<void>[] = [];
+
+    for (const e of emergencies) {
+      const loc: any = (e as any).location;
+      if (!loc || !loc.latitude || !loc.longitude) {
+        continue;
+      }
+
+      const key = `${loc.latitude},${loc.longitude}`;
+      if (this.locationAddressCache.has(key)) {
+        (e as any).displayAddress = this.locationAddressCache.get(key);
+        continue;
+      }
+
+      tasks.push((async () => {
+        try {
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loc.latitude}&lon=${loc.longitude}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          // Prefer human-readable address; fall back to coordinates
+          const address: string = data?.display_name || this.getLocationDisplay(loc);
+          this.locationAddressCache.set(key, address);
+          (e as any).displayAddress = address;
+        } catch {
+          // If reverse geocoding fails, still show coordinates
+          (e as any).displayAddress = this.getLocationDisplay(loc);
+        }
+      })());
+    }
+
+    if (tasks.length) {
+      await Promise.all(tasks);
     }
   }
 

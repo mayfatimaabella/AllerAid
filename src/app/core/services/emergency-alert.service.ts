@@ -3,6 +3,7 @@ import { MedicalService } from './medical.service';
 import { BuddyService } from './buddy.service';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
+import { EmergencyService } from './emergency.service';
 
 export interface EmergencyAlert {
   id: string;
@@ -29,7 +30,8 @@ export class EmergencyAlertService {
     private medicalService: MedicalService,
     private buddyService: BuddyService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private emergencyService: EmergencyService
   ) { }
 
   /**
@@ -45,34 +47,47 @@ export class EmergencyAlertService {
 
       console.log(`Triggering ${alertType} emergency alert for user:`, currentUser.uid);
 
-      // Get current location
-      const location = await this.getCurrentLocation();
+      // Load latest profile for name and instructions
+      const userProfile = await this.userService.getUserProfile(currentUser.uid);
 
-      // Update emergency location in Firebase
-      if (location) {
-        await this.medicalService.updateEmergencyLocation(currentUser.uid, location);
+      const fullNameParts: string[] = [];
+      if (userProfile?.firstName) fullNameParts.push(userProfile.firstName);
+      if (userProfile?.lastName) fullNameParts.push(userProfile.lastName);
+      const derivedName = fullNameParts.join(' ').trim();
+      const userName = (userProfile?.fullName || derivedName || currentUser.email || 'User').trim();
+
+      const latestMessageInstruction = (userProfile as any)?.emergencyMessage?.instructions;
+      const latestLegacyInstruction = userProfile?.emergencyInstruction;
+      const resolvedInstruction =
+        (typeof latestMessageInstruction === 'string' && latestMessageInstruction.trim()) ||
+        (typeof latestLegacyInstruction === 'string' && latestLegacyInstruction.trim()) ||
+        '';
+
+      // Get patient's buddies and extract unique connected user IDs
+      const buddies = await this.buddyService.getUserBuddies(currentUser.uid);
+      const buddyIds = Array.from(new Set(
+        buddies
+          .map(buddy => buddy.connectedUserId)
+          .filter(id => !!id && id !== currentUser.uid)
+      ));
+
+      if (buddyIds.length === 0) {
+        console.warn('No emergency buddies configured. Emergency alert will not be sent.');
+        return;
       }
 
-      // Get emergency data
-      const emergencyData = await this.medicalService.getEmergencyData(currentUser.uid);
+      console.log('Sending full emergency via EmergencyService from', alertType, 'trigger');
 
-      // Get user's buddies
-      const buddies = await this.buddyService.getUserBuddies(currentUser.uid);
-
-      // Generate alert message
-      const alertMessage = this.medicalService.generateEmergencyAlertPayload(emergencyData, location);
-
-      // Send alerts to buddies
-      const notificationPromises = buddies.map(buddy => 
-        this.sendEmergencyNotification(buddy, alertMessage, location)
+      // Delegate to the main emergency pipeline so behavior matches the red button
+      await this.emergencyService.sendEmergencyAlert(
+        currentUser.uid,
+        userName,
+        buddyIds,
+        [],
+        resolvedInstruction
       );
 
-      await Promise.all(notificationPromises);
-
-      // Log the emergency alert
-      await this.logEmergencyAlert(currentUser.uid, alertType, location, emergencyData, buddies);
-
-      console.log('Emergency alert sent successfully');
+      console.log('Emergency alert sent successfully via EmergencyService');
       
     } catch (error) {
       console.error('Error triggering emergency alert:', error);
@@ -116,12 +131,6 @@ export class EmergencyAlertService {
       // Here you would integrate with your notification service
       // For now, we'll log the notification
       console.log(`Sending emergency notification to buddy ${buddy.name}:`, alertMessage);
-      
-      // TODO: Implement actual notification sending
-      // - SMS via Twilio/Firebase Functions
-      // - Push notification via FCM
-      // - Email notification
-      // - In-app notification
       
     } catch (error) {
       console.error('Error sending notification to buddy:', buddy.name, error);

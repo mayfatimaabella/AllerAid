@@ -10,6 +10,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/auth/verify-email/verify-email.module').then(m => m.VerifyEmailPageModule)
   },
   {
+    path: 'alerts',
+    loadChildren: () => import('./features/buddy/pages/emergencies/emergencies.module').then(m => m.EmergenciesPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'registration',
     loadChildren: () => import('./features/auth/registration/registration.module').then( m => m.RegistrationPageModule)
   },
@@ -20,7 +25,7 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    loadChildren: () => import('./features/dashboard/home/home.module').then( m => m.HomePageModule)
+    loadChildren: () => import('./features/dashboard/home-dashboard/home.module').then( m => m.HomePageModule)
   },
   {
     path: 'login',
@@ -30,7 +35,7 @@ const routes: Routes = [
     path: 'scan',
     loadChildren: () => import('./features/scan/scan.module').then( m => m.ScanPageModule),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['user'] } // Patient-only feature
+    data: { roles: ['user'] }
   },
   {
 
@@ -69,6 +74,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'patient-map',
+    loadChildren: () => import('./features/emergency/patient-map/patient-map.module').then( m => m.PatientMapPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'doctor-dashboard',
     loadChildren: () => import('./features/dashboard/doctor-dashboard/doctor-dashboard.module').then( m => m.DoctorDashboardPageModule),
     canActivate: [AuthGuard, RoleGuard],
@@ -76,7 +86,7 @@ const routes: Routes = [
   },
   {
     path: 'visit-details/:id',
-    loadChildren: () => import('./features/profile/ehr/pages/visit-details/visit-details.module').then( m => m.VisitDetailsPageModule),
+    loadChildren: () => import('./features/profile/ehr/pages/doctor-visit-details/doctor-visit-details.module').then( m => m.VisitDetailsPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -84,6 +94,16 @@ const routes: Routes = [
     loadChildren: () => import('./features/profile/ehr/pages/medical-history/medical-history-details.module').then( m => m.MedicalHistoryDetailsPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'smartwatch',
+    loadChildren: () => import('./features/smartwatch/smartwatch.module').then( m => m.SmartwatchPageModule)
+  },
+  {
+    path: 'pollen-map',
+    loadChildren: () => import('./features/pollen-map/pollen-map.module').then( m => m.PollenMapPageModule)
+  },
+
+
 
 
 ];

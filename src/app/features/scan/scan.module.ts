@@ -6,6 +6,9 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { ScanPageRoutingModule } from './scan-routing.module';
 import { ScanPage } from './scan.page';
+import { ManualBarcodeComponent } from './manual-barcode/manual-barcode.component';
+import { RecentScansComponent } from './recent-scans/recent-scans.component';
+import { ScanResultComponent } from './scan-result/scan-result.component';
 
 @NgModule({
   imports: [
@@ -13,9 +16,9 @@ import { ScanPage } from './scan.page';
     FormsModule,
     IonicModule,
     HttpClientModule,          // ✅ Needed for ProductService
-    ScanPageRoutingModule      // ✅ Already handles routing
+    ScanPageRoutingModule,      // ✅ Already handles routing
   ],
-  declarations: [ScanPage],
+  declarations: [ScanPage, ManualBarcodeComponent, RecentScansComponent, ScanResultComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ScanPageModule {}

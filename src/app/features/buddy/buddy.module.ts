@@ -8,7 +8,6 @@ import { BuddyPageRoutingModule } from './buddy-routing.module';
 
 import { BuddyPage } from './pages/buddy.page';
 import { 
-  BuddyModalComponent,
   BuddyActionsModalComponent,
   BuddyEditModalComponent,
   BuddyDeleteConfirmModalComponent,
@@ -26,7 +25,6 @@ import { BuddyInvitationsModal } from './components/buddy-invitations-modal.comp
   ],
   declarations: [
     BuddyPage,
-    BuddyModalComponent,
     BuddyActionsModalComponent,
     BuddyEditModalComponent,
     BuddyDeleteConfirmModalComponent,

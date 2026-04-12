@@ -9,9 +9,9 @@
     <ion-list>
       <!-- User/Patient Navigation -->
       <ng-container *ngIf="userRole === 'user'">
-        <ion-item lines="none" [routerLink]="['/tabs/home']" (click)="onMenuItemClick()">
-          <ion-icon name="home-outline" slot="start"></ion-icon>
-          <ion-label>Home</ion-label>
+        <ion-item lines="none" [routerLink]="['/tabs/profile']" (click)="onMenuItemClick()">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label>Profile</ion-label>
         </ion-item>
 
         <ion-item lines="none" [routerLink]="['/tabs/buddy']" (click)="onMenuItemClick()">
@@ -19,19 +19,9 @@
           <ion-label>Buddy</ion-label>
         </ion-item>
 
-        <ion-item lines="none" [routerLink]="['/tabs/scan']" (click)="onMenuItemClick()">
-          <ion-icon name="scan-outline" slot="start"></ion-icon>
-          <ion-label>Scanner</ion-label>
-        </ion-item>
-
-        <ion-item lines="none" [routerLink]="['/tabs/profile']" (click)="onMenuItemClick()">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
-          <ion-label>Profile</ion-label>
-        </ion-item>
-
-        <ion-item lines="none" [routerLink]="['/tabs/notification']" (click)="onMenuItemClick()">
-          <ion-icon name="notifications-outline" slot="start"></ion-icon>
-          <ion-label>Notification</ion-label>
+        <ion-item lines="none" [routerLink]="['/tabs/pollen-map']" (click)="onMenuItemClick()">
+          <ion-icon name="map-outline" slot="start"></ion-icon>
+          <ion-label>Pollen Map</ion-label>
         </ion-item>
       </ng-container>
 

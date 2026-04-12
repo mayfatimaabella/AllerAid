@@ -5,15 +5,14 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
   updateDoc,
-  deleteDoc,
   doc,
   query,
   where,
   onSnapshot,
   Timestamp,
-  getDoc
+  getDoc,
+  getDocs
 } from 'firebase/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
@@ -46,6 +45,14 @@ export interface EmergencyAlert {
   estimatedArrival?: number; // Minutes until arrival
   responseTimestamp?: any; // When responder clicked "on my way"
   distance?: number; // Distance in kilometers
+  displayAddress?: string;
+  buddyResponses?: {
+    [buddyId: string]: {
+      status: 'responded' | 'cannot_respond';
+      timestamp: any;
+      name?: string;
+    };
+  };
 }
 
 @Injectable({
@@ -82,47 +89,63 @@ export class EmergencyService {
     instruction: string = ''
   ): Promise<string> {
     try {
-      console.log('🚨 Starting emergency alert process...');
+      console.log('Starting emergency alert process...');
       
-      // Get current location
-      const position = await this.getCurrentLocation();
+      // 1st Get current location with graceful fallback
+      let position: Position | null = null;
+      try {
+        position = await this.getCurrentLocation();
+      } catch (geoError) {
+        // Geolocation can fail on web if not served over HTTPS or permission denied
+        const code = (geoError as any)?.code;
+        console.warn('Geolocation unavailable, proceeding without precise location.', {
+          code,
+          message: (geoError as any)?.message || String(geoError)
+        });
+      }
       
       // Create the emergency alert
+      // Build location object safely (avoid undefined fields for Firestore)
+      const location = position ? {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        ...(position.coords.accuracy !== undefined ? { accuracy: position.coords.accuracy } : {})
+      } : {
+        latitude: 0,
+        longitude: 0
+      };
+
       const emergencyData: EmergencyAlert = {
         userId,
         userName,
         timestamp: Timestamp.now(),
-        location: {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        },
+        location,
         allergies,
         instruction,
         status: 'active',
         buddyIds
       };
       
-      // Add to Firestore
+      // 2nd Add to Firestore
       const docRef = await addDoc(collection(this.db, 'emergencies'), emergencyData);
       const emergencyId = docRef.id;
       
-      // Update the emergency data with the ID
+      // 3rd Update the emergency data with the ID
       emergencyData.id = emergencyId;
       
-      console.log('✅ Emergency alert created in Firestore:', emergencyId);
+      console.log('Emergency alert created in Firestore:', emergencyId);
       
-      // Start tracking location updates
+      // 4th Start tracking location updates
       this.startLocationTracking(emergencyId);
       
-      // Set up listener for responses
+      // 5th Set up listener for responses
       this.listenForResponses(emergencyId, userId);
       
-      // 🚨 AUTO EMERGENCY NOTIFICATIONS 🚨
+      // AUTO EMERGENCY NOTIFICATIONS
       // Send SMS and push notifications to all buddies
       if (this.emergencyNotificationService && this.userService) {
         try {
-          console.log('📱 Sending emergency notifications to buddies...');
+          console.log('Sending emergency notifications to buddies...');
           
           // Get user profile for comprehensive emergency info
           const userProfile = await this.userService.getUserProfile(userId);
@@ -133,19 +156,19 @@ export class EmergencyService {
             userProfile
           );
           
-          console.log('✅ Emergency notifications sent successfully');
+          console.log('Emergency notifications sent successfully');
           
         } catch (notificationError) {
-          console.error('⚠️ Emergency notifications failed:', notificationError);
+          console.error('Emergency notifications failed:', notificationError);
           // Don't throw error - emergency alert should still work even if notifications fail
         }
       } else {
-        console.log('⚠️ Emergency notification service not available');
+        console.log('Emergency notification service not available');
       }
       
       return emergencyId;
     } catch (error) {
-      console.error('❌ Error sending emergency alert:', error);
+      console.error(' Error sending emergency alert:', error);
       throw error;
     }
   }
@@ -424,7 +447,12 @@ export class EmergencyService {
         responderLocation,
         responseTimestamp: Timestamp.now(),
         distance: Math.round(distance * 100) / 100, // Round to 2 decimal places
-        estimatedArrival
+        estimatedArrival,
+        [`buddyResponses.${responderId}`]: {
+          status: 'responded',
+          name: responderName,
+          timestamp: Timestamp.now()
+        }
       });
       
       // Start tracking the responder's location
@@ -508,6 +536,32 @@ export class EmergencyService {
   }
   
   /**
+   * Record that a buddy cannot respond to an emergency
+   */
+  async recordBuddyCannotRespond(
+    emergencyId: string,
+    buddyId: string,
+    buddyName: string
+  ): Promise<void> {
+    try {
+      const emergencyRef = doc(this.db, 'emergencies', emergencyId);
+      // Record this buddy's cannot-respond status
+      await updateDoc(emergencyRef, {
+        [`buddyResponses.${buddyId}`]: {
+          status: 'cannot_respond',
+          name: buddyName,
+          timestamp: Timestamp.now()
+        }
+      });
+
+      console.log(`Recorded cannot_respond for buddy ${buddyName} on emergency ${emergencyId}`);
+    } catch (error) {
+      console.error('Error recording buddy cannot respond:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Mark an emergency as resolved
    */
   async resolveEmergency(emergencyId: string): Promise<void> {
@@ -546,6 +600,33 @@ export class EmergencyService {
     });
     
     return emergenciesSubject.asObservable();
+  }
+
+  /**
+   * Get emergencies for a buddy by status (e.g. resolved, responding)
+   */
+  async getBuddyEmergenciesByStatus(
+    buddyId: string,
+    statuses: ('active' | 'responding' | 'resolved')[]
+  ): Promise<EmergencyAlert[]> {
+    try {
+      const emergenciesRef = collection(this.db, 'emergencies');
+      const q = query(
+        emergenciesRef,
+        where('buddyIds', 'array-contains', buddyId),
+        where('status', 'in', statuses)
+      );
+
+      const snapshot = await getDocs(q);
+      const emergencies: EmergencyAlert[] = [];
+      snapshot.forEach((docSnap) => {
+        emergencies.push({ id: docSnap.id, ...(docSnap.data() as any) } as EmergencyAlert);
+      });
+      return emergencies;
+    } catch (error) {
+      console.error('Error getting buddy emergencies by status:', error);
+      return [];
+    }
   }
   
   /**

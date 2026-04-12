@@ -7,8 +7,9 @@
 ion-content{
   --background: #e8f2f0 !important;
   color: #000 !important;
-  height: 55vh; /* Set a fixed height, adjust as needed */
+  height: 47vh; /* Set a fixed height, adjust as needed */
   max-height: 80vh;
+  border-radius: 5px;
 }
 
 ion-item{

@@ -1,9 +1,33 @@
 import { Injectable } from '@angular/core';
-import { LocalNotifications, ScheduleOptions } from '@capacitor/local-notifications';
+import { LocalNotifications, ScheduleOptions, LocalNotification } from '@capacitor/local-notifications';
+import { App } from '@capacitor/app';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+export interface MedicationNotification {
+  id: number;
+  title: string;
+  body: string;
+  medId: string;
+  occurrence: number;
+}
+
+export interface BackgroundMedicationEvent {
+  medId: string;
+  title: string;
+  body: string;
+  timestamp: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class MedicationReminderService {
   private maxOccurrences = 8; // schedule a few upcoming alerts
+  private medicationNotification$ = new BehaviorSubject<MedicationNotification | null>(null);
+  private backgroundEvents$ = new BehaviorSubject<BackgroundMedicationEvent[]>([]);
+  private isListeningToNotifications = false;
+
+  constructor() {
+    this.setupAppStateListeners();
+  }
 
   async ensurePermissions() {
     const perm = await LocalNotifications.checkPermissions();
@@ -46,6 +70,35 @@ export class MedicationReminderService {
     return out;
   }
 
+  // Mirror the UI logic for remaining pills so that
+  // notifications stop once a course is effectively finished.
+  private calculateRemainingPills(med: any): number {
+    if (!med?.startDate || med?.quantity === undefined) {
+      return med?.quantity ?? 0;
+    }
+
+    const start = new Date(med.startDate);
+    const today = new Date();
+    if (today < start) return med.quantity;
+
+    const daysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 3600 * 24));
+
+    let dosesPerDay = 1;
+    if (typeof med.frequency === 'string') {
+      const match = med.frequency.match(/(\d+)/);
+      if (match) {
+        dosesPerDay = parseInt(match[1], 10);
+      } else if (med.frequency.toLowerCase().includes('twice')) {
+        dosesPerDay = 2;
+      } else if (med.frequency.toLowerCase().includes('thrice')) {
+        dosesPerDay = 3;
+      }
+    }
+
+    const deducted = daysElapsed * dosesPerDay;
+    return Math.max(med.quantity - deducted, 0);
+  }
+
   async scheduleForMedication(med: any) {
     if (!med?.id) return;
     await this.ensurePermissions();
@@ -54,7 +107,12 @@ export class MedicationReminderService {
     const end = med?.expiryDate ? new Date(med.expiryDate) : undefined;
     const interval = Number(med?.intervalHours) || 0;
 
-    if (!interval || med?.isActive === false) {
+    const remaining = this.calculateRemainingPills(med);
+
+    // If there is no interval, the medication is inactive, or
+    // there are effectively no pills left, cancel any existing
+    // reminders and do not schedule new ones.
+    if (!interval || med?.isActive === false || remaining <= 0) {
       await this.cancelForMedication(med.id);
       return;
     }
@@ -87,5 +145,202 @@ export class MedicationReminderService {
     for (const m of meds ?? []) {
       await this.scheduleForMedication(m);
     }
+  }
+
+  /**
+   * Start listening for medication notification events
+   */
+  startListeningForNotifications(): void {
+    if (this.isListeningToNotifications) {
+      console.log('Already listening to medication notifications');
+      return;
+    }
+
+    this.isListeningToNotifications = true;
+    console.log('Starting to listen for medication notifications');
+
+    // Listen for when notification is received (while app is open or running in background)
+    LocalNotifications.addListener('localNotificationReceived', (event: any) => {
+      const notification: LocalNotification = event.notification;
+      const medNotif: MedicationNotification = {
+        id: notification.id || 0,
+        title: notification.title || '',
+        body: notification.body || '',
+        medId: (notification.extra as any)?.medId || '',
+        occurrence: (notification.extra as any)?.occurrence || 0
+      };
+      console.log('Medication notification received:', medNotif);
+      this.medicationNotification$.next(medNotif);
+      this.handleMedicationNotificationReceived(medNotif);
+    });
+
+    // Listen for when user interacts with the notification
+    LocalNotifications.addListener('localNotificationActionPerformed', (event: any) => {
+      const notification: LocalNotification = event.notification;
+      const medNotif: MedicationNotification = {
+        id: notification.id || 0,
+        title: notification.title || '',
+        body: notification.body || '',
+        medId: (notification.extra as any)?.medId || '',
+        occurrence: (notification.extra as any)?.occurrence || 0
+      };
+      console.log('Medication notification action performed:', medNotif);
+      this.medicationNotification$.next(medNotif);
+      this.handleMedicationNotificationAction(medNotif);
+    });
+  }
+
+  /**
+   * Stop listening for medication notification events
+   */
+  stopListeningForNotifications(): void {
+    if (!this.isListeningToNotifications) {
+      return;
+    }
+
+    try {
+      LocalNotifications.removeAllListeners();
+      this.isListeningToNotifications = false;
+      console.log('Stopped listening for medication notifications');
+    } catch (error) {
+      console.error('Error stopping medication notification listener:', error);
+    }
+  }
+
+  /**
+   * Get observable of medication notifications
+   */
+  getMedicationNotifications$(): Observable<MedicationNotification | null> {
+    return this.medicationNotification$.asObservable();
+  }
+
+  /**
+   * Handle medication notification when received
+   */
+  private async handleMedicationNotificationReceived(notification: MedicationNotification): Promise<void> {
+    try {
+      console.log(`Medication reminder received: ${notification.title}`);
+      // You can add logic here such as:
+      // - Update medication status
+      // - Log notification event
+      // - Trigger additional actions
+    } catch (error) {
+      console.error('Error handling medication notification:', error);
+    }
+  }
+
+  /**
+   * Handle medication notification when user interacts with it
+   */
+  private async handleMedicationNotificationAction(notification: MedicationNotification): Promise<void> {
+    try {
+      console.log(`User interacted with medication notification: ${notification.title}`);
+      // You can add logic here such as:
+      // - Mark medication as taken
+      // - Record timestamp when user acknowledged
+      // - Navigate to medication details page
+    } catch (error) {
+      console.error('Error handling medication notification action:', error);
+    }
+  }
+
+  /**
+   * Setup listeners for app state changes
+   * This allows us to detect when the app resumes to check for missed background notifications
+   */
+  private setupAppStateListeners(): void {
+    // Listen for app resume to sync background events
+    App.addListener('appStateChange', async (state) => {
+      if (state.isActive) {
+        console.log('App resumed, checking for background medication events');
+        await this.syncBackgroundMedicationEvents();
+      }
+    });
+  }
+
+  /**
+   * Sync medication events that occurred while app was in background/closed
+   * This retrieves events stored by the native BroadcastReceiver
+   */
+  private async syncBackgroundMedicationEvents(): Promise<void> {
+    try {
+      // Try to retrieve background events from native storage
+      const events = await this.retrieveBackgroundMedicationEvents();
+      
+      if (events && events.length > 0) {
+        console.log('Found background medication events:', events);
+        
+        // Emit each event through the notification stream
+        for (const event of events) {
+          const medNotif: MedicationNotification = {
+            id: this.hashId(event.medId),
+            title: event.title,
+            body: event.body,
+            medId: event.medId,
+            occurrence: 0
+          };
+          
+          this.medicationNotification$.next(medNotif);
+          await this.handleMedicationNotificationAction(medNotif);
+        }
+        
+        // Update background events observable
+        this.backgroundEvents$.next(events);
+        
+        // Clear the native storage after syncing
+        await this.clearBackgroundMedicationEvents();
+      }
+    } catch (error) {
+      console.error('Error syncing background medication events:', error);
+    }
+  }
+
+  /**
+   * Retrieve medication events from native Android storage
+   * These events were stored by the BroadcastReceiver when the app was closed
+   */
+  private async retrieveBackgroundMedicationEvents(): Promise<BackgroundMedicationEvent[]> {
+    try {
+      // This would use native storage access
+      // For now, returning empty array - actual implementation would call native code directly
+      // In a real scenario, you might use a Capacitor plugin or WebView integration
+      
+      console.log('Attempting to retrieve background medication events from native storage');
+      
+      // Placeholder: would retrieve from SharedPreferences on Android
+      // const events = await this.nativeBridge.getMedicationEvents();
+      
+      return [];
+    } catch (error) {
+      console.error('Error retrieving background medication events:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clear background medication events from native storage after retrieval
+   */
+  private async clearBackgroundMedicationEvents(): Promise<void> {
+    try {
+      console.log('Clearing background medication events from native storage');
+      // This would clear SharedPreferences on Android
+      // await this.nativeBridge.clearMedicationEvents();
+    } catch (error) {
+      console.error('Error clearing background medication events:', error);
+    }
+  }
+
+  /**
+   * Get observable of background medication events
+   */
+  getBackgroundMedicationEvents$(): Observable<BackgroundMedicationEvent[]> {
+    return this.backgroundEvents$.asObservable();
+  }
+
+  /**
+   * Manually trigger background event sync (for testing or force refresh)
+   */
+  async triggerBackgroundEventSync(): Promise<void> {
+    await this.syncBackgroundMedicationEvents();
   }
 }
