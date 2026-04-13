@@ -22,6 +22,7 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
   @ViewChild('miniMap', { static: false }) miniMapElement!: ElementRef;
   
   // State Variables
+  estimatedArrival: string = 'Calculating...';
   emergencyAllergies: any[] = [];
   isAllergiesLoading: boolean = true;
   isAddressLoading: boolean = true;
@@ -163,7 +164,22 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
       show: false, 
       createMarker: () => null 
     }).addTo(this.miniMap);
+
+    this.routingControl.on('routesfound', (e: any) => {
+    const routes = e.routes;
+    const summary = routes[0].summary;
+    
+    // summary.totalTime is in seconds; convert to minutes
+    const travelTimeMinutes = Math.round(summary.totalTime / 60);
+    
+    if (travelTimeMinutes < 1) {
+      this.estimatedArrival = 'Arriving now';
+    } else {
+      this.estimatedArrival = `${travelTimeMinutes} minutes away`;
+    }
+  });
   }
+  
 
   resetMiniMapView() {
     if (this.miniMap && this.currentEmergency?.location) {

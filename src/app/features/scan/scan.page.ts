@@ -84,7 +84,7 @@ export class ScanPage {
             'animaldander': ['dander', 'pet', 'animal'],
             'insectstings': ['insect'],
             'medication': [],
-            'others': []
+            'others': ['chocolate']
           };
 
           // Extract ingredient/allergen data
@@ -107,10 +107,10 @@ export class ScanPage {
             this.ingredientsToWatch = matchedAllergens;
           } else if (!ingredientsText && allergensFromAPI.length === 0) {
             this.allergenStatus = 'warning';
-            this.ingredientsToWatch = ['Unknown — insufficient data'];
+            this.ingredientsToWatch = ['Caution: We couldnt find the ingredient list for this item. Please check the label.'];
           } else {
             this.allergenStatus = 'safe';
-            this.ingredientsToWatch = [];
+            this.ingredientsToWatch = ['Safe to Consume'];
           }
 
           // Add to Recent Scans
