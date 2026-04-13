@@ -179,6 +179,11 @@ export class AddMedicationModal implements OnInit {
       } else {
         this.med.quantity = Math.floor(numQuantity); // Ensure integer
       }
+
+      if (this.med.quantity > 0) {
+        this.med.startDate = new Date().toISOString();
+        this.calculateDuration();
+      }
     }
   }
 
@@ -439,9 +444,33 @@ export class AddMedicationModal implements OnInit {
 
     this.med.quantity = Number(this.med.quantity);
 
+    const now = new Date();
+
+    if (this.med.expiryDate) {
+      const expiry = new Date(this.med.expiryDate);
+      if (expiry < now) {
+        this.presentToast('Expiry date is in the past. Please update it.');
+        return;
+      }
+    }
+
+    if (this.med.startDate) {
+      const start = new Date(this.med.startDate);
+      const diffDays = (now.getTime() - start.getTime()) / (1000 * 3600 * 24);
+
+      if (start > now) {
+        this.presentToast('Start date cannot be in the future. Please update it.');
+        return;
+      }
+
+      if (diffDays > 365) {
+        this.presentToast('Start date looks very old. Please confirm or adjust it.');
+      }
+    }
+
     // --- AUTO-STATUS LOGIC ---
     // Check if medication is expired or finished
-    const isExpired = this.med.expiryDate && new Date(this.med.expiryDate) < new Date();
+    const isExpired = this.med.expiryDate && new Date(this.med.expiryDate) < now;
     const isOutOfPills = this.med.quantity <= 0;
 
     if (isExpired || isOutOfPills) {

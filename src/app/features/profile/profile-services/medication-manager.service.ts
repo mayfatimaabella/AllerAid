@@ -44,7 +44,8 @@ export class MedicationManagerService {
     loadUserMedications: () => Promise<void>,
     reminders: MedicationReminderService,
     presentToast: (msg: string) => void,
-    alertController: AlertController
+    alertController: AlertController,
+    onDeleted?: () => void
   ) {
     if (!medicationId) {
       presentToast('Cannot delete medication - missing ID');
@@ -71,6 +72,9 @@ export class MedicationManagerService {
               await loadUserMedications();
               try { await reminders.cancelForMedication(medicationId); } catch {}
               presentToast('Medication removed successfully');
+              if (onDeleted) {
+                onDeleted();
+              }
             } catch (error) {
               presentToast('Error removing medication');
             }

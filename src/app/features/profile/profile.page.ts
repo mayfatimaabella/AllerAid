@@ -193,8 +193,11 @@ export class ProfilePage implements OnInit, OnDestroy {
    * Delete medication with confirmation
    */
   async deleteMedication(medicationId: string | undefined): Promise<void> {
-    await this.profileMedicationManager.deleteMedication(medicationId, () => this.loadUserMedications());
-    this.profileMedicationManager.closeMedicationDetails();
+    await this.profileMedicationManager.deleteMedication(
+      medicationId,
+      () => this.loadUserMedications(),
+      () => this.profileMedicationManager.closeMedicationDetails()
+    );
   } 
 
   openMedicationDetails(medication: Medication): void {

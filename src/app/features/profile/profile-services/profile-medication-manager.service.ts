@@ -159,7 +159,8 @@ export class ProfileMedicationManagerService {
    */
   async deleteMedication(
     medicationId: string | undefined,
-    onLoadComplete: () => Promise<void>
+    onLoadComplete: () => Promise<void>,
+    onDeleted?: () => void
   ): Promise<void> {
     await this.medicationManager.deleteMedication(
       medicationId,
@@ -167,7 +168,8 @@ export class ProfileMedicationManagerService {
       onLoadComplete,
       this.reminders,
       this.presentToast.bind(this),
-      this.alertController
+      this.alertController,
+      onDeleted
     );
   }
 
