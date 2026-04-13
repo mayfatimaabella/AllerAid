@@ -46,6 +46,11 @@
               <div class="address-text">{{ patientAddress || 'Resolving...' }}</div>
             </div>
 
+            <div class="eta-container" *ngIf="estimatedArrival">
+              <div class="eta-label">ETA</div>
+              <div class="eta-value">{{ estimatedArrival }}</div>
+            </div>
+
             <div class="loc-col">
               <div class="loc-header">
                 <ion-icon name="navigate-circle"></ion-icon>

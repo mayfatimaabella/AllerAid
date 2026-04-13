@@ -32,45 +32,61 @@ export class HealthSectionComponent {
   @Output() viewDetails = new EventEmitter<any>();
 
   trackByMedication = (i: number, m: any) => m?.id ?? m?.name ?? i;
+
   constructor() {}
 
-  /**
-   * Helper to get status label (Used by HTML and ActionSheet)
-   */
+  /* Helper to get status label */
   getStatusLabel(medication: any): string {
     const isExpired = medication.expiryDate && new Date(medication.expiryDate) < new Date();
     if (isExpired) return 'Expired';
     
     const remaining = this.calculateRemainingPills(medication);
-    if (remaining <= 0) return 'Finished';
+    if (remaining <= 0) return 'Finished'; // Single source of truth for completion
     
     return medication.isActive ? 'Active' : 'Inactive';
   }
 
-  /**
-   * Helper to get status color (Used by HTML)
-   */
+  /* Helper to get status color */
   getStatusColor(medication: any): string {
     const label = this.getStatusLabel(medication);
     return (label === 'Active') ? 'success' : 'danger';
   }
 
-  getToggleStatusLabel(medication: any): string {
-    return medication.isActive ? 'Mark as Inactive' : 'Mark as Active';
-  }
-
-  isEmergencyMedication(med: any): boolean {
-    return this.isEmergencyMedicationFn ? !!this.isEmergencyMedicationFn(med) : false;
-  }
-
-  onFilterChange(ev: CustomEvent) {
-    const value = (ev as any)?.detail?.value;
-    this.medicationFilterChange.emit(typeof value === 'string' ? value : 'all');
+  /**
+   * FEATURE: Low Stock Alert
+   * Returns a warning string if remaining pills are > 0 but < 5.
+   */
+  getLowStockWarning(medication: any): string | null {
+    const remaining = this.calculateRemainingPills(medication);
+    
+    // We only show a warning if it's not finished yet
+    if (remaining > 0 && remaining < 5) {
+      return `Low stock: ${Math.floor(remaining)} left`;
+    }
+    return null;
   }
 
   /**
-   * Logic for calculating pills (matches your card display)
+   * FEATURE: Dose Reminder Helper
+   * Parses frequency for reminder logic or UI display.
    */
+  getDosesPerDay(medication: any): number {
+    let dosesPerDay = 1;
+    if (typeof medication.frequency === 'string') {
+      const freq = medication.frequency.toLowerCase();
+      const match = freq.match(/(\d+)/);
+      if (match) {
+        dosesPerDay = parseInt(match[1], 10);
+      } else if (freq.includes('twice')) {
+        dosesPerDay = 2;
+      } else if (freq.includes('thrice')) {
+        dosesPerDay = 3;
+      }
+    }
+    return dosesPerDay;
+  }
+
+  /* Logic for calculating pills */
   calculateRemainingPills(medication: any): number {
     if (!medication?.startDate || medication?.quantity === undefined) {
       return medication?.quantity ?? 0;
@@ -81,20 +97,21 @@ export class HealthSectionComponent {
     if (today < start) return medication.quantity; 
 
     const daysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 3600 * 24));
-
-    let dosesPerDay = 1;
-    if (typeof medication.frequency === 'string') {
-      const match = medication.frequency.match(/(\d+)/);
-      if (match) {
-        dosesPerDay = parseInt(match[1], 10);
-      } else if (medication.frequency.toLowerCase().includes('twice')) {
-        dosesPerDay = 2;
-      } else if (medication.frequency.toLowerCase().includes('thrice')) {
-        dosesPerDay = 3;
-      }
-    }
-
-    const deducted = daysElapsed * dosesPerDay;
+    const deducted = daysElapsed * this.getDosesPerDay(medication);
+    
     return Math.max(medication.quantity - deducted, 0);
+  }
+
+  onFilterChange(ev: CustomEvent) {
+    const value = (ev as any)?.detail?.value;
+    this.medicationFilterChange.emit(typeof value === 'string' ? value : 'all');
+  }
+
+  getToggleStatusLabel(medication: any): string {
+    return medication.isActive ? 'Mark as Inactive' : 'Mark as Active';
+  }
+
+  isEmergencyMedication(med: any): boolean {
+    return this.isEmergencyMedicationFn ? !!this.isEmergencyMedicationFn(med) : false;
   }
 }

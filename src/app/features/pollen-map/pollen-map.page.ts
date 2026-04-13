@@ -16,10 +16,18 @@ export class PollenMapPage implements OnInit, OnDestroy {
   currentDate: string = '';
   currentTime: string = '';
   private clockInterval: any;
+  
+  private debounceTimer: any;
+  private returnHomeTimeout: any;
+  
+  // NEW: State guard to prevent the "vibrating" loop during flyTo animations
+  private isRecentering = false;
 
   riskLogs: any[] = [];
 
-  // No longer hardcoded to Cebu coordinates
+  userLat: number | null = null;
+  userLon: number | null = null;
+
   lat: number | null = null;
   lon: number | null = null;
 
@@ -45,19 +53,19 @@ export class PollenMapPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.clockInterval) clearInterval(this.clockInterval);
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.returnHomeTimeout) clearTimeout(this.returnHomeTimeout);
     if (this.map) {
       this.map.remove();
     }
   }
 
   ionViewDidEnter() {
-    // Only init map if we have coordinates
     if (this.lat && this.lon) {
       this.initMap();
     }
   }
 
-  /* Fetches GPS coordinates and converts them to a readable area name.*/
   async updateUserLocation() {
     try {
       const position = await Geolocation.getCurrentPosition({
@@ -65,35 +73,19 @@ export class PollenMapPage implements OnInit, OnDestroy {
         timeout: 10000 
       });
 
-      this.lat = position.coords.latitude;
-      this.lon = position.coords.longitude;
-
-      // Reverse Geocoding to get the neighborhood name
-      try {
-        const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${this.lat}&lon=${this.lon}`;
-        const geoResponse = await fetch(geoUrl, {
-          headers: { 'User-Agent': 'PollenMapApp' } 
-        });
-        const geoData = await geoResponse.json();
-        
-        const addr = geoData.address;
-        // Setting the location name without the extra time string
-        this.airQuality.locationName = addr.neighbourhood || addr.suburb || addr.village || addr.city || 'Live Location';
-        
-      } catch (geoError) {
-        // Fallback if the naming service is unavailable
-        this.airQuality.locationName = 'Live Location';
-      }
+      this.userLat = position.coords.latitude;
+      this.userLon = position.coords.longitude;
       
-      this.fetchAirData();
+      this.lat = this.userLat;
+      this.lon = this.userLon;
+
+      await this.updateViewedLocation();
       
       if (this.map) {
         if (!this.marker) {
           this.initMap();
         } else {
-          this.marker.setLatLng([this.lat, this.lon]);
           this.map.setView([this.lat, this.lon], 13);
-          this.updateMapVisuals(); 
         }
       }
     } catch (error) {
@@ -101,6 +93,161 @@ export class PollenMapPage implements OnInit, OnDestroy {
       this.airQuality.locationName = 'GPS Error';
       this.airQuality.status = 'Check GPS';
     }
+  }
+
+  async updateViewedLocation() {
+    if (this.lat === null || this.lon === null) return;
+
+    try {
+      const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${this.lat}&lon=${this.lon}`;
+      const geoResponse = await fetch(geoUrl, { headers: { 'User-Agent': 'PollenMapApp' } });
+      const geoData = await geoResponse.json();
+      const addr = geoData.address;
+      
+      this.airQuality.locationName = addr.neighbourhood || addr.suburb || addr.village || addr.city || 'Viewing Area';
+    } catch (e) {
+      this.airQuality.locationName = 'Viewing Area';
+    }
+
+    await this.fetchAirData();
+
+    if (this.marker) {
+      this.marker.setLatLng([this.lat, this.lon]);
+      this.updateMapVisuals();
+    }
+  }
+
+  initMap() {
+    if (!this.lat || !this.lon) return;
+
+    const mapContainer = document.getElementById('mapId');
+    if (!mapContainer) return;
+
+    if (this.map) {
+      this.refreshMap();
+      this.map.setView([this.lat, this.lon], 13);
+      return;
+    }
+
+    this.map = L.map('mapId', {
+      zoomControl: true,
+      attributionControl: false 
+    }).setView([this.lat, this.lon], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+
+    this.marker = L.circleMarker([this.lat, this.lon], {
+      radius: 14,
+      fillOpacity: 0.8,
+      color: '#ffffff',
+      weight: 2
+    }).addTo(this.map);
+
+    // --- LOGIC FIX: Handlers for Feature #2 and #3 ---
+    
+    // 1. If user starts dragging, kill the return timer immediately
+    this.map.on('movestart', () => {
+      if (this.returnHomeTimeout) {
+        clearTimeout(this.returnHomeTimeout);
+        this.returnHomeTimeout = null;
+      }
+    });
+
+    this.map.on('moveend', () => {
+      // 2. STABILITY FIX: If the movement is caused by the "Recenter" function
+      if (this.isRecentering) return;
+
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+      if (this.returnHomeTimeout) clearTimeout(this.returnHomeTimeout);
+
+      // A. Debounce: Update naming API after 1 second of stillness
+      this.debounceTimer = setTimeout(() => {
+        const center = this.map.getCenter();
+        this.lat = center.lat;
+        this.lon = center.lng;
+        this.updateViewedLocation();
+      }, 1000);
+
+      // B. Auto-return home after 5 seconds of map inactivity
+      this.returnHomeTimeout = setTimeout(() => {
+        this.recenterToGps();
+      }, 5000);
+    });
+
+    setTimeout(() => {
+      this.airQuality.loaded = true; 
+      this.refreshMap();
+      this.updateMapVisuals();
+    }, 600);
+  }
+
+  async recenterToGps() {
+    if (!this.userLat || !this.userLon || !this.map) return;
+    
+    // 3. START GUARD: Lock the map listeners so flyTo doesn't trigger a new loop
+    this.isRecentering = true;
+    
+    this.map.flyTo([this.userLat, this.userLon], 15, { animate: true, duration: 1.5 });
+    
+    this.lat = this.userLat;
+    this.lon = this.userLon;
+
+    // 4. END GUARD: Wait for the animation to finish before unlocking
+    setTimeout(() => {
+      this.updateViewedLocation();
+      if (this.marker) this.marker.openPopup();
+      
+      this.isRecentering = false; // Map is now ready for user interaction again
+    }, 2000); 
+  }
+
+  async fetchAirData() {
+    if (!this.lat || !this.lon) return;
+
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${this.lat}&longitude=${this.lon}&hourly=pm10,pm2_5,dust&timezone=Asia%2FManila&timeformat=iso8601`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      this.airQuality.hourly = data.hourly;
+      this.updateHour(new Date().getHours());
+    } catch (error) {
+      this.airQuality.status = "Error";
+    }
+  }
+
+  updateHour(index: number) {
+    if (!this.airQuality.hourly) return;
+    const h = this.airQuality.hourly;
+    this.airQuality.pm10 = h.pm10[index];
+    this.airQuality.pm2_5 = h.pm2_5[index];
+    this.airQuality.dust = h.dust[index];
+    
+    if (this.airQuality.pm10 > 150) {
+      this.airQuality.status = 'High';
+      this.airQuality.statusClass = 'pollen-high';
+      this.logHighRiskArea('High', this.airQuality.pm10); 
+    } else if (this.airQuality.pm10 > 50) {
+      this.airQuality.status = 'Moderate';
+      this.airQuality.statusClass = 'pollen-mod';
+    } else {
+      this.airQuality.status = 'Good';
+      this.airQuality.statusClass = 'pollen-low';
+    }
+    this.updateMapVisuals();
+  }
+
+  updateMapVisuals() {
+    if (!this.marker || !this.lat || !this.lon) return;
+    const colors: any = { 'High': '#eb445a', 'Moderate': '#ffc409', 'Good': '#126d61' };
+    const color = colors[this.airQuality.status] || '#126d61';
+
+    this.marker.setStyle({ fillColor: color });
+    this.marker.bindPopup(`
+      <b>${this.airQuality.locationName}</b><br>
+      Status: ${this.airQuality.status}<br>
+      PM10: ${this.airQuality.pm10} µg/m³
+    `);
   }
 
   startLiveClock() {
@@ -151,88 +298,6 @@ export class PollenMapPage implements OnInit, OnDestroy {
     this.refreshMap();
   }
 
-  initMap() {
-    if (!this.lat || !this.lon) return;
-
-    const mapContainer = document.getElementById('mapId');
-    if (!mapContainer) return;
-
-    if (this.map) {
-      this.refreshMap();
-      this.map.setView([this.lat, this.lon], 13);
-      return;
-    }
-
-    this.map = L.map('mapId', {
-      zoomControl: true,
-      attributionControl: false 
-    }).setView([this.lat, this.lon], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-
-    this.marker = L.circleMarker([this.lat, this.lon], {
-      radius: 14,
-      fillOpacity: 0.8,
-      color: '#ffffff',
-      weight: 2
-    }).addTo(this.map);
-
-    setTimeout(() => {
-      this.airQuality.loaded = true; 
-      this.refreshMap();
-      this.updateMapVisuals();
-    }, 600);
-  }
-
-  async fetchAirData() {
-    if (!this.lat || !this.lon) return;
-
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${this.lat}&longitude=${this.lon}&hourly=pm10,pm2_5,dust&timezone=Asia%2FManila&timeformat=iso8601`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      this.airQuality.hourly = data.hourly;
-      this.updateHour(new Date().getHours());
-    } catch (error) {
-      this.airQuality.status = "Error";
-    }
-  }
-
-  updateHour(index: number) {
-    if (!this.airQuality.hourly) return;
-    const h = this.airQuality.hourly;
-    this.airQuality.pm10 = h.pm10[index];
-    this.airQuality.pm2_5 = h.pm2_5[index];
-    this.airQuality.dust = h.dust[index];
-    
-    if (this.airQuality.pm10 > 150) {
-      this.airQuality.status = 'High';
-      this.airQuality.statusClass = 'pollen-high';
-      this.logHighRiskArea('High', this.airQuality.pm10);
-    } else if (this.airQuality.pm10 > 50) {
-      this.airQuality.status = 'Moderate';
-      this.airQuality.statusClass = 'pollen-mod';
-    } else {
-      this.airQuality.status = 'Good';
-      this.airQuality.statusClass = 'pollen-low';
-    }
-    this.updateMapVisuals();
-  }
-
-  updateMapVisuals() {
-    if (!this.marker || !this.lat || !this.lon) return;
-    const colors: any = { 'High': '#eb445a', 'Moderate': '#ffc409', 'Good': '#126d61' };
-    const color = colors[this.airQuality.status] || '#126d61';
-
-    this.marker.setStyle({ fillColor: color });
-    this.marker.bindPopup(`
-      <b>${this.airQuality.locationName}</b><br>
-      Status: ${this.airQuality.status}<br>
-      PM10: ${this.airQuality.pm10} µg/m³
-    `);
-  }
-
   async openPollenMap() {
     await this.updateUserLocation(); 
     if (this.map && this.lat && this.lon) {
@@ -248,9 +313,9 @@ export class PollenMapPage implements OnInit, OnDestroy {
     const alert = await this.alertController.create({
       header: 'Air Quality Guide',
       cssClass: 'aqi-custom-alert',
-      message: 'PM10: Measures coarse particles (dust/pollen) ≤ 10µm.\n\n' +
-               'PM2.5: Particles ≤ 2.5µm.\n\n' +
-               'Note: If the map looks empty, click "Recenter Map".',
+      message: 'PM10: Measures coarse particles (dust/pollen) ≤ 10µm.\n' +
+                'PM2.5: Particles ≤ 2.5µm.\n' +
+                'Note: If the map looks empty, click "Recenter Map".',
       buttons: ['UNDERSTOOD']
     });
     await alert.present();
