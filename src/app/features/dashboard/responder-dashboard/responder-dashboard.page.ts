@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
-import { ModalController, NavController, AlertController } from '@ionic/angular';
+import { ModalController, NavController, AlertController, ToastController } from '@ionic/angular';
 import { AllergyService } from '../../../core/services/allergy.service';
 import { MedicalService } from '../../../core/services/medical.service';
 import * as L from 'leaflet';
@@ -62,7 +62,8 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     private medicalService: MedicalService,
     private modalController: ModalController,
     private navCtrl: NavController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastController: ToastController
   ) {}
 
   async ngOnInit() {
@@ -347,9 +348,38 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
   speakAlert() {
     if (!this.currentEmergency) return;
-    let text = `Emergency alert from ${this.currentEmergency.userName}. ${this.displayedEmergencyInstruction}. Patient location is ${this.address}.`;
+    const text = `Emergency alert from ${this.currentEmergency.userName}. ${this.displayedEmergencyInstruction}. Patient location is ${this.address}.`;
+
+    // Safely use Web Speech API only when fully supported
+    if (typeof window === 'undefined') {
+      console.warn('Text-to-speech not available: window is undefined');
+      return;
+    }
+
+    const hasSpeechSynthesis = 'speechSynthesis' in window;
+    const hasUtteranceConstructor = typeof SpeechSynthesisUtterance !== 'undefined';
+
+    if (!hasSpeechSynthesis || !hasUtteranceConstructor) {
+      console.warn('Text-to-speech not supported on this device');
+      this.showToast('Text-to-speech not supported on this device', 'warning');
+      return;
+    }
+
+    // Stop any ongoing speech before starting a new one
+    window.speechSynthesis.cancel();
+
     const message = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(message);
+  }
+
+  private async showToast(message: string, color: string = 'primary'): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 
   async cannotRespond() {

@@ -459,7 +459,10 @@ export class MedicationService {
   /**
    * Record result of a medication reminder interaction
    */
-  async recordReminderAction(medicationId: string, action: 'taken' | 'skipped' | 'opened'): Promise<void> {
+  async recordReminderAction(
+    medicationId: string,
+    action: 'taken' | 'skipped' | 'opened'
+  ): Promise<{ newQuantity?: number } | void> {
     const currentUser = await this.authService.waitForAuthInit();
     if (!currentUser) {
       throw new Error('User not logged in');
@@ -467,6 +470,9 @@ export class MedicationService {
 
     try {
       const medRef = doc(this.db, `users/${currentUser.uid}/medications/${medicationId}`);
+      const medSnap = await getDoc(medRef);
+      const medData = medSnap.exists() ? (medSnap.data() as any) : null;
+
       const updateData: any = {
         lastReminderAction: action,
         updatedAt: new Date()
@@ -475,12 +481,32 @@ export class MedicationService {
       const now = new Date();
       if (action === 'taken') {
         updateData.lastTakenAt = now;
+
+        // If we have a numeric quantity, treat it as
+        // remaining pills and decrement by one dose.
+        const currentQuantity = medData?.quantity;
+        if (typeof currentQuantity === 'number' && !isNaN(currentQuantity)) {
+          const newQuantity = Math.max(currentQuantity - 1, 0);
+          updateData.quantity = newQuantity;
+
+          // Automatically mark medication inactive when
+          // no pills remain so it no longer counts as active.
+          if (newQuantity <= 0) {
+            updateData.isActive = false;
+          }
+        }
       } else if (action === 'skipped') {
         updateData.lastSkippedAt = now;
       }
 
       await updateDoc(medRef, updateData);
       console.log('Medication reminder action recorded:', medicationId, action);
+
+      // Return the new quantity (if we computed it) so callers
+      // can react, e.g. by cancelling future reminders.
+      return typeof updateData.quantity === 'number'
+        ? { newQuantity: updateData.quantity }
+        : {};
     } catch (error) {
       console.error('Error recording medication reminder action:', error);
       throw error;

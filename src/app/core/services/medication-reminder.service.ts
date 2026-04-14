@@ -265,7 +265,15 @@ export class MedicationReminderService {
 
       if (actionId === 'TAKEN') {
         console.log(`Medication taken confirmed for medId=${notification.medId}`);
-        await this.medicationService.recordReminderAction(notification.medId, 'taken');
+        const result = await this.medicationService.recordReminderAction(notification.medId, 'taken');
+
+        // If pills are finished (quantity <= 0), stop any
+        // future scheduled reminders for this medication.
+        const newQuantity = (result as any)?.newQuantity;
+        if (typeof newQuantity === 'number' && newQuantity <= 0) {
+          console.log(`No pills remaining for medId=${notification.medId}; cancelling future reminders.`);
+          await this.cancelForMedication(notification.medId);
+        }
       } else if (actionId === 'SKIP') {
         console.log(`Medication skipped for medId=${notification.medId}`);
         await this.medicationService.recordReminderAction(notification.medId, 'skipped');

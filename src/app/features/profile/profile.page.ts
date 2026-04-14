@@ -348,6 +348,20 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (!user) return;
     await this.profileMedicationManager.loadUserMedications(user.uid);
   }
+
+  async handleHealthRefresh(event: any): Promise<void> {
+    try {
+      await this.loadUserMedications();
+      this.profileMedicationManager.filterMedications();
+    } catch (error) {
+      console.error('Error refreshing medications:', error);
+      await this.presentToast('Error refreshing medications');
+    } finally {
+      if (event?.target && typeof event.target.complete === 'function') {
+        event.target.complete();
+      }
+    }
+  }
   
   private runEmergencyTest(type: 'alert' | 'shake' | 'power' | 'audio') {
     return this.profileEmergencySettings.runTest(type, (msg) => this.presentToast(msg));

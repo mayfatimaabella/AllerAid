@@ -19,6 +19,18 @@
 
 <ion-content class="ion-padding profile-page-bg">
 
+  <ion-refresher
+    *ngIf="vm.profile?.role === 'user' && profileNavigation.selectedTab === 'health'"
+    slot="fixed"
+    (ionRefresh)="handleHealthRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh medications"
+      refreshingSpinner="crescent"
+      refreshingText="Refreshing medications...">
+    </ion-refresher-content>
+  </ion-refresher>
+
   <section class="profile-header">
 
     <div class="profile-header-card">

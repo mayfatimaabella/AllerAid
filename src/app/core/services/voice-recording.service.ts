@@ -274,24 +274,41 @@ export class VoiceRecordingService {
   }
 
   private async speakText(text: string): Promise<void> {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Configure voice settings
-      const voices = speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes(this.audioSettings.defaultVoice)
-      );
-      
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      utterance.rate = this.audioSettings.speechRate;
-      utterance.volume = this.audioSettings.volume;
-      
-      speechSynthesis.speak(utterance);
+    // Guard against environments (like some mobile WebViews) that
+    // do not support the Web Speech API to avoid runtime errors.
+    if (typeof window === 'undefined') {
+      console.warn('Text-to-speech not available: window is undefined');
+      return;
     }
+
+    const hasSpeechSynthesis = 'speechSynthesis' in window;
+    const hasUtteranceConstructor = typeof SpeechSynthesisUtterance !== 'undefined';
+
+    if (!hasSpeechSynthesis || !hasUtteranceConstructor) {
+      console.warn('Text-to-speech not supported on this device');
+      await this.showToast('Text-to-speech not supported on this device', 'warning');
+      return;
+    }
+
+    // Stop any ongoing speech before starting a new one
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Configure voice settings
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice =>
+      voice.name.toLowerCase().includes(this.audioSettings.defaultVoice)
+    );
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.rate = this.audioSettings.speechRate;
+    utterance.volume = this.audioSettings.volume;
+
+    window.speechSynthesis.speak(utterance);
   }
 
   // Audio Settings Management

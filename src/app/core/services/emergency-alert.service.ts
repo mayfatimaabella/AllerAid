@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import { MedicalService } from './medical.service';
 import { BuddyService } from './buddy.service';
 import { AuthService } from './auth.service';
@@ -31,7 +32,8 @@ export class EmergencyAlertService {
     private buddyService: BuddyService,
     private authService: AuthService,
     private userService: UserService,
-    private emergencyService: EmergencyService
+    private emergencyService: EmergencyService,
+    private toastController: ToastController
   ) { }
 
   /**
@@ -245,7 +247,16 @@ export class EmergencyAlertService {
    */
   private async speakInstructions(emergencyData: any): Promise<void> {
     try {
-      if ('speechSynthesis' in window) {
+      // Ensure Web Speech API is actually available before using it.
+      if (typeof window === 'undefined') {
+        console.warn('Text-to-speech not available: window is undefined');
+        return;
+      }
+
+      const hasSpeechSynthesis = 'speechSynthesis' in window;
+      const hasUtteranceConstructor = typeof SpeechSynthesisUtterance !== 'undefined';
+
+      if (hasSpeechSynthesis && hasUtteranceConstructor) {
         // Stop any ongoing speech
         window.speechSynthesis.cancel();
         
@@ -308,10 +319,21 @@ export class EmergencyAlertService {
         console.log('Speaking emergency instructions:', textToSpeak);
       } else {
         console.warn('Text-to-speech not supported on this device');
+        await this.showToast('Text-to-speech not supported on this device', 'warning');
       }
     } catch (error) {
       console.error('Error using text-to-speech:', error);
     }
+  }
+
+  private async showToast(message: string, color: string = 'primary'): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 }
 
