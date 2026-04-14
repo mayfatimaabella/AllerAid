@@ -260,15 +260,13 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async refreshAllergiesDisplay(): Promise<void> {
-    const allergies = await this.profileUtility.loadAndDisplayUserAllergies();
+    const userProfile = this.profileDataLoader.userProfileValue;
+    if (!userProfile) return;
+
+    const allergies = await this.profileDataLoader.refreshAllergies(userProfile.uid);
 
     this.userAllergies = allergies;
     this.allergiesCount = allergies.length;
-    const current = this.profileDataLoader.emergencyMessageValue ?? EMPTY_EMERGENCY_MESSAGE;
-    this.profileDataLoader.setEmergencyMessage({
-      ...current,
-      allergies: this.profileUtility.generateEmergencyAllergyText(allergies)
-    });
     this.updateAllergyOptions();
   }
 

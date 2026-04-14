@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { Component, ViewChild } from '@angular/core';
+import { ModalController, IonicModule, IonTextarea } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmergencyInstructionsManagerService } from '../../../profile-services/emergency-instructions-manager.service';
@@ -22,6 +22,8 @@ export class EmergencySpecificInstructionsModalComponent {
   // Form state: NOT @Input to allow proper ngModel binding
   selectedAllergyForInstruction: any = null;
   newInstructionText: string = '';
+
+  @ViewChild('instructionTextarea') instructionTextarea?: IonTextarea;
   constructor(
     private modalCtrl: ModalController,
     public emergencyInstructionsManager: EmergencyInstructionsManagerService
@@ -30,9 +32,19 @@ export class EmergencySpecificInstructionsModalComponent {
     this.emergencyInstructionsManager.manageInstructionsModal = this;
   }
 
+  focusInstructionInput(): void {
+    // Defer to allow view to update before focusing
+    setTimeout(() => {
+      this.instructionTextarea?.setFocus();
+    }, 0);
+  }
+
   onSubmit() { if (this.editingInstruction) { this.emergencyInstructionsManager.onUpdateInstruction(); } else { this.emergencyInstructionsManager.onAddInstruction(); } }
   onCancelEdit() { this.emergencyInstructionsManager.onCancelEdit(); }
-  onEditInstruction(instruction: any) { this.emergencyInstructionsManager.onEditInstruction(instruction); }
+  onEditInstruction(instruction: any) { 
+    this.emergencyInstructionsManager.onEditInstruction(instruction);
+    this.focusInstructionInput();
+  }
   onRemoveInstruction(id: string) { this.emergencyInstructionsManager.onRemoveInstruction(id); }
   onShowDetails(instruction: any) { this.emergencyInstructionsManager.onShowDetails(instruction); }
   onClose() { this.emergencyInstructionsManager.onManageInstructionsDismiss(); this.modalCtrl.dismiss(); }

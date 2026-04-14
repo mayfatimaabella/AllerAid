@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ModalController, IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { ModalController, IonicModule, AlertController, LoadingController, ToastController, IonTextarea } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [IonicModule, CommonModule, ReactiveFormsModule]
 })
-export class EditEmergencyProfileModalComponent implements OnInit {
+export class EditEmergencyProfileModalComponent implements OnInit, AfterViewInit {
   @Input() emergencyMessage: any;
   @Input() userProfile: any;
   @Input() mode: 'add' | 'edit' = 'edit';
@@ -25,6 +25,8 @@ export class EditEmergencyProfileModalComponent implements OnInit {
   isUploadingAvatar: boolean = false;
   isSaving: boolean = false;
   private initialFormValue: any | null = null;
+
+  @ViewChild('instructionsTextarea') instructionsTextarea?: IonTextarea;
 
   constructor(
     private modalCtrl: ModalController,
@@ -54,6 +56,13 @@ export class EditEmergencyProfileModalComponent implements OnInit {
 
     // Snapshot initial values for precise change detection (beyond Angular's pristine/dirty flags)
     this.initialFormValue = this.form.getRawValue();
+  }
+
+  ngAfterViewInit(): void {
+    // Small delay to ensure the modal and textarea are fully rendered before focusing
+    setTimeout(() => {
+      this.instructionsTextarea?.setFocus();
+    }, 0);
   }
 
   close() {

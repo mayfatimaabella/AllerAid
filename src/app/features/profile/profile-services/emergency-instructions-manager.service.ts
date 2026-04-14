@@ -68,7 +68,6 @@ export class EmergencyInstructionsManagerService {
     if (this.manageInstructionsModal) {
       this.manageInstructionsModal.selectedAllergyForInstruction = null;
       this.manageInstructionsModal.newInstructionText = '';
-      this.manageInstructionsModal.editingInstruction = null;
     }
   }
 
@@ -140,7 +139,7 @@ export class EmergencyInstructionsManagerService {
       if (existingInstruction) {
         const alert = await this.alertController.create({
           header: 'Replace Existing Instruction?',
-          message: `An instruction already exists for ${allergyName}:<br><br>"${existingInstruction.instruction}"<br><br>Do you want to replace it with the new instruction?`,
+          message: `An instruction already exists for ${allergyName}:\n\n"${existingInstruction.instruction}"\n\nDo you want to replace it with the new instruction?`,
           buttons: [
             {
               text: 'Cancel',
@@ -197,7 +196,7 @@ export class EmergencyInstructionsManagerService {
         return;
       }
 
-      const editingInstruction = this.manageInstructionsModal.editingInstruction;
+      const editingInstruction = this.editingInstruction;
       const instructionText = this.manageInstructionsModal.newInstructionText;
 
       if (!editingInstruction || !instructionText.trim()) {
@@ -218,7 +217,7 @@ export class EmergencyInstructionsManagerService {
         instructionText.trim()
       );
 
-      this.manageInstructionsModal.editingInstruction = null;
+      this.editingInstruction = null;
       this.manageInstructionsModal.selectedAllergyForInstruction = null;
       this.manageInstructionsModal.newInstructionText = '';
 
@@ -308,7 +307,6 @@ export class EmergencyInstructionsManagerService {
     this.newInstructionText = instruction.instruction || '';
 
     if (this.manageInstructionsModal) {
-      this.manageInstructionsModal.editingInstruction = instruction;
       this.manageInstructionsModal.selectedAllergyForInstruction = resolvedAllergy;
       this.manageInstructionsModal.newInstructionText = instruction.instruction || '';
     }
@@ -323,7 +321,6 @@ export class EmergencyInstructionsManagerService {
     this.newInstructionText = '';
 
     if (this.manageInstructionsModal) {
-      this.manageInstructionsModal.editingInstruction = null;
       this.manageInstructionsModal.selectedAllergyForInstruction = null;
       this.manageInstructionsModal.newInstructionText = '';
     }
