@@ -152,7 +152,7 @@ export class BuddyResponseService {
             }
           );
 
-          console.log('🗺️ Live location updated:', locationUpdate.location);
+          console.log('Live location updated:', locationUpdate.location);
         } catch (error) {
           console.error('Error updating live location:', error);
         }

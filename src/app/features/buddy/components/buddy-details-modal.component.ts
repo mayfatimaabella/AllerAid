@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-buddy-details-modal',
@@ -60,7 +61,7 @@ import { IonicModule } from '@ionic/angular';
                     <ion-icon name="call" slot="start"></ion-icon>
                     <ion-label>
                       <h3>Contact Number</h3>
-                      <p>{{ buddy.contactNumber || buddy.contact || 'Not provided' }}</p>
+                      <p>{{ displayedContact || buddy.contactNumber || 'Not provided' }}</p>
                     </ion-label>
                   </ion-item>
                 </ion-list>
@@ -68,7 +69,7 @@ import { IonicModule } from '@ionic/angular';
             </ion-card>
 
             <!-- Action Buttons -->
-            <div class="action-buttons" *ngIf="buddy.contactNumber || buddy.contact">
+            <div class="action-buttons" *ngIf="displayedContact || buddy.contactNumber || buddy.contact">
               <ion-button expand="block" class="call-btn" (click)="callBuddy()">
                 <ion-icon name="call" slot="start"></ion-icon>
                 Call {{ buddy.firstName }}
@@ -247,23 +248,53 @@ import { IonicModule } from '@ionic/angular';
     }
   `]
 })
-export class BuddyDetailsModalComponent {
+export class BuddyDetailsModalComponent implements OnInit {
   @Input() buddy: any;
   @Output() closeDetails = new EventEmitter<void>();
 
+  displayedContact = '';
+  contactAutoPopulated = false;
+  isLoadingContact = false;
+
+  constructor(private userService: UserService) {}
+
+  async ngOnInit() {
+    if (this.buddy) {
+      if (this.buddy.connectedUserId && !this.buddy.contactNumber && !this.buddy.contact) {
+        await this.populateBuddyProfileContact();
+      } else {
+        this.displayedContact = this.buddy.contactNumber || this.buddy.contact || '';
+      }
+    }
+  }
+
+  async populateBuddyProfileContact() {
+    try {
+      this.isLoadingContact = true;
+      const buddyProfile = await this.userService.getUserProfile(this.buddy.connectedUserId);
+      
+      if (buddyProfile && buddyProfile.emergencyContactPhone) {
+        this.displayedContact = buddyProfile.emergencyContactPhone;
+        this.contactAutoPopulated = true;
+      }
+    } catch (error) {
+      console.error('Error fetching buddy profile contact:', error);
+    } finally {
+      this.isLoadingContact = false;
+    }
+  }
+
   callBuddy() {
-    const phoneNumber = this.buddy.contactNumber || this.buddy.contact;
+    const phoneNumber = this.displayedContact || this.buddy.contactNumber || this.buddy.contact;
     if (phoneNumber) {
-      // Remove any non-digit characters for the tel: link
       const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
       window.open(`tel:${cleanNumber}`, '_system');
     }
   }
 
   messageBuddy() {
-    const phoneNumber = this.buddy.contactNumber || this.buddy.contact;
+    const phoneNumber = this.displayedContact || this.buddy.contactNumber || this.buddy.contact;
     if (phoneNumber) {
-      // Remove any non-digit characters for the sms: link
       const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
       window.open(`sms:${cleanNumber}`, '_system');
     }

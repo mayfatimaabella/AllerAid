@@ -15,8 +15,8 @@ import { ScanResultComponent } from './scan-result/scan-result.component';
     CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,          // ✅ Needed for ProductService
-    ScanPageRoutingModule,      // ✅ Already handles routing
+    HttpClientModule,          
+    ScanPageRoutingModule,      
   ],
   declarations: [ScanPage, ManualBarcodeComponent, RecentScansComponent, ScanResultComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

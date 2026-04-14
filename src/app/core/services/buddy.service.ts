@@ -171,12 +171,44 @@ export class BuddyService {
     try {
       // Check if this buddy comes from buddy_relations
       if (buddyToDelete.isFromRelation) {
-        // Delete from buddy_relations collection
-        const relationDoc = doc(this.db, 'buddy_relations', buddyToDelete.id);
-        await deleteDoc(relationDoc);
+        // Get current user ID
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const currentUserId = currentUser.uid;
+        const connectedUserId = buddyToDelete.connectedUserId;
+
+        // Delete the relation in BOTH directions to ensure complete removal
+        // Direction 1: Where current user is user1 and connected user is user2
+        const q1 = query(
+          collection(this.db, 'buddy_relations'),
+          where('user1Id', '==', currentUserId),
+          where('user2Id', '==', connectedUserId)
+        );
         
-        if (!environment.production) {
-          console.log('Deleted buddy relation:', buddyToDelete.id);
+        // Direction 2: Where connected user is user1 and current user is user2
+        const q2 = query(
+          collection(this.db, 'buddy_relations'),
+          where('user1Id', '==', connectedUserId),
+          where('user2Id', '==', currentUserId)
+        );
+
+        const [snapshot1, snapshot2] = await Promise.all([
+          getDocs(q1),
+          getDocs(q2)
+        ]);
+
+        // Delete both directions
+        if (!snapshot1.empty) {
+          await deleteDoc(doc(this.db, 'buddy_relations', snapshot1.docs[0].id));
+          if (!environment.production) {
+            console.log('Deleted buddy relation (direction 1):', snapshot1.docs[0].id);
+          }
+        }
+
+        if (!snapshot2.empty) {
+          await deleteDoc(doc(this.db, 'buddy_relations', snapshot2.docs[0].id));
+          if (!environment.production) {
+            console.log('Deleted buddy relation (direction 2):', snapshot2.docs[0].id);
+          }
         }
       } else {
         // Delete from legacy buddies collection

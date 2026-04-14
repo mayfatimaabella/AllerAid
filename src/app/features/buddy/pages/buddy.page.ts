@@ -172,6 +172,7 @@ export class BuddyPage implements OnInit {
     const profileUpdates = {
       firstName: editedBuddy.firstName,
       lastName: editedBuddy.lastName,
+      fullName: `${editedBuddy.firstName} ${editedBuddy.lastName}`.trim(),
       email: editedBuddy.email,
       phone: editedBuddy.contactNumber || editedBuddy.contact
     };
