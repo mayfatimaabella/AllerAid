@@ -58,15 +58,14 @@ export interface Medication {
   reminderEnabled?: boolean;
   reminderTimes?: string[];
   allergicReaction?: boolean;
+  lastTakenAt?: Date;
+  lastSkippedAt?: Date;
+  lastReminderAction?: 'taken' | 'skipped' | 'opened';
   // Prescription image fields
   prescriptionImageUrl?: string;
   prescriptionImageName?: string;
   medicationImageUrl?: string;
   medicationImageName?: string;
-  // Note: legacy boolean flags (emergencyMedication, requiresRefrigeration, withFood)
-  // were removed from the TypeScript model in favor of using `category` and
-  // other descriptive fields. Runtime data may still contain these keys; code
-  // that needs to detect them should access them dynamically if required.
   foodRestrictions?: string;
 }
 
@@ -453,6 +452,37 @@ export class MedicationService {
       console.log('Medication inventory updated successfully');
     } catch (error) {
       console.error('Error updating medication inventory:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Record result of a medication reminder interaction
+   */
+  async recordReminderAction(medicationId: string, action: 'taken' | 'skipped' | 'opened'): Promise<void> {
+    const currentUser = await this.authService.waitForAuthInit();
+    if (!currentUser) {
+      throw new Error('User not logged in');
+    }
+
+    try {
+      const medRef = doc(this.db, `users/${currentUser.uid}/medications/${medicationId}`);
+      const updateData: any = {
+        lastReminderAction: action,
+        updatedAt: new Date()
+      };
+
+      const now = new Date();
+      if (action === 'taken') {
+        updateData.lastTakenAt = now;
+      } else if (action === 'skipped') {
+        updateData.lastSkippedAt = now;
+      }
+
+      await updateDoc(medRef, updateData);
+      console.log('Medication reminder action recorded:', medicationId, action);
+    } catch (error) {
+      console.error('Error recording medication reminder action:', error);
       throw error;
     }
   }

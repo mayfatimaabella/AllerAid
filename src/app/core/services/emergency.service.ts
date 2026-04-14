@@ -630,6 +630,33 @@ export class EmergencyService {
   }
   
   /**
+   * Get emergencies initiated by a specific user by status
+   */
+  async getUserEmergenciesByStatus(
+    userId: string,
+    statuses: ('active' | 'responding' | 'resolved')[]
+  ): Promise<EmergencyAlert[]> {
+    try {
+      const emergenciesRef = collection(this.db, 'emergencies');
+      const q = query(
+        emergenciesRef,
+        where('userId', '==', userId),
+        where('status', 'in', statuses)
+      );
+
+      const snapshot = await getDocs(q);
+      const emergencies: EmergencyAlert[] = [];
+      snapshot.forEach((docSnap) => {
+        emergencies.push({ id: docSnap.id, ...(docSnap.data() as any) } as EmergencyAlert);
+      });
+      return emergencies;
+    } catch (error) {
+      console.error('Error getting user emergencies by status:', error);
+      return [];
+    }
+  }
+  
+  /**
    * Get a specific emergency by ID
    */
   async getEmergencyById(emergencyId: string): Promise<EmergencyAlert | null> {

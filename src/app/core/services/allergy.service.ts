@@ -170,9 +170,30 @@ export class AllergyService {
       const { query, orderBy } = await import('firebase/firestore');
       const q = query(allergyOptionsRef, orderBy('order'));
       const querySnapshot = await getDocs(q);
-      const options = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log('Retrieved', options.length, 'allergy options from Firebase (ordered by order field)');
-      return options;
+      const options: any[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+
+      // Guard against duplicate options in Firestore by de-duplicating by name
+      const uniqueByName: Record<string, any> = {};
+      options.forEach((option: any) => {
+        const name = option.name as string | undefined;
+        if (!name) {
+          return;
+        }
+        if (!uniqueByName[name]) {
+          uniqueByName[name] = option;
+        }
+      });
+
+      const uniqueOptions = Object.values(uniqueByName).sort((a: any, b: any) => {
+        const orderA = typeof a.order === 'number' ? a.order : 0;
+        const orderB = typeof b.order === 'number' ? b.order : 0;
+        return orderA - orderB;
+      });
+
+      console.log('Retrieved', options.length, 'allergy options from Firebase (ordered by order field),',
+        uniqueOptions.length, 'after de-duplicating by name');
+
+      return uniqueOptions;
     } catch (error) {
       console.error('Error fetching allergy options:', error);
       throw error;

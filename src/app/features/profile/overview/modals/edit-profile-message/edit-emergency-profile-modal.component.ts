@@ -24,6 +24,7 @@ export class EditEmergencyProfileModalComponent implements OnInit {
   readonly defaultAvatarUrl = 'https://ionicframework.com/docs/img/demos/avatar.svg';
   isUploadingAvatar: boolean = false;
   isSaving: boolean = false;
+  private initialFormValue: any | null = null;
 
   constructor(
     private modalCtrl: ModalController,
@@ -50,6 +51,9 @@ export class EditEmergencyProfileModalComponent implements OnInit {
     // Allergies are managed elsewhere; make field read-only in the editor
     this.form.get('allergies')?.disable({ emitEvent: false });
     this.avatarPreview = this.form.get('avatar')?.value || null;
+
+    // Snapshot initial values for precise change detection (beyond Angular's pristine/dirty flags)
+    this.initialFormValue = this.form.getRawValue();
   }
 
   close() {
@@ -58,12 +62,6 @@ export class EditEmergencyProfileModalComponent implements OnInit {
   }
 
   async save() {
-    // If the user hasn't changed anything, show feedback and skip saving
-    if (this.form.pristine) {
-      await this.presentToast('You have not made any changes to your profile.', 'warning');
-      return;
-    }
-
     const phoneValue = (this.form.get('emergencyContactPhone')?.value || '').toString();
     if (phoneValue.length !== 11) {
       await this.presentToast('Emergency Contact Phone must be exactly 11 digits.', 'danger');
@@ -103,6 +101,13 @@ export class EditEmergencyProfileModalComponent implements OnInit {
     try {
       // Use getRawValue to include disabled controls without allowing edits
       const formValues = this.form.getRawValue();
+
+      // Check against initial snapshot so we only save when something actually changed
+      if (this.initialFormValue && this.areFormValuesEqual(this.initialFormValue, formValues)) {
+        await this.presentToast('You have not made any changes to your profile.', 'warning');
+        return;
+      }
+
       const updated = {
         ...this.emergencyMessage,
         ...formValues
@@ -113,6 +118,31 @@ export class EditEmergencyProfileModalComponent implements OnInit {
       this.isSaving = false;
       await loading.dismiss();
     }
+  }
+
+  /**
+   * Shallow equality check for form values, normalizing undefined/null and trimming strings.
+   */
+  private areFormValuesEqual(a: any, b: any): boolean {
+    const allKeys = new Set<string>([...Object.keys(a || {}), ...Object.keys(b || {})]);
+    for (const key of allKeys) {
+      const av = this.normalizeValue(a ? a[key] : undefined);
+      const bv = this.normalizeValue(b ? b[key] : undefined);
+      if (av !== bv) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private normalizeValue(value: any): any {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return value;
   }
 
   private async presentToast(message: string, color: 'success' | 'danger' | 'warning' = 'warning'): Promise<void> {

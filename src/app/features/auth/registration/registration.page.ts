@@ -20,6 +20,8 @@ export class RegistrationPage {
   selectedFile: File | null = null;
   selectedFileName = '';
   licenseURL = '';
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   // Password policy: at least 8 characters, 1 uppercase, 1 number, 1 special character
   minPasswordLength = 8;

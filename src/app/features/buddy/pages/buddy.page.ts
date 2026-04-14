@@ -277,6 +277,18 @@ export class BuddyPage implements OnInit {
       });
     }
   }
+
+  async handleRefresh(event: any) {
+    try {
+      await this.loadBuddies();
+      await this.loadInvitationCount();
+      this.searchBuddy();
+    } catch (error) {
+      console.error('Error refreshing buddies:', error);
+    } finally {
+      event.target.complete();
+    }
+  }
 }
 
 

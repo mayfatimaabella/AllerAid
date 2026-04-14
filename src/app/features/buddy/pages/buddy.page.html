@@ -18,6 +18,15 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content
+        pullingIcon="chevron-down-circle-outline"
+        pullingText="Pull to refresh"
+        refreshingSpinner="crescent"
+        refreshingText="Refreshing buddies...">
+      </ion-refresher-content>
+    </ion-refresher>
+
     <!-- Buddy Actions Modal -->
     <app-buddy-actions-modal *ngIf="showActionsModal" [buddy]="selectedBuddy" (edit)="onEditBuddy($event)" (delete)="onDeleteBuddy($event)" (closeModal)="closeActionsModal()"></app-buddy-actions-modal>
 

@@ -90,6 +90,25 @@
             </div>
           </div>
 
+          <!-- Persistent hotline fallback when no buddies or all cannot respond -->
+          <div class="hotline-fallback" *ngIf="shouldShowHotlineFallback()">
+            <p class="hotline-note">
+              No available responders at the moment. Please contact emergency services.
+            </p>
+            <ion-button expand="block" color="danger" (click)="callNumber('911')">
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              Call 911
+            </ion-button>
+            <ion-button expand="block" color="warning" (click)="callNumber('117')">
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              Call 117
+            </ion-button>
+            <ion-button expand="block" color="medium" (click)="callNumber('143')">
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              Call Red Cross 143
+            </ion-button>
+          </div>
+
           <div class="emergency-actions">
             <ion-button class="mt-16" expand="block" color="success" (click)="resolveEmergency()">
               <ion-icon name="checkmark-circle" slot="start"></ion-icon>

@@ -27,6 +27,8 @@ export class AddMedicationModal implements OnInit {
   medicationImage: string | null = null;
   todayISO: string = new Date().toISOString();
   isDurationManual: boolean = false; // Track if user manually edited duration
+  projectedEndDate: Date | null = null;
+  projectedDaysSupply: number | null = null;
 
   constructor(
     private modalCtrl: ModalController,
@@ -85,51 +87,61 @@ export class AddMedicationModal implements OnInit {
     return '';
   }
 
-  // Calculate duration in days between start and expiry dates,
-  // and include interval information when available
-  calculateDuration() {
-    // Only auto-calculate if user hasn't manually set duration
-    if (this.isDurationManual) {
+  /**
+   * Core pill-supply calculator.
+   * Given quantity + intervalHours + startDate 
+   * → computes expiryDate & frequency text + projections.
+   * Called whenever quantity, interval, or startDate changes.
+   */
+  calculateExpiryFromPills() {
+    if (this.isDurationManual) return;
+
+    const quantity = Number(this.med.quantity);
+    const intervalHours = this.med.intervalHours !== undefined && this.med.intervalHours !== null
+      ? Number(this.med.intervalHours)
+      : NaN;
+
+    // Need at least pills and a valid interval to calculate
+    if (!quantity || quantity <= 0 || isNaN(intervalHours) || intervalHours <= 0) {
+      this.projectedEndDate = null;
+      this.projectedDaysSupply = null;
       return;
     }
 
-    if (this.med.startDate && this.med.expiryDate) {
-      const startDate = new Date(this.med.startDate);
-      const expiryDate = new Date(this.med.expiryDate);
+    const dosesPerDay = 24 / intervalHours;
+    const daysOfSupply = Math.ceil(quantity / dosesPerDay);
+    this.projectedDaysSupply = daysOfSupply;
 
-      // Calculate the difference in time (milliseconds)
-      const timeDifference = expiryDate.getTime() - startDate.getTime();
+    const start = this.med.startDate ? new Date(this.med.startDate) : new Date();
+    const expiry = new Date(start);
+    expiry.setDate(expiry.getDate() + daysOfSupply);
+    this.projectedEndDate = expiry;
 
-      // Convert to days
-      const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+    // Auto-fill expiry date and frequency description
+    this.med.expiryDate = expiry.toISOString();
+    const intervalLabel = this.getIntervalLabel(intervalHours);
+    const daysText = `${daysOfSupply} day${daysOfSupply === 1 ? '' : 's'}`;
+    this.med.frequency = `${daysText}, ${intervalLabel}`;
+  }
 
-      // Normalised interval (in hours), if provided
-      const intervalHours = this.med.intervalHours !== undefined && this.med.intervalHours !== null
-        ? Number(this.med.intervalHours)
-        : NaN;
+  getIntervalLabel(hours: number): string {
+    const map: Record<number, string> = {
+      1: 'every 1 hour',
+      2: 'every 2 hours',
+      3: 'every 3 hours',
+      4: 'every 4 hours',
+      6: 'every 6 hours',
+      8: 'every 8 hours',
+      12: 'every 12 hours',
+      24: 'once a day',
+    };
+    return map[hours] ?? `every ${hours} hours`;
+  }
 
-      const hasInterval = !isNaN(intervalHours) && intervalHours > 0;
-
-      // If we are in auto mode and there is no interval yet,
-      // wait until the user selects an interval before setting duration
-      if (!hasInterval) {
-        return;
-      }
-
-      // Build the duration/frequency text
-      if (daysDifference > 0) {
-        const daysText = `${daysDifference} day${daysDifference === 1 ? '' : 's'}`;
-        const hoursText = `${intervalHours} hour${intervalHours === 1 ? '' : 's'}`;
-        this.med.frequency = `${daysText}, every ${hoursText}`;
-      } else if (daysDifference === 0) {
-        const daysText = '1 day';
-        const hoursText = `${intervalHours} hour${intervalHours === 1 ? '' : 's'}`;
-        this.med.frequency = `${daysText}, every ${hoursText}`;
-      } else {
-        // If expiry date is before start date, clear the duration
-        this.med.frequency = '';
-      }
-    }
+  // Keep this for callers; delegates to the pill-based calculator
+  calculateDuration() {
+    if (this.isDurationManual) return;
+    this.calculateExpiryFromPills();
   }
 
   // Handle manual duration input
@@ -141,14 +153,14 @@ export class AddMedicationModal implements OnInit {
   toggleDurationMode() {
     this.isDurationManual = !this.isDurationManual;
     if (!this.isDurationManual) {
-      // If switching back to auto mode, recalculate
-      this.calculateDuration();
+      // If switching back to auto mode, recalculate from pills
+      this.calculateExpiryFromPills();
     }
   }
 
   // Handle start date change
   onStartDateChange() {
-    this.calculateDuration();
+    this.calculateExpiryFromPills();
   }
 
   // Handle expiry date change
@@ -158,7 +170,7 @@ export class AddMedicationModal implements OnInit {
 
   // Handle interval (hours) change
   onIntervalChange() {
-    this.calculateDuration();
+    this.calculateExpiryFromPills();
   }
 
   // Validate quantity input
@@ -180,10 +192,7 @@ export class AddMedicationModal implements OnInit {
         this.med.quantity = Math.floor(numQuantity); // Ensure integer
       }
 
-      if (this.med.quantity > 0) {
-        this.med.startDate = new Date().toISOString();
-        this.calculateDuration();
-      }
+      this.calculateExpiryFromPills();
     }
   }
 
@@ -463,8 +472,13 @@ export class AddMedicationModal implements OnInit {
         return;
       }
 
-      if (diffDays > 365) {
-        this.presentToast('Start date looks very old. Please confirm or adjust it.');
+      // Hard block: start date more than 90 days in the past
+      if (diffDays > 90) {
+        this.presentToast(
+          `Start date is ${Math.floor(diffDays)} days ago — that seems too far back. ` +
+          `Please correct it before saving.`
+        );
+        return;
       }
     }
 
@@ -479,14 +493,8 @@ export class AddMedicationModal implements OnInit {
       this.med.isActive = true; // Reactive if dates/stock are corrected
     }
 
-    if (
-      !this.med.frequency?.trim() &&
-      this.med.startDate &&
-      this.med.expiryDate &&
-      this.med.intervalHours !== undefined &&
-      this.med.intervalHours !== null
-    ) {
-      this.calculateDuration();
+    if (!this.med.frequency?.trim()) {
+      this.calculateExpiryFromPills();
     }
 
     try {

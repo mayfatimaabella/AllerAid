@@ -88,30 +88,16 @@ export class HealthSectionComponent {
 
   /* Logic for calculating pills */
   calculateRemainingPills(medication: any): number {
-    if (!medication?.startDate || medication?.quantity === undefined) {
-      return medication?.quantity ?? 0;
+    if (medication?.quantity === undefined || medication?.quantity === null) {
+      return 0;
     }
 
-    const start = new Date(medication.startDate);
-    const today = new Date();
-    if (today < start) return medication.quantity; 
-
-    const daysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 3600 * 24));
-
-    let dosesPerDay = 1;
-    if (typeof medication.frequency === 'string') {
-      const match = medication.frequency.match(/(\d+)/);
-      if (match) {
-        dosesPerDay = parseInt(match[1], 10);
-      } else if (medication.frequency.toLowerCase().includes('twice')) {
-        dosesPerDay = 2;
-      } else if (medication.frequency.toLowerCase().includes('thrice')) {
-        dosesPerDay = 3;
-      }
+    const quantity = Number(medication.quantity);
+    if (isNaN(quantity)) {
+      return 0;
     }
 
-    const deducted = daysElapsed * dosesPerDay;
-    return Math.max(medication.quantity - deducted, 0);
+    return Math.max(Math.floor(quantity), 0);
   }
 
   onFilterChange(ev: CustomEvent) {

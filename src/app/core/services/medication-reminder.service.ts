@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { LocalNotifications, ScheduleOptions, LocalNotification } from '@capacitor/local-notifications';
 import { App } from '@capacitor/app';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { MedicationService } from './medication.service';
 
 export interface MedicationNotification {
   id: number;
@@ -25,8 +26,28 @@ export class MedicationReminderService {
   private backgroundEvents$ = new BehaviorSubject<BackgroundMedicationEvent[]>([]);
   private isListeningToNotifications = false;
 
-  constructor() {
+  constructor(private medicationService: MedicationService) {
     this.setupAppStateListeners();
+    this.registerNotificationActions();
+  }
+
+  private async registerNotificationActions(): Promise<void> {
+    try {
+      await LocalNotifications.registerActionTypes({
+        types: [
+          {
+            id: 'MED_TAKE_OR_SKIP',
+            actions: [
+              { id: 'TAKEN', title: 'Taken' },
+              { id: 'SKIP', title: 'Skip' }
+            ]
+          }
+        ]
+      });
+      console.log('Medication notification actions registered');
+    } catch (error) {
+      console.error('Error registering medication notification actions:', error);
+    }
   }
 
   async ensurePermissions() {
@@ -50,7 +71,8 @@ export class MedicationReminderService {
 
     //get unsay date karun 
     const now = new Date();
-    const stepMs = intervalHours * 60 * 60 * 1000;  //convert hours to milliseconds ang interval 
+    // TESTING: treat interval value as MINUTES instead of hours
+    const stepMs = intervalHours * 60 * 1000;  // convert minutes to milliseconds
 
     const endBoundary = end ? new Date(new Date(end).setHours(23, 59, 59, 999)) : undefined; //gi set ug end of the day ang provided date
 
@@ -127,6 +149,7 @@ export class MedicationReminderService {
       title: `${med.name}: time to take`,
       body: `Dose due at ${at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
       schedule: { at },
+      actionTypeId: 'MED_TAKE_OR_SKIP',
       extra: { medId: med.id, occurrence: i }
     }));
 
@@ -177,6 +200,7 @@ export class MedicationReminderService {
     // Listen for when user interacts with the notification
     LocalNotifications.addListener('localNotificationActionPerformed', (event: any) => {
       const notification: LocalNotification = event.notification;
+      const actionId: string | undefined = (event as any)?.actionId;
       const medNotif: MedicationNotification = {
         id: notification.id || 0,
         title: notification.title || '',
@@ -184,9 +208,9 @@ export class MedicationReminderService {
         medId: (notification.extra as any)?.medId || '',
         occurrence: (notification.extra as any)?.occurrence || 0
       };
-      console.log('Medication notification action performed:', medNotif);
+      console.log('Medication notification action performed:', medNotif, 'actionId:', actionId);
       this.medicationNotification$.next(medNotif);
-      this.handleMedicationNotificationAction(medNotif);
+      this.handleMedicationNotificationAction(medNotif, actionId);
     });
   }
 
@@ -232,13 +256,23 @@ export class MedicationReminderService {
   /**
    * Handle medication notification when user interacts with it
    */
-  private async handleMedicationNotificationAction(notification: MedicationNotification): Promise<void> {
+  private async handleMedicationNotificationAction(notification: MedicationNotification, actionId?: string): Promise<void> {
     try {
-      console.log(`User interacted with medication notification: ${notification.title}`);
-      // You can add logic here such as:
-      // - Mark medication as taken
-      // - Record timestamp when user acknowledged
-      // - Navigate to medication details page
+      if (!notification.medId) {
+        console.log('Medication notification action with no medId; ignoring');
+        return;
+      }
+
+      if (actionId === 'TAKEN') {
+        console.log(`Medication taken confirmed for medId=${notification.medId}`);
+        await this.medicationService.recordReminderAction(notification.medId, 'taken');
+      } else if (actionId === 'SKIP') {
+        console.log(`Medication skipped for medId=${notification.medId}`);
+        await this.medicationService.recordReminderAction(notification.medId, 'skipped');
+      } else {
+        console.log(`User opened medication notification: ${notification.title}`);
+        await this.medicationService.recordReminderAction(notification.medId, 'opened');
+      }
     } catch (error) {
       console.error('Error handling medication notification action:', error);
     }

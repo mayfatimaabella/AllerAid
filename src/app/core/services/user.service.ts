@@ -76,7 +76,7 @@ export class UserService {
     }
   ): Promise<void> {
     try {
-      // Build userProfile and only include optional fields when defined to avoid Firestore errors
+      // Build base userProfile without optional fields to avoid undefined values
       const userProfile: any = {
         uid,
         email: userData.email,
@@ -84,35 +84,38 @@ export class UserService {
         lastName: userData.lastName,
         fullName: `${userData.firstName} ${userData.lastName}`.trim(),
         role: userData.role,
-        licenseURL: userData.licenseURL,
-        license: userData.license,
-        specialty: userData.specialty,
-        hospital: userData.hospital,
-        phone: userData.phone,
         dateCreated: serverTimestamp(),
         lastLogin: serverTimestamp(),
         isActive: true
       };
 
-      if (typeof userData.licenseURL !== 'undefined' && userData.licenseURL !== null) {
+      // Conditionally add optional fields only when they have a value
+      if (userData.licenseURL) {
         userProfile.licenseURL = userData.licenseURL;
       }
 
-      if (typeof userData.license !== 'undefined' && userData.license !== null) {
+      if (userData.license) {
         userProfile.license = userData.license;
       }
 
-      if (typeof userData.specialty !== 'undefined' && userData.specialty !== null) {
+      if (userData.specialty) {
         userProfile.specialty = userData.specialty;
       }
 
-      if (typeof userData.hospital !== 'undefined' && userData.hospital !== null) {
+      if (userData.hospital) {
         userProfile.hospital = userData.hospital;
       }
 
-      if (typeof userData.phone !== 'undefined' && userData.phone !== null) {
+      if (userData.phone) {
         userProfile.phone = userData.phone;
       }
+
+      // Final safety: strip any undefined values before sending to Firestore
+      Object.keys(userProfile).forEach(key => {
+        if (userProfile[key] === undefined) {
+          delete userProfile[key];
+        }
+      });
       await setDoc(doc(this.db, 'users', uid), userProfile);
       console.log('User profile created successfully');
     } catch (error) {

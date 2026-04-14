@@ -72,8 +72,7 @@ export class EmergencyAlertService {
       ));
 
       if (buddyIds.length === 0) {
-        console.warn('No emergency buddies configured. Emergency alert will not be sent.');
-        return;
+        console.warn('No emergency buddies configured. Creating emergency without buddy recipients (hotline-only fallback).');
       }
 
       console.log('Sending full emergency via EmergencyService from', alertType, 'trigger');

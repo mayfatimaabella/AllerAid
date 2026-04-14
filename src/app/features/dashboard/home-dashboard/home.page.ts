@@ -518,16 +518,46 @@ export class HomePage implements OnInit, OnDestroy {
     // Hide notification badge when buddy has marked cannot_respond
     return response.status !== 'cannot_respond';
   }
+
+  /**
+   * Determine when to show hotline fallback actions on the emergency card.
+   * - No buddies at all → show
+   * - All buddies that have responded are in cannot_respond status → show
+   */
+  shouldShowHotlineFallback(): boolean {
+    if (!this.isEmergencyActive) {
+      return false;
+    }
+
+    // No buddies configured
+    if (this.userBuddies.length === 0) {
+      return true;
+    }
+
+    const ids = Object.keys(this.buddyResponses);
+    if (ids.length === 0) {
+      return false;
+    }
+
+    // Show fallback when every tracked buddy response is cannot_respond
+    return ids.every(id => this.buddyResponses[id] && this.buddyResponses[id].status === 'cannot_respond');
+  }
+
+  /**
+   * Simple helper to trigger a phone call to a given number.
+   */
+  callNumber(number: string) {
+    try {
+      window.open(`tel:${number}`, '_system');
+    } catch {
+      window.open(`tel:${number}`);
+    }
+  }
   
   /**
    * Enhanced emergency alert with auto notifications
    */
   async sendEmergencyAlert() {
-    if (this.userBuddies.length === 0) {
-      await this.presentToast('No emergency buddies added. Please add buddies first.');
-      return;
-    }
-
     const loading = await this.loadingController.create({
       message: 'Sending emergency alert...',
       duration: 15000 // 15 seconds max
@@ -557,6 +587,7 @@ export class HomePage implements OnInit, OnDestroy {
           .map(buddy => buddy.connectedUserId)
           .filter(id => !!id && id !== currentUser.uid)
       ));
+      const hasBuddies = buddyIds.length > 0;
       
       // Get allergy strings
       const allergyStrings = this.userAllergies.map((allergy: any) => 
@@ -580,15 +611,17 @@ export class HomePage implements OnInit, OnDestroy {
       this.buddyResponses = {};
       
       // Initialize buddy response tracking with notification status keyed by connected user id
-      this.userBuddies.forEach(buddy => {
-        const key = buddy.connectedUserId || buddy.id;
-        if (!key || key === currentUser.uid) { return; }
-        this.buddyResponses[key] = {
-          status: 'sent',
-          timestamp: new Date(),
-          name: buddy.firstName + ' ' + buddy.lastName
-        };
-      });
+      if (hasBuddies) {
+        this.userBuddies.forEach(buddy => {
+          const key = buddy.connectedUserId || buddy.id;
+          if (!key || key === currentUser.uid) { return; }
+          this.buddyResponses[key] = {
+            status: 'sent',
+            timestamp: new Date(),
+            name: buddy.firstName + ' ' + buddy.lastName
+          };
+        });
+      }
       
       // Get current location for display (graceful fallback)
       try {
@@ -603,10 +636,15 @@ export class HomePage implements OnInit, OnDestroy {
       
       await loading.dismiss();
       
-      // Show success message with notification info
-      await this.presentToast(
-        `Emergency alert sent to ${this.userBuddies.length} connections. Notifications are being delivered.`
-      );
+      // Show success message and, when no buddies, recommend hotlines
+      if (hasBuddies) {
+        await this.presentToast(
+          `Emergency alert sent to ${buddyIds.length} connections. Notifications are being delivered.`
+        );
+      } else {
+        await this.presentToast('No emergency contacts available. Please contact emergency services.');
+        await this.callEmergencyHotlines();
+      }
       
       console.log('Emergency alert process completed successfully');
       
@@ -616,30 +654,66 @@ export class HomePage implements OnInit, OnDestroy {
       await this.presentToast('Failed to send emergency alert. Please try again.');
     }
   }
+
+  /**
+   * Fallback when no buddies are available: suggest emergency hotlines.
+   */
+  async callEmergencyHotlines() {
+    const alert = await this.alertController.create({
+      header: 'No Emergency Contacts',
+      message: 'No buddies are available. You can contact emergency services directly instead.',
+      buttons: [
+        {
+          text: 'Call 911',
+          handler: () => {
+            window.open('tel:911');
+          }
+        },
+        {
+          text: 'Call 117',
+          handler: () => {
+            window.open('tel:117');
+          }
+        },
+        {
+          text: 'Call Red Cross 143',
+          handler: () => {
+            window.open('tel:143');
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await alert.present();
+  }
   
   /**
    * Test emergency notification system
    */
-  async testEmergencyNotifications() {
-    try {
-      const currentUser = await this.authService.waitForAuthInit();
-      if (!currentUser) {
-        throw new Error('User not authenticated');
-      }
+  // async testEmergencyNotifications() {
+  //   try {
+  //     const currentUser = await this.authService.waitForAuthInit();
+  //     if (!currentUser) {
+  //       throw new Error('User not authenticated');
+  //     }
 
-      const userProfile = await this.userService.getUserProfile(currentUser.uid);
-      if (!userProfile) {
-        throw new Error('User profile not found');
-      }
+  //     const userProfile = await this.userService.getUserProfile(currentUser.uid);
+  //     if (!userProfile) {
+  //       throw new Error('User profile not found');
+  //     }
 
-      await this.emergencyNotificationService.testNotificationSystem(userProfile);
-      await this.presentToast('Test notification sent! Check console for details.');
+  //     await this.emergencyNotificationService.testNotificationSystem(userProfile);
+  //     await this.presentToast('Test notification sent! Check console for details.');
       
-    } catch (error) {
-      console.error('Test notification failed:', error);
-      await this.presentToast('Test notification failed. Check console for details.');
-    }
-  }
+  //   } catch (error) {
+  //     console.error('Test notification failed:', error);
+  //     await this.presentToast('Test notification failed. Check console for details.');
+  //   }
+  // }
   
   async presentToast(message: string) {
     const toast = await this.toastController.create({

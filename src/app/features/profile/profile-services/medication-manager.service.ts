@@ -153,6 +153,18 @@ export class MedicationManagerService {
       presentToast('Cannot update medication - missing ID');
       return;
     }
+
+    const med = userMedications.find((m: any) => m.id === medicationId);
+    const quantity = med && med.quantity !== undefined && med.quantity !== null
+      ? Number(med.quantity)
+      : NaN;
+
+    // Prevent activating a medication that has no pills left
+    if (med && med.isActive === false && !isNaN(quantity) && quantity <= 0) {
+      presentToast('Cannot activate medication with no pills remaining. Please update the quantity first.');
+      return;
+    }
+
     try {
       await this.medicationService.toggleMedicationStatus(medicationId);
       await loadUserMedications();
@@ -168,5 +180,4 @@ export class MedicationManagerService {
     }
   }
 
-  // ...other methods (editMedication, deleteMedication, etc.) can be added here as needed
 }

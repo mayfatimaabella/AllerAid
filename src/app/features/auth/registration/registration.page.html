@@ -67,13 +67,33 @@
 
           <ion-item>
             <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
-            <ion-input type="password" placeholder="Password" [(ngModel)]="password"></ion-input>
+
+            <ion-input 
+              [type]="showPassword ? 'text' : 'password'" 
+              placeholder="Password" 
+              [(ngModel)]="password">
+            </ion-input>
+
+            <ion-button fill="clear" slot="end" (click)="showPassword = !showPassword" [ngClass]="{ 'active': showPassword }">
+              <ion-icon [name]="showPassword ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+            </ion-button>
           </ion-item>
 
+          <!-- Confirm Password -->
           <ion-item>
             <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
-            <ion-input type="password" placeholder="Confirm Password" [(ngModel)]="confirmPassword"></ion-input>
+
+            <ion-input 
+              [type]="showConfirmPassword ? 'text' : 'password'" 
+              placeholder="Confirm Password" 
+              [(ngModel)]="confirmPassword">
+            </ion-input>
+
+            <ion-button fill="clear" slot="end" (click)="showConfirmPassword = !showConfirmPassword" [ngClass]="{ 'active': showConfirmPassword }">
+              <ion-icon [name]="showConfirmPassword ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+            </ion-button>
           </ion-item>
+
         </ion-list>
 
         <ion-button expand="block" class="registerBtn" shape="round" (click)="register()">

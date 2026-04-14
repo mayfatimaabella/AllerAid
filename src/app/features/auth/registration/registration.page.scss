@@ -27,6 +27,14 @@ ion-item{
   margin-top: 5px;
 }
 
+ion-icon {
+  color: #888;
+}
+
+ion-button.active ion-icon {
+  color: #3880ff; /* Ionic primary */
+}
+
 /* Upload area styles to avoid overlap between label and button */
 .upload-area {
   .upload-item {

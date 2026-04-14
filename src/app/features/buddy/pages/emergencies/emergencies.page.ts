@@ -56,12 +56,40 @@ export class EmergenciesPage implements OnInit, OnDestroy {
         
         // Subscribe to the emergency alerts observable from buddy service
         this.emergencySubscription = this.buddyService.activeEmergencyAlerts$.subscribe(async emergencies => {
-          this.activeEmergencies = emergencies
+          // Load resolved emergencies (where this user is a buddy)
+          this.resolvedEmergencies = await this.emergencyService.getBuddyEmergenciesByStatus(user.uid, ['resolved']);
+
+          // Also load emergencies this user initiated (patient view of their own alerts)
+          const userInitiated = await this.emergencyService.getUserEmergenciesByStatus(
+            user.uid,
+            ['active', 'responding', 'resolved']
+          );
+
+          // Compute active emergencies as union of buddy alerts and user-initiated active/responding
+          const buddyActive = emergencies
             .filter(e => (e.status === 'active' || e.status === 'responding'))
             .filter(e => !this.dismissedEmergencyIds.has(e.id!));
-          // Load resolved emergencies for history segmentation
-          this.resolvedEmergencies = await this.emergencyService.getBuddyEmergenciesByStatus(user.uid, ['resolved']);
-          this.allEmergencies = [...emergencies, ...this.resolvedEmergencies];
+
+          const userActive = userInitiated.filter(e => e.status === 'active' || e.status === 'responding');
+
+          const activeMerged = new Map<string, EmergencyAlert>();
+          [...buddyActive, ...userActive].forEach(e => {
+            if (e.id) {
+              activeMerged.set(e.id, e);
+            }
+          });
+
+          this.activeEmergencies = Array.from(activeMerged.values());
+
+          // Merge all emergency sources into a single list, de-duplicated by id
+          const merged = new Map<string, EmergencyAlert>();
+          [...emergencies, ...this.resolvedEmergencies, ...userInitiated].forEach((e) => {
+            if (e.id) {
+              merged.set(e.id, e);
+            }
+          });
+
+          this.allEmergencies = Array.from(merged.values());
 
           // Enrich emergencies with human-readable addresses
           await this.populateAddresses(this.allEmergencies);
