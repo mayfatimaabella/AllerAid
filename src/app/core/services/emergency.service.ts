@@ -240,7 +240,11 @@ export class EmergencyService {
                 altitude: position.coords.altitude,
                 altitudeAccuracy: position.coords.altitudeAccuracy,
                 heading: position.coords.heading,
-                speed: position.coords.speed
+                speed: position.coords.speed,
+                magneticHeading: undefined,
+                trueHeading: undefined,
+                headingAccuracy: undefined,
+                course: undefined
               },
               timestamp: position.timestamp
             };
@@ -261,7 +265,11 @@ export class EmergencyService {
                     altitude: position.coords.altitude,
                     altitudeAccuracy: position.coords.altitudeAccuracy,
                     heading: position.coords.heading,
-                    speed: position.coords.speed
+                    speed: position.coords.speed,
+                    magneticHeading: undefined,
+                    trueHeading: undefined,
+                    headingAccuracy: undefined,
+                    course: undefined
                   },
                   timestamp: position.timestamp
                 };

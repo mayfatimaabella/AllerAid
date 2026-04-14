@@ -352,6 +352,39 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
     window.speechSynthesis.speak(message);
   }
 
+  async acceptEmergency() {
+    try {
+      if (this.currentEmergency?.id) {
+        const user = await this.authService.waitForAuthInit();
+        if (user) {
+          // Get responder profile for their name
+          const userProfile = await this.userService.getUserProfile(user.uid);
+          const responderName = userProfile
+            ? `${(userProfile as any).firstName || ''} ${(userProfile as any).lastName || ''}`.trim() || 'Responder'
+            : 'Responder';
+
+          // Respond to the emergency - this will notify the patient automatically
+          await this.emergencyService.respondToEmergency(
+            this.currentEmergency.id,
+            user.uid,
+            responderName
+          );
+
+          // Update UI state
+          this.hasResponded = true;
+        }
+      }
+    } catch (error) {
+      console.error('Error accepting emergency:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to accept emergency. Please try again.',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
+  }
+
   async cannotRespond() {
     const alert = await this.alertController.create({
       header: 'Decline Emergency',
@@ -381,6 +414,9 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
                   // save a snapshot so it appears in the Emergencies history.
                   this.buddyService.dismissEmergencyForUser(user.uid, this.currentEmergency.id);
                   this.buddyService.saveDismissedAlertData(user.uid, this.currentEmergency as any);
+
+                  // Update UI state to hide buttons
+                  this.hasResponded = true;
                 }
               }
             } catch (error) {
