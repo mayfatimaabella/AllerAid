@@ -361,7 +361,6 @@ export class ResponderDashboardPage implements OnInit, AfterViewInit, OnDestroy 
 
     if (!hasSpeechSynthesis || !hasUtteranceConstructor) {
       console.warn('Text-to-speech not supported on this device');
-      this.showToast('Text-to-speech not supported on this device', 'warning');
       return;
     }
 
