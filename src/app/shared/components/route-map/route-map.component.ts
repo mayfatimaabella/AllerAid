@@ -48,18 +48,18 @@ export class RouteMapComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('🗺️ RouteMapComponent: Initializing with route data:', this.routeData);
+    console.log('RouteMapComponent: Initializing with route data:', this.routeData);
     
     // Validate route data
     if (!this.routeData) {
-      console.error('❌ No route data provided');
+      console.error('No route data provided');
       this.mapAvailable = false;
       this.showFallbackMap();
       return;
     }
     
     if (!this.isValidCoordinate(this.routeData.origin) || !this.isValidCoordinate(this.routeData.destination)) {
-      console.warn('⚠️ Invalid coordinates detected, using fallback');
+      console.warn('Invalid coordinates detected, using fallback');
       this.mapAvailable = false;
       this.showFallbackMap();
       return;
@@ -82,7 +82,7 @@ export class RouteMapComponent implements OnInit, OnDestroy {
     }
 
     try {
-      console.log('✅ Initializing Leaflet map...');
+      console.log('Initializing Leaflet map...');
 
       // Initialize map centered between origin and destination
       const center: [number, number] = [
@@ -129,10 +129,10 @@ export class RouteMapComponent implements OnInit, OnDestroy {
       // Calculate basic distance and time
       this.calculateRouteInfo();
 
-      console.log('✅ Leaflet map initialized successfully');
+      console.log('Leaflet map initialized successfully');
       
     } catch (error) {
-      console.error('❌ Error initializing Leaflet map:', error);
+      console.error('Error initializing Leaflet map:', error);
       this.mapAvailable = false;
       this.showFallbackMap();
     }
@@ -149,7 +149,7 @@ export class RouteMapComponent implements OnInit, OnDestroy {
     this.distance = `${distance.toFixed(1)} km`;
     this.estimatedTime = `${Math.ceil(distance * 2)} min`; // Rough estimate: 2 min per km
     
-    console.log('📍 Route calculated - Distance:', this.distance, 'Time:', this.estimatedTime);
+    console.log('Route calculated - Distance:', this.distance, 'Time:', this.estimatedTime);
   }
 
   private isValidCoordinate(coord: { lat: number; lng: number }): boolean {
@@ -194,7 +194,7 @@ export class RouteMapComponent implements OnInit, OnDestroy {
           const newLocation = data['responderLocation'];
           
           if (this.isValidCoordinate({ lat: newLocation.latitude, lng: newLocation.longitude })) {
-            console.log('🗺️ Live location update received:', newLocation);
+            console.log('Live location update received:', newLocation);
             this.updateBuddyMarker(newLocation.latitude, newLocation.longitude);
             this.updateRouteInfo(newLocation);
           }
@@ -204,7 +204,7 @@ export class RouteMapComponent implements OnInit, OnDestroy {
       console.error('Live tracking error:', error);
     });
 
-    console.log('🚀 Live tracking started for emergency:', this.emergencyId);
+    console.log('Live tracking started for emergency:', this.emergencyId);
   }
 
   /**
@@ -242,7 +242,7 @@ export class RouteMapComponent implements OnInit, OnDestroy {
   }
 
   private showFallbackMap() {
-    console.log('🗺️ Showing fallback map');
+    console.log('Showing fallback map');
     
     // Check if we have valid coordinates for calculation
     if (this.isValidCoordinate(this.routeData?.origin) && this.isValidCoordinate(this.routeData?.destination)) {
@@ -260,10 +260,10 @@ export class RouteMapComponent implements OnInit, OnDestroy {
       // No valid coordinates available
       this.distance = 'Unable to calculate';
       this.estimatedTime = 'Unable to calculate';
-      console.warn('⚠️ Invalid coordinates - cannot calculate distance');
+      console.warn('[WARNING] Invalid coordinates - cannot calculate distance');
     }
     
-    console.log('📍 Fallback map with distance:', this.distance, 'time:', this.estimatedTime);
+    console.log('Fallback map with distance:', this.distance, 'time:', this.estimatedTime);
   }
 
   private showFallbackInfo() {

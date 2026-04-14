@@ -22,7 +22,7 @@ async function showTestRouteMap() {
       return;
     }
 
-    console.log('🗺️ Creating test route map...');
+    console.log('Creating test route map...');
     console.log('Route data:', testRouteData);
     console.log('Emergency ID:', testEmergencyId);
     console.log('Buddy ID:', testBuddyId);
